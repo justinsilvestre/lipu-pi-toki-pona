@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
 import { head } from 'ramda'
 import cn from 'classnames'
-import { getKey } from '../grammar'
-import dic from '../dictionary'
-import maybe, { nothing } from '../maybe'
-import { setHighlightIndexes } from '../reducers'
+import { getKey } from '../utils/grammar'
+import dic from '../utils/dictionary'
+import maybe, { nothing } from '../utils/maybe'
+import { setHighlightIndexes, wordMouseDown, wordMouseUp } from '../redux'
 import { connect } from 'react-redux'
 import SentenceOriginal from './SentenceOriginal'
 
@@ -48,6 +48,8 @@ class Sentence extends Component {
       highlightedWordIndex,
       highlightedSentenceIndex,
       setHighlightIndexes,
+      wordMouseDown,
+      wordMouseUp,
       index: sentenceIndex,
     } = this.props
 
@@ -55,6 +57,8 @@ class Sentence extends Component {
     const commonWordProps = (i) => ({
       onMouseEnter: () => setHighlightIndexes(sentenceIndex, i),
       onMouseLeave: () => setHighlightIndexes(null, null),
+      onMouseDown: () => wordMouseDown(),
+      onMouseUp: () => wordMouseUp(),
       highlighted:  highlightedSentenceIndex === sentenceIndex
         && highlightedWordIndex === i,
     })
@@ -72,6 +76,8 @@ class Sentence extends Component {
 const mapStateToProps = ({ highlightedSentenceIndex, highlightedWordIndex }) => ({ highlightedSentenceIndex, highlightedWordIndex })
 const mapDispatchToProps = {
   setHighlightIndexes,
+  wordMouseDown,
+  wordMouseUp,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Sentence)

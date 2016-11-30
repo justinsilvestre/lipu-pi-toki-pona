@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import logo from '../logo.svg';
 import './App.css';
 import { parse } from 'parse-toki-pona'
-import Sentence from './components/Sentence'
+import Sentence from './Sentence'
 import { intersperse } from 'ramda'
 
 const lipu_ni = `toki pona li toki lili.

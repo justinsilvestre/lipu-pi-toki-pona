@@ -1,6 +1,6 @@
 import React from 'react'
 import cn from 'classnames'
-import { getText } from '../grammar'
+import { getText } from '../utils/grammar'
 import './SentenceOriginal.css'
 
 const oneSpace = <div style={{ whiteSpace: 'pre' }}>{' '}</div>
