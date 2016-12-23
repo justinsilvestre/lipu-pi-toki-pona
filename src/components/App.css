@@ -24,8 +24,22 @@ body {
   font-size: large;
 }
 
+.selected {
+  color: lightblue;
+  text-shadow: 1px 1px rgba(0, 0, 0, .3);
+}
+
 .highlighted {
   color: yellow;
+}
+
+.selecting {
+  color: azure;
+}
+
+.word {
+  cursor: default;
+  padding-right: .2em;
 }
 
 @keyframes App-logo-spin {

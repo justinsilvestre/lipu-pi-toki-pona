@@ -1,19 +1,26 @@
-const isMaybe = Symbol('isMaybe')
+// @flow
 
-export const nothing = {
-  [isMaybe]: true,
+type MapFn<X> = (arg: X) => *
+type ThenFn<X> = (arg: X) => Maybe<*>
+
+type Maybe<X> = {
+  val: (defaultValue: *) => X | *,
+  map: (...fns: Array<(string | MapFn<X>)>) => Maybe<*>,
+  then: (...fns: Array<(string | ThenFn<X>)>) => Maybe<*>,
+}
+
+export const nothing : Maybe<*> = {
   val: (defaultValue) => defaultValue,
   map: () => nothing,
   then: () => nothing,
 }
 
-const maybe = (val) => {
+const maybe = (val: *) : Maybe<*> => {
   const value = val
 
   if (value === null || value === undefined) return nothing
 
   return {
-    [isMaybe]: true,
     val: () => value,
     map: (fn, ...fns) => {
       const result = maybe(typeof fn === 'function'
@@ -26,12 +33,10 @@ const maybe = (val) => {
         : result
     },
     then: (fn, ...fns) => {
-      const functionArg = typeof fn === 'function'
-      const result = functionArg
+      const result = typeof fn === 'function'
       ? fn(value)
       : maybe(value[fn])
-      if (functionArg && !result) console.log(result, fn, value)
-      if (functionArg && !result.hasOwnProperty(isMaybe)) throw new Error('A function passed to then must return a maybe-value.')
+      if (typeof fn === 'function' && !result) console.log(result, fn, value)
 
       return fns.length
       ? result.then(...fns)
@@ -41,7 +46,7 @@ const maybe = (val) => {
 }
 export default maybe
 
-export const filterMap = (callback, array) => {
+export const filterMap = (callback: Function, array: Array<*>) : Array<*> => {
   const result = []
   for (let i = 0; i < array.length; i += 1) {
     const maybeElement = callback(array[i], i)
