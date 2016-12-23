@@ -4,7 +4,7 @@ import { pipe, head } from 'ramda'
 import { children, isComplementOf, isDescendantOf, parseAndAddIndexes } from './grammar'
 import type { Sentence } from './grammar'
 
-const parseSentence : (text: string) => Sentence = pipe(parseAndAddIndexes, head)[0]
+const parseSentence : (text: string) => Sentence = pipe(parseAndAddIndexes, head)
 
 describe('children()', () => {
   it('retrieves complements', () => {
