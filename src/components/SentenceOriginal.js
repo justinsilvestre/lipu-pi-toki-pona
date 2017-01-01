@@ -13,14 +13,6 @@ import {
 import type { AppState } from '../redux'
 import './SentenceOriginal.css'
 import WordOriginal from './WordOriginal'
-//
-// const space = (elements: Array<React$Element<any>>) : Array<React$Element<any>> => elements.reduce((spaced, wordEl, i) => [
-//   ...spaced,
-// <span key={i + 'space'}>{i === 0 ? '' : ' '}</span>,
-//   wordEl,
-// ], [])
-
-
 
 type SentenceOriginalOwnProps = {
   sentenceData: Sentence,

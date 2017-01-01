@@ -1,11 +1,43 @@
 // @flow
 import { parse } from 'parse-toki-pona'
 
+type RawParticleRole =
+| 'compound_complement_particle'
+  | 'indicative_particle'
+  | 'optative_particle'
+  | 'context_particle'
+  // | 'direct_object_particle'
+  // | 'and'
+  // | 'or'
+
+const RawParticleRoles = {
+  li: 'indicative_particle',
+  o: 'optative_particle',
+  // e: 'direct_object_particle',
+  pi: 'compound_complement_particle',
+  // en: 'and',
+  // anu: 'or',
+  la: 'context_particle'
+}
+
+export type Role = 'subject'
+  | 'predicate'
+  | 'context_subject'
+  | 'context_predicate'
+  | 'complement'
+  | 'direct_object'
+  | 'vocative'
+  | 'particle'
+  | 'vocative_particle'
+  | 'infinitive'
+  | 'prepositional_object'
+  | RawParticleRole
+
 export type Word = {
   text: string,
   id?: string,
   index: number,
-  role: string,
+  role: Role,
   sentence: number,
   before?: string,
   after?: string,
@@ -19,7 +51,7 @@ export type Sentence = {
 }
 
 
-const id = (v: any) => v
+const id = (v: *) : * => v
 
 export const getText = (word: Word) : string => {
   const { text } = word
@@ -28,14 +60,13 @@ export const getText = (word: Word) : string => {
   return [before, text, after].filter(id).join('')
 }
 
-// const partsOfSpeech = {
-//
-// }
-
 export const getIndex = (word: ?Word) : number => word ? word.index : -1
 
+const getParticleType = (text: string) : RawParticleRole => RawParticleRoles[text]
+
 const processWord = (val: (string | Object), index: number, sentence: number) => ({
-  ...(typeof val === 'string' ? { text: val, role: 'particle' } : val),
+  ...(typeof val === 'string' ? { text: val, role: getParticleType(val) || 'particle' } : val),
+  // ...(typeof val === 'string' ? { text: val, role: 'particle' } : val),
   index,
   sentence,
 })

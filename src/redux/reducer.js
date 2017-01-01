@@ -1,9 +1,12 @@
 // @flow
 import type { Sentence, Word } from '../utils/grammar'
+import getHighlighting from '../utils/getHighlighting'
+import type { Color } from '../utils/getHighlighting'
 import type { Action } from './actions'
 
 export type AppState = {
   tpSentences: Array<Sentence>,
+  colors: Array<Color>,
 
   highlightedWord: ?Word,
   pendingSelectionStart: ?Word,
@@ -14,6 +17,7 @@ export type AppState = {
 }
 const initialState : AppState = {
   tpSentences: [],
+  colors: [],
 
   highlightedWord: null,
   pendingSelectionStart: null,
@@ -25,12 +29,12 @@ const initialState : AppState = {
 export default function app(state: AppState = initialState, action: Action) : AppState {
   switch(action.type) {
     case 'WORD_MOUSE_DOWN':
-    console.log(action)
       return state
     case 'PARSE_SENTENCES':
       return {
         ...state,
         tpSentences: action.tpSentences,
+        colors: getHighlighting(action.tpSentences),
       }
     case 'WORD_MOUSE_ENTER':
       return {
