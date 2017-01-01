@@ -1,46 +1,24 @@
 // @flow
 import React from 'react'
-import cn from 'classnames'
-import { head } from 'ramda'
-import maybe, { nothing } from '../utils/maybe'
-import type { Sentence, Word } from '../utils/grammar'
-import dic from '../utils/dictionary'
+import { connect } from 'react-redux'
+import type { AppState } from '../redux'
+import type { Sentence } from '../utils/grammar'
 
-const space = (elements: Array<React$Element<any>>) : Array<React$Element<any>> => elements.reduce((spaced, word, i) => [
-  ...spaced,
-  i === 0 ? <span key={'space' + i}/> : <span key={'space' + i}> </span>,
-  word,
-], [])
-
-const getEnglish = (word: Word) : { text: string } => {
-  const englishData = maybe(dic[word.text])
-  const partOfSpeech = englishData.map(Object.keys, head)
-  const getTranslationUnlessParticle = (pos) => pos !== 'p' ? englishData.map(pos) : nothing
-  return partOfSpeech
-    .then(getTranslationUnlessParticle)
-    .map(head)
-    .val('')
+type SentenceTranslationOwnProps = {
+  sentenceData: Sentence
 }
-
-type WordTranslationProps = {
-  translation: string,
+type SentenceTranslationStateProps = {
+  enSentences: Array<Array<{ text: string, pos: string }>>
 }
-const WordTranslation = ({ translation }: WordTranslationProps) =>
-  <span className={cn()}>
-    {translation}
-  </span>
+type SentenceTranslationProps = SentenceTranslationOwnProps & SentenceTranslationStateProps
 
-type SentenceTranslationProps = {
-  sentenceData: Sentence,
-}
-const SentenceTranslation = ({ sentenceData } : SentenceTranslationProps) =>
+const SentenceTranslation = ({ sentenceData, enSentences } : SentenceTranslationProps) =>
   <div>
-    {space(sentenceData.words.map((original, i) =>
-      <WordTranslation
-        key={i}
-        translation={getEnglish(original).text}
-      />
-    ))}
+    {enSentences[sentenceData.index].map(({ text }) => text).join(' ')}
   </div>
 
-export default SentenceTranslation
+const mapStateToProps = ({ enSentences }: AppState) : SentenceTranslationStateProps => ({
+  enSentences,
+})
+
+export default connect(mapStateToProps)(SentenceTranslation)

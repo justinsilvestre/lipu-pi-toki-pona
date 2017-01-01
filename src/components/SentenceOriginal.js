@@ -34,7 +34,6 @@ const SentenceOriginal = ({ sentenceData, index: sentenceIndex, highlightedWord,
       <WordOriginal
         original={original}
         key={i}
-        boop={'scoop'}
       />
     )}
   </div>

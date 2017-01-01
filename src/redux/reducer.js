@@ -24,6 +24,8 @@ const initialState : AppState = {
   pendingSelectionEnd: null,
   selectionStart: null,
   selectionEnd: null,
+
+  enSentences: [],
 }
 
 export default function app(state: AppState = initialState, action: Action) : AppState {
@@ -59,6 +61,11 @@ export default function app(state: AppState = initialState, action: Action) : Ap
         pendingSelectionEnd: null,
         selectionStart: state.pendingSelectionStart,
         selectionEnd: state.pendingSelectionEnd,
+      }
+    case 'TRANSLATE_SENTENCES':
+      return {
+        ...state,
+        enSentences: action.enSentences,
       }
     default:
       return state

@@ -11,6 +11,7 @@ export type Action =
   | { type: 'WORD_CLICK', word: Word }
   | { type: 'SELECT_WORDS' }
   | { type: 'DELIMIT_PENDING_SELECTION', start: Word, end: Word }
+  | { type: 'TRANSLATE_SENTENCES', enSentences: Array<Array<string>> }
 
 export const parseSentences = (text: string) : Action => ({
   type: 'PARSE_SENTENCES',
@@ -51,4 +52,9 @@ export const delimitPendingSelection = (down: Word, up: Word) : Action  => {
 }
 export const selectWords = () : Action => ({
   type: 'SELECT_WORDS',
+})
+
+export const translateSentences = (enSentences: Array<Array<{ text: string, pos: string }>>) : Action => ({
+  type: 'TRANSLATE_SENTENCES',
+  enSentences,
 })

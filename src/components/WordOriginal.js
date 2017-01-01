@@ -58,12 +58,11 @@ const WordOriginal = ({
   }
 
   const [h, s, l] = adjustColor(selecting, selected, color)
-  const style = { color: `hsl(${h}, ${s}%, ${l}%)`, fontWeight: original.role.endsWith('particle') ? 300 : 'normal' } 
+  const style = { color: `hsl(${h}, ${s}%, ${l}%)`, fontWeight: original.role.endsWith('particle') ? 300 : 'normal' }
 
   return (
     <div className={cn('word', { selecting, selected })}  style={style} {...events}>
       <div>{getText(original)}</div>
-      <div className={'annotation'}>{original.role}</div>
     </div>
   )
 }

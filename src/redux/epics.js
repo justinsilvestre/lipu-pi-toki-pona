@@ -3,8 +3,9 @@ import { combineEpics } from 'redux-observable'
 import type { Store } from 'redux'
 import { Observable } from 'rxjs'
 import type { AppState } from './index'
-import { selectWords, delimitPendingSelection } from './actions'
+import { selectWords, delimitPendingSelection, translateSentences } from './actions'
 import type { Action } from './actions'
+import translate from '../utils/translate'
 
 type getStateFn = () => AppState
 const multipleWordSelectionEpic = (action$: any, { getState }: Store<getStateFn, Action>) => action$
@@ -21,6 +22,14 @@ const singleWordSelectionEpic = (action$: any, { getState }: Store<getStateFn, A
   .map((mouseDown) => delimitPendingSelection(mouseDown.word, mouseDown.word))
   .concat(Observable.of(selectWords()))
 
-const epic = combineEpics(singleWordSelectionEpic, multipleWordSelectionEpic)
+const translationEpic = (action$: any, { getState }: Store<getStateFn, Action>) => action$
+  .ofType('PARSE_SENTENCES')
+  .map(() => translateSentences(translate(getState().tpSentences)))
+
+const epic = combineEpics(
+  singleWordSelectionEpic,
+  multipleWordSelectionEpic,
+  translationEpic,
+)
 
 export default epic
