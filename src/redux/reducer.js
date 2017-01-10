@@ -1,12 +1,14 @@
 // @flow
-import type { Sentence, Word } from '../utils/grammar'
+import type { Sentence, Word, WordId } from '../utils/grammar'
+import type { WordsObject } from '../utils/parseTokiPona'
 import getHighlighting from '../utils/getHighlighting'
 import type { Color } from '../utils/getHighlighting'
 import type { Action } from './actions'
 
 export type AppState = {
   tpSentences: Array<Sentence>,
-  colors: Array<Color>,
+  tpWords: WordsObject,
+  colors: Array<Array<Color>>,
 
   highlightedWord: ?Word,
   pendingSelectionStart: ?Word,
@@ -17,6 +19,7 @@ export type AppState = {
 }
 const initialState : AppState = {
   tpSentences: [],
+  tpWords: {},
   colors: [],
 
   highlightedWord: null,
@@ -32,16 +35,20 @@ export default function app(state: AppState = initialState, action: Action) : Ap
   switch(action.type) {
     case 'WORD_MOUSE_DOWN':
       return state
-    case 'PARSE_SENTENCES':
+    case 'PARSE_SENTENCES': {
+      const { tpWords } = action
       return {
         ...state,
         tpSentences: action.tpSentences,
-        colors: getHighlighting(action.tpSentences),
+        tpWords,
+        // colors: getHighlighting(action.tpSentences),
+        colors: action.tpSentences.map(s => getHighlighting(tpWords, s.words))
       }
+    }
     case 'WORD_MOUSE_ENTER':
       return {
         ...state,
-        highlightedWord: action.word,
+        highlightedWord: state.tpWords[action.word],
       }
     case 'WORD_MOUSE_LEAVE':
       return {
@@ -51,16 +58,16 @@ export default function app(state: AppState = initialState, action: Action) : Ap
     case 'DELIMIT_PENDING_SELECTION':
       return {
         ...state,
-        pendingSelectionStart: action.start,
-        pendingSelectionEnd: action.end,
+        pendingSelectionStart: state.tpWords[action.start],
+        pendingSelectionEnd: state.tpWords[action.end],
       }
     case 'SELECT_WORDS':
       return {
         ...state,
         pendingSelectionStart: null,
         pendingSelectionEnd: null,
-        selectionStart: state.pendingSelectionStart,
-        selectionEnd: state.pendingSelectionEnd,
+        selectionStart: state.pendingSelectionStart ? state.tpWords[state.pendingSelectionStart.id] : null,
+        selectionEnd: state.pendingSelectionEnd ? state.tpWords[state.pendingSelectionEnd.id] : null,
       }
     case 'TRANSLATE_SENTENCES':
       return {
@@ -72,6 +79,32 @@ export default function app(state: AppState = initialState, action: Action) : Ap
   }
 }
 
-export const isSelectionPending = (state : AppState) : bool =>
-  state.pendingSelectionStart !== null
-export const wasSelectionMade = (state : AppState) : bool => state.selectionStart !== null
+export const wasSelectionMade = (state : AppState) : bool => (!state.selectionStart || !state.selectionEnd)
+
+export const isWordSelected = (state : AppState, wordId: WordId) => {
+  if (!state.selectionStart || !state.selectionEnd) return false
+
+  const word = state.tpWords[wordId]
+  const { selectionStart, selectionEnd } = state
+  const startIndex = selectionStart.index
+  const wordIndex = word.index
+  const endIndex = selectionEnd.index
+
+  return startIndex <= wordIndex && wordIndex <= endIndex
+}
+export const isWordInPendingSelection = (state : AppState, wordId: WordId) => {
+  if (!state.pendingSelectionStart || !state.pendingSelectionEnd) return false
+
+  const word = state.tpWords[wordId]
+  const { pendingSelectionStart, pendingSelectionEnd } = state
+  const startIndex = pendingSelectionStart.index
+  const wordIndex = word.index
+  const endIndex = pendingSelectionEnd.index
+
+  return startIndex <= wordIndex && wordIndex <= endIndex
+}
+
+export const getIndex = (words: WordsObject, sentences: Array<Sentence>, word: WordId) : number => {
+  const { sentence } = words[word]
+  return sentences[sentence].words.indexOf(word)
+}

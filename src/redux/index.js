@@ -13,3 +13,5 @@ const store = createStore(
 )
 
 export default store
+
+window.s = store

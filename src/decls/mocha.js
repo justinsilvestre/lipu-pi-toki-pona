@@ -1,3 +1,3 @@
-declare function describe(something: any) : any;
+declare function describe(description: string) : void;
 
-declare function it(something: any) : any;
+declare function it(description: string, fn: ?Function) : void;

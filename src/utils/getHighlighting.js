@@ -1,10 +1,11 @@
 // @flow
-import type { Sentence, Word } from './grammar'
-import { isComplementOf } from './grammar'
+import type { Sentence, Word, WordId } from './grammar'
+import { isComplementOf } from './words'
+import type { WordsObject } from './parseTokiPona'
 
 export type Color = [number, number, number]
 
-const baseColor = (h) => [h, 55, 60]
+const baseColor = (h) => [h, 35, 55]
 
 const BASE_COLORS : Object = {
   subject: baseColor(50),
@@ -24,27 +25,24 @@ const BASE_COLORS : Object = {
 
 const darken = ([h, s, l]: Color, level: number) => [h + level * 4, s - level * 15, l - level * 10]
 
-const findComplementHead = (sentence, complement) : Word => sentence.words.find(w => isComplementOf(w, complement)) || complement // default just for typechecking: if word is complement, guaranteed to find.
-const PREPOSED_PARTICLE_ROLES = ['compound_complement_particle', 'indicative_particle', 'optative_particle']
-const isPreposedParticle = (word: Word) : boolean => PREPOSED_PARTICLE_ROLES.includes(word.role)
-const nextWord = (sentence: Sentence, word: Word) : Word => sentence.words[sentence.words.indexOf(word) + 1]
-const getPhraseHead = (sentence: Sentence, word: Word) : Word => (
-  isPreposedParticle(word)
-    ? nextWord(sentence, word)
-    : findComplementHead(sentence, word)
-)
-const getBaseColor = (sentence: Sentence, word: Word, level: number) : Color =>
-  BASE_COLORS[word.role]
-    ? darken(BASE_COLORS[word.role], level)
-    : getBaseColor(sentence, getPhraseHead(sentence, word), level + 1)
+// const PREPOSED_PARTICLE_ROLES = ['compound_complement_particle', 'indicative_particle', 'optative_particle', 'or_particle', 'and_particle']
+const nextWord = (sentenceWords: Array<WordId>, word: WordId) : WordId => sentenceWords[sentenceWords.indexOf(word) + 1]
+const getPhraseHead = (words: WordsObject, sentenceWords: Array<WordId>, word: WordId) : WordId => {
+  const { head } = words[word]
+  return typeof head  === 'string' ? head : nextWord(sentenceWords, word)
+}
 
-const sentenceColors = (sentence: Sentence) =>
-  sentence.words.reduce((colors, word) => [
-    ...colors,
-    getBaseColor(sentence, word, 0),
-  ], [])
+type GetBaseColor = (words: WordsObject, sentenceWords: Array<WordId>, word: WordId, level?: number) => Color
+const getBaseColor : GetBaseColor = (words, sentenceWords, word, level = 0) => {
+  const { role } = words[word]
+  return BASE_COLORS[role]
+    ? darken(BASE_COLORS[role], level)
+    : getBaseColor(words, sentenceWords, getPhraseHead(words, sentenceWords, word), level + 1)
+}
 
-const getHighlighting = (sentences: Array<Sentence>) : Array<Color> =>
-  sentences.map(sentenceColors).reduce((a, b) => a.concat(b), [])
+
+const getHighlighting = (words: WordsObject, sentenceWords: Array<WordId>) : Array<Color> =>
+  sentenceWords.map(word => getBaseColor(words, sentenceWords, word))
+
 
 export default getHighlighting

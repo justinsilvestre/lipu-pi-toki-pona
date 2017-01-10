@@ -1,7 +1,7 @@
 export default {
     "a": {
         "p": [{
-            "text": "(emphasis, emotion or confirmation)",
+            "text": "(emphasis,emotion or confirmation)",
             "pos": "x"
         }],
         "i": [{
@@ -21,7 +21,9 @@ export default {
             "pos": "adv"
         }]
     },
-    "head": "sin",
+    "kin": {
+        "principle": "a"
+    },
     "akesi": {
         "i": [{
             "text": "creature",
@@ -148,6 +150,9 @@ export default {
             "text": "all",
             "pos": "pn"
         }]
+    },
+    "ali": {
+        "principle": "ale"
     },
     "anpa": {
         "i": [{
@@ -1299,6 +1304,9 @@ export default {
             "text": "try (to)",
             "pos": "vt"
         }]
+    },
+    "oko": {
+        "principle": "lukin"
     },
     "lupa": {
         "i": [{
@@ -2484,6 +2492,9 @@ export default {
             "pos": "vt"
         }]
     },
+    "namako": {
+        "principle": "sin"
+    },
     "sina": {
         "i": [{
             "text": "you",
@@ -3117,7 +3128,7 @@ export default {
             "pos": "vt"
         }],
         "i": [{
-            "text": "will (wish, desire)",
+            "text": "will (wish,desire)",
             "pos": "n"
         }]
     }

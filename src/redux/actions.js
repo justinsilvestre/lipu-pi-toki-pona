@@ -1,49 +1,53 @@
 // @flow
-import { parseAndAddIndexes } from '../utils/grammar'
-import type { Sentence, Word } from '../utils/grammar'
+import parseTokiPona from '../utils/parseTokiPona'
+import type { WordsObject } from '../utils/parseTokiPona'
+import type { Sentence, WordId } from '../utils/grammar'
+import type { SentenceTranslation } from '../utils/translate'
 
 export type Action =
-  { type: 'PARSE_SENTENCES', tpSentences: Array<Sentence> }
-  | { type: 'WORD_MOUSE_ENTER', word: Word }
-  | { type: 'WORD_MOUSE_LEAVE', word: Word }
-  | { type: 'WORD_MOUSE_DOWN', word: Word }
-  | { type: 'WORD_MOUSE_UP', word: Word }
-  | { type: 'WORD_CLICK', word: Word }
+  { type: 'PARSE_SENTENCES', tpSentences: Array<Sentence>, tpWords: WordsObject }
+  | { type: 'WORD_MOUSE_ENTER', word: WordId }
+  | { type: 'WORD_MOUSE_LEAVE', word: WordId }
+  | { type: 'WORD_MOUSE_DOWN', word: WordId }
+  | { type: 'WORD_MOUSE_UP', word: WordId }
+  | { type: 'WORD_CLICK', word: WordId }
   | { type: 'SELECT_WORDS' }
-  | { type: 'DELIMIT_PENDING_SELECTION', start: Word, end: Word }
-  | { type: 'TRANSLATE_SENTENCES', enSentences: Array<Array<string>> }
+  | { type: 'DELIMIT_PENDING_SELECTION', start: WordId, end: WordId }
+  | { type: 'TRANSLATE_SENTENCES', enSentences: Array<SentenceTranslation> }
 
-export const parseSentences = (text: string) : Action => ({
-  type: 'PARSE_SENTENCES',
-  tpSentences: parseAndAddIndexes(text)
-})
+export const parseSentences = (text: string) : Action => {
+  const { sentences, words } = parseTokiPona(text)
+  return ({
+    type: 'PARSE_SENTENCES',
+    tpSentences: sentences,
+    tpWords: words,
+    // tpSentences: parseTokiPona(text),
+  })
+}
 
-const sortByIndex = (word1: Word, word2: Word) : Array<Word> =>
-  [word1, word2].sort(({ index: i1 }, { index: i2 }) => i1 < i2 ? -1 : 1)
-
-export const wordMouseEnter = (word: Word) : Action => ({
+export const wordMouseEnter = (word: WordId) : Action => ({
   type: 'WORD_MOUSE_ENTER',
   word,
 })
-export const wordMouseLeave = (word: Word) : Action => ({
+export const wordMouseLeave = (word: WordId) : Action => ({
   type: 'WORD_MOUSE_LEAVE',
   word,
 })
-export const wordMouseDown = (word: Word) : Action => ({
+export const wordMouseDown = (word: WordId) : Action => ({
   type: 'WORD_MOUSE_DOWN',
   word,
 })
-export const wordMouseUp = (word: Word) : Action => ({
+export const wordMouseUp = (word: WordId) : Action => ({
   type: 'WORD_MOUSE_UP',
   word,
 })
-export const wordClick = (word: Word) : Action => ({
+export const wordClick = (word: WordId) : Action => ({
   type: 'WORD_CLICK',
   word,
 })
 
-export const delimitPendingSelection = (down: Word, up: Word) : Action  => {
-  const [start, end] = sortByIndex(down, up)
+export const delimitPendingSelection = (start: WordId, end: WordId) : Action  => {
+  // const [start, end] = sortByIndex(down, up)
   return {
     type: 'DELIMIT_PENDING_SELECTION',
     start,
@@ -54,7 +58,7 @@ export const selectWords = () : Action => ({
   type: 'SELECT_WORDS',
 })
 
-export const translateSentences = (enSentences: Array<Array<{ text: string, pos: string }>>) : Action => ({
+export const translateSentences = (enSentences: Array<SentenceTranslation>) : Action => ({
   type: 'TRANSLATE_SENTENCES',
   enSentences,
 })

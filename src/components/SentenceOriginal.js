@@ -7,9 +7,6 @@ import type { Sentence, Word } from '../utils/grammar'
 import {
   wordMouseEnter, wordMouseLeave, wordMouseDown, wordMouseUp,
 } from '../redux/actions'
-import {
-  isSelectionPending, wasSelectionMade,
-} from '../redux/reducer'
 import type { AppState } from '../redux'
 import './SentenceOriginal.css'
 import WordOriginal from './WordOriginal'
@@ -24,15 +21,13 @@ type SentenceOriginalStateProps = {
   selectionStart: ?Word,
   selectionEnd: ?Word,
   highlightedWord: ?Word,
-  selectionIsPending: bool,
-  selectionWasMade: bool,
 }
 type SentenceOriginalProps = SentenceOriginalOwnProps & SentenceOriginalStateProps
-const SentenceOriginal = ({ sentenceData, index: sentenceIndex, highlightedWord, selectionIsPending, selectionWasMade } : SentenceOriginalProps) =>
+const SentenceOriginal = ({ sentenceData, index: sentenceIndex, highlightedWord } : SentenceOriginalProps) =>
   <div className={cn('sentence')}>
-    {sentenceData.words.map((original, i) =>
+    {sentenceData.words.map((originalId, i) =>
       <WordOriginal
-        original={original}
+        originalId={originalId}
         key={i}
       />
     )}
@@ -52,8 +47,6 @@ const mapStateToProps = (state : AppState) : SentenceOriginalStateProps => {
     highlightedWord,
     selectionStart,
     selectionEnd,
-    selectionIsPending: isSelectionPending(state),
-    selectionWasMade: wasSelectionMade(state),
   }
 }
 const mapDispatchToProps = {
