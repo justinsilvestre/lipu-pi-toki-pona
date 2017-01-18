@@ -3,7 +3,7 @@ import React from 'react'
 import cn from 'classnames'
 import { connect } from 'react-redux'
 import type { ConnectedComponentClass } from 'react-redux'
-import { getText, getIndex } from '../utils/parseTokiPona'
+import { getText } from '../utils/parseTokiPona'
 import type { Word, WordId } from '../utils/grammar'
 import type { Color } from '../utils/getHighlighting'
 import type { AppState } from '../redux/reducer'
@@ -51,9 +51,8 @@ const WordOriginal = ({
   const [h, s, l] = adjustColor(selecting, selected, color)
   const style = { color: `hsl(${h}, ${s}%, ${l}%)`, fontWeight: original.role.endsWith('particle') ? 300 : 'normal' }
 
-  // <span className={cn('word', { selecting, selected })}  style={style} {...events}>
   return (
-    <span className={cn('word')}  style={style} {...events}>
+    <span className={cn('word', { selecting, selected })}  style={style} {...events}>
       {getText(original)}{' '}
     </span>
   )
@@ -77,6 +76,7 @@ const mapDispatchToProps : WordOriginalDispatchProps = {
   onClick: wordClick,
 }
 
-const connected : ConnectedComponentClass<WordOriginalOwnProps, *, *, *> = connect(mapStateToProps, mapDispatchToProps)(WordOriginal)
+const connected : ConnectedComponentClass<WordOriginalOwnProps, *, *, *>
+  = connect(mapStateToProps, mapDispatchToProps)(WordOriginal)
 
 export default connected
