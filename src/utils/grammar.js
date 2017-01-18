@@ -36,6 +36,7 @@ export type Word = {
   before: string,
   after: string,
   role: Role,
+  pos: TokiPonaPartOfSpeech,
 
   head?: WordId,
   complements?: Array<WordId>,
@@ -76,7 +77,6 @@ export const ROLES_WITH_INVARIANT_POS = {
 
 export type Sentence = {
   words: Array<WordId>,
-  // words: Array<string>,
   vocative?: string,
   contexts?: Array<string>,
   subjects?: Array<string>,

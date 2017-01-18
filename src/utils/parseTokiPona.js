@@ -2,7 +2,7 @@
 import { parse } from 'parse-toki-pona'
 import { pipe, last } from 'ramda'
 import { normalize, schema } from 'normalizr'
-import type { Sentence, Word, WordId, Mood, Role, RawParticleRole } from './grammar'
+import type { Sentence, Word, WordId, Mood, Role, RawParticleRole, TokiPonaPartOfSpeech } from './grammar'
 
 const wordSchema = new schema.Entity('words')
 const sentenceSchema = new schema.Array(wordSchema)
@@ -30,7 +30,7 @@ type RawWord = {
   head?: WordId,
   after?: string,
   before?: string,
-
+  verb?: WordId,
   // directObjects?: Array<WordId>,
   // infinitive?: WordId,
   // prepositionalObject?: WordId,
@@ -58,10 +58,17 @@ export type ParsedSentencesData = { sentences: Array<Sentence>, words: WordsObje
   //   complement: '',         // i prep         -- prev?
   //   f: '',         // i t prev prep
 
-type PartiallyProcessedWord = { role: Role, text: string, before?: string, after?: string, head?: WordId }
-const processWord = (sentenceProperties: SentenceSlots, rawWords: NormalizedWords, wordId: WordId, words: WordsObject) : PartiallyProcessedWord => {
-  const { id, text, before, after, head: headId, role: maybeRole } = rawWords[wordId]
+type PartiallyProcessedWord = { role: Role, text: string, before?: string, after?: string, head?: WordId, pos: TokiPonaPartOfSpeech }
+const processWord = (
+  sentenceProperties: SentenceSlots,
+  rawWords: NormalizedWords,
+  wordId: WordId,
+  words: WordsObject,
+  wordsInSameSentence: Array<WordId>
+) : PartiallyProcessedWord => {
+  const { id, text, before, after, head: headId, role: maybeRole, verb } = rawWords[wordId]
   const role = getRole(maybeRole, text)
+  let pos = role.endsWith('particle') ? 'p' : 'i'
 
   switch (role) {
     case 'optative_particle':
@@ -78,24 +85,37 @@ const processWord = (sentenceProperties: SentenceSlots, rawWords: NormalizedWord
       sentenceProperties.vocative = id
       break
     case 'complement': {
-      if (headId) {
-        const head = words[headId] = words[headId] || processWord(sentenceProperties, rawWords, headId, words)
-        const headComplements = head.complements = head.complements || []
-        headComplements.push(id)
-      }
+      if (!headId) throw new Error('whoops')
+      const head = words[headId] = words[headId] || processWord(sentenceProperties, rawWords, headId, words, wordsInSameSentence)
+      const headComplements = head.complements = head.complements || []
+      headComplements.push(id)
+      break
     }
-    break
     case 'direct_object': {
-      const parent = last(sentenceProperties.predicates)
-      if (!parent) throw new Error('whoops')
-      const directObjects = words[parent].directObjects = words[parent].directObjects || []
+      // actually, this is complicated by infinitives and complements.
+      const parentId = verb
+      if (!parentId) throw new Error('No verb linked to this direct object')
+      const parent = words[parentId]
+      parent.pos = 't'
+      const directObjects = parent.directObjects = parent.directObjects || []
       directObjects.push(id)
-    }
       break
+    }
     case 'infinitive': {
+      const parentId = wordsInSameSentence[wordsInSameSentence.indexOf(wordId) - 1]
+      if (!parentId) throw new Error('whoops')
+      const parent = words[parentId]
+      parent.pos = 'prev'
       // prepositionalObject?: WordId,
-    }
       break
+    }
+    case 'prepositional_object': {
+      const parentId = wordsInSameSentence[wordsInSameSentence.indexOf(wordId) - 1]
+      if (!parentId) throw new Error('whoops')
+      const parent = words[parentId]
+      parent.pos = 'prep'
+      break
+    }
     default:
       break
   }
@@ -106,6 +126,7 @@ const processWord = (sentenceProperties: SentenceSlots, rawWords: NormalizedWord
     ...(headId ? { head: headId } : null),
     before: before || '',
     after: after || '',
+    pos,
   }
 }
 
@@ -123,7 +144,7 @@ const addRelations = (ns: NormalizedSentences) : ParsedSentencesData => {
           sentence: sentenceIndex,
           index: i + position,
           id: wordId,
-          ...processWord(sentenceProperties, rawWords, wordId, words),
+          ...processWord(sentenceProperties, rawWords, wordId, words, result[sentenceIndex]),
         } : Word)
       })
 
