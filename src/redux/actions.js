@@ -46,14 +46,12 @@ export const wordClick = (word: WordId) : Action => ({
   word,
 })
 
-export const delimitPendingSelection = (start: WordId, end: WordId) : Action  => {
-  // const [start, end] = sortByIndex(down, up)
-  return {
+export const delimitPendingSelection = (start: WordId, end: WordId) : Action  => ({
     type: 'DELIMIT_PENDING_SELECTION',
     start,
     end,
-  }
-}
+})
+
 export const selectWords = () : Action => ({
   type: 'SELECT_WORDS',
 })

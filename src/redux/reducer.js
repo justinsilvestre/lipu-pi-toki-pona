@@ -41,7 +41,6 @@ export default function app(state: AppState = initialState, action: Action) : Ap
         ...state,
         tpSentences: action.tpSentences,
         tpWords,
-        // colors: getHighlighting(action.tpSentences),
         colors: action.tpSentences.map(s => getHighlighting(tpWords, s.words))
       }
     }
@@ -79,6 +78,9 @@ export default function app(state: AppState = initialState, action: Action) : Ap
   }
 }
 
+const getWord = (state : AppState, wordId : WordId) => state.tpWords[wordId]
+const getSentenceFromWord = (state : AppState, wordId : WordId) => state.tpSentences[state.tpWords[wordId].sentence]
+
 export const wasSelectionMade = (state : AppState) : bool => (!state.selectionStart || !state.selectionEnd)
 
 export const isWordSelected = (state : AppState, wordId: WordId) => {
@@ -104,7 +106,8 @@ export const isWordInPendingSelection = (state : AppState, wordId: WordId) => {
   return startIndex <= wordIndex && wordIndex <= endIndex
 }
 
-export const getIndex = (words: WordsObject, sentences: Array<Sentence>, word: WordId) : number => {
-  const { sentence } = words[word]
-  return sentences[sentence].words.indexOf(word)
-}
+const getIndexInSentence = (state : AppState, wordId: WordId) : number =>
+  getSentenceFromWord(state, wordId).words.indexOf(wordId)
+
+export const getWordColor = (state : AppState, wordId: WordId) =>
+  state.colors[getWord(state, wordId).sentence][getIndexInSentence(state, wordId)]

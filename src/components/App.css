@@ -14,7 +14,7 @@ body {
 
 .selected {
   color: lightblue;
-  text-shadow: 1px 1px rgba(0, 0, 0, .3);
+  text-shadow: 0px 1px 1px black;
   animation-name: just-selected;
   animation-duration: .2s;
 }

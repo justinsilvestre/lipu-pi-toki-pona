@@ -18,9 +18,6 @@ const RawParticleRoles = ({
   la: 'context_particle'
 } : { [particle: string]: RawParticleRole })
 
-
-const id = (v: *) : * => v
-
 export const getText = ({ before, text, after }: Word) : string =>
   before + text + after
 
