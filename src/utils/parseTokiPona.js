@@ -21,12 +21,8 @@ const RawParticleRoles = ({
 
 const id = (v: *) : * => v
 
-export const getText = (word: Word) : string => {
-  const { text } = word
-  const before = word.before || ''
-  const after = word.after || ''
-  return [before, text, after].filter(id).join('')
-}
+export const getText = ({ before, text, after }: Word) : string =>
+  before + text + after
 
 export const getIndex = (word: ?Word) : number => word ? word.index : -1
 
@@ -111,8 +107,8 @@ const processWord = (sentenceProperties: SentenceSlots, rawWords: NormalizedWord
     role,
     text,
     ...(headId ? { head: headId } : null),
-    ...(after ? { after } : null),
-    ...(before ? { before } : null),
+    before: before || '',
+    after: after || '',
   }
 }
 
