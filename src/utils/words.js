@@ -1,10 +1,11 @@
 // @flow
 import type { WordsObject } from './parseTokiPona'
 import type { WordId } from './grammar'
+import { isComplement, isPredicate, isSubject, isContextPredicate } from './tokiPonaRoleQueries'
 
 type WordRelationQuery = (words: WordsObject, word1: WordId, word2: WordId ) => boolean
 
-export const isComplementOf : WordRelationQuery = (words, head, word) => words[word].role === 'complement' && words[word].head === head
+export const isComplementOf : WordRelationQuery = (words, head, word) => isComplement(words[word]) && words[word].head === head
 export const isDirectObjectOf : WordRelationQuery = (words, maybeTransitiveVerb, maybeDO) => {
   const { directObjects } = words[maybeTransitiveVerb]
   return Boolean(directObjects && directObjects.includes(maybeDO))
@@ -14,15 +15,16 @@ export const isInfinitiveOf : WordRelationQuery = (words, maybePredicate, maybeI
 export const isPrepositionalObjectOf : WordRelationQuery = (words, maybePreposition, maybePO) =>
   words[maybePreposition].prepositionalObject === maybePO
 export const isSubjectOf : WordRelationQuery = (words, maybePredicate, maybeSubject) => {
-  const { sentence: pSentence, role: pRole, context: pContext } = words[maybePredicate]
-  const { sentence: sSentence, role: sRole, context: sContext } = words[maybeSubject]
+  const { sentence: pSentence, context: pContext } = words[maybePredicate]
+  const { sentence: sSentence, context: sContext } = words[maybeSubject]
 
   return pSentence === sSentence
-    && ((pRole === 'predicate' && sRole === 'subject') || Boolean(pContext && pContext === sContext))
+    && (isPredicate(words[maybePredicate]) && isSubject(words[maybeSubject]) || Boolean(pContext && pContext === sContext))
 }
 export const isContextOf : WordRelationQuery = (words, maybePredicate, maybeContext) =>
-  (words[maybePredicate].role === 'predicate')
-  && (words[maybeContext].role === 'context_predicate')
+  // will only work in same sentence
+  isPredicate(words[maybePredicate]) && isContextPredicate(words[maybeContext])
+
 type IsChildOf = (words: WordsObject, parent: WordId, word: WordId) => boolean
 export const isChildOf : IsChildOf = (words, parent, word) =>
   (isComplementOf(words, parent, word)

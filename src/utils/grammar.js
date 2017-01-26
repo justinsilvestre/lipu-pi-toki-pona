@@ -1,25 +1,8 @@
 // @flow
-export type WordId = string
+import type { Role } from './tokiPonaRoles'
+import * as roles from './tokiPonaRoles'
 
-export type RawParticleRole =
-  | 'compound_complement_particle'
-  | 'indicative_particle'
-  | 'optative_particle'
-  | 'context_particle'
-  | 'direct_object_particle'
-  | 'and_particle'
-  | 'or_particle'
-export type ParticleRole = RawParticleRole | 'vocative_particle'
-export type SubstantiveRole =
-  | 'subject'
-  | 'context_subject'
-  | 'context_predicate'
-  | 'complement'
-  | 'direct_object'
-  | 'vocative'
-  | 'infinitive'
-  | 'prepositional_object'
-export type Role = ParticleRole | SubstantiveRole
+export type WordId = string
 
 export type TokiPonaPartOfSpeech =
     'i'
@@ -50,30 +33,6 @@ export type Mood =
   'indicative'
   | 'optative'
   | 'interrogative'
-
-// roles with variant part of speech:
-// predicate: any substantive
-// complement: i or prep
-
-export const ROLES_WITH_INVARIANT_POS = {
-  subject: 'i',
-  context_subject: 'i',
-  direct_object: 'i',
-  vocative: 'i',
-  particle: 'p',
-  vocative_particle: 'p',
-  prepositional_object: 'i',
-}
-
-// const getPartOfSpeech = (sentence: Sentence, word: Word) : TokiPonaPartOfSpeech =>
-//   ROLES_WITH_INVARIANT_POS[word.role]
-//   || ()
-//   predicate: '',          // i t prev prep
-//   context_predicate: '',  // i t prev prep
-//   complement: '',         // i prep         -- prev?
-//   infinitive: '',         // i t prev prep
-// }
-
 
 export type Sentence = {
   words: Array<WordId>,

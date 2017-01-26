@@ -1,5 +1,6 @@
 // @flow
 import type { Sentence, Word, WordId } from './grammar'
+import * as roles from './tokiPonaRoles'
 import { isComplementOf } from './words'
 import type { WordsObject } from './parseTokiPona'
 
@@ -8,19 +9,19 @@ export type Color = [number, number, number]
 const baseColor = (h) => [h, 35, 55]
 
 const BASE_COLORS : Object = {
-  subject: baseColor(50),
-  predicate: baseColor(207),
-  direct_object: baseColor(90),
-  direct_object_particle: baseColor(90),
-  prepositional_object: baseColor(90),
-  infinitive: baseColor(90),
+  [roles.SUBJECT]: baseColor(50),
+  [roles.PREDICATE]: baseColor(207),
+  [roles.DIRECT_OBJECT]: baseColor(90),
+  [roles.DIRECT_OBJECT_PARTICLE]: baseColor(90),
+  [roles.PREPOSITIONAL_OBJECT]: baseColor(90),
+  [roles.INFINITIVE]: baseColor(90),
 
-  context_subject: baseColor(275),
-  context_predicate: baseColor(335),
-  context_particle: baseColor(335),
-  vocative: baseColor(36),
-  vocative_particle: baseColor(36),
-  particle: baseColor(90),
+  [roles.CONTEXT_SUBJECT]: baseColor(275),
+  [roles.CONTEXT_PREDICATE]: baseColor(335),
+  [roles.CONTEXT_PARTICLE]: baseColor(335),
+  [roles.VOCATIVE]: baseColor(36),
+  [roles.VOCATIVE_PARTICLE]: baseColor(36),
+  // [PARTICLE]: baseColor(90),
 }
 
 const darken = ([h, s, l]: Color, level: number) => [h + level * 4, s - level * 15, l - level * 10]

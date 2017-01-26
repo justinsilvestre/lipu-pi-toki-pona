@@ -2,20 +2,22 @@
 import { parse } from 'parse-toki-pona'
 import { pipe, last } from 'ramda'
 import { normalize, schema } from 'normalizr'
-import type { Sentence, Word, WordId, Mood, Role, RawParticleRole, TokiPonaPartOfSpeech } from './grammar'
+import * as roles from '../utils/tokiPonaRoles'
+import type { Role, RawParticleRole } from '../utils/tokiPonaRoles'
+import type { Sentence, Word, WordId, Mood, TokiPonaPartOfSpeech } from './grammar'
 
 const wordSchema = new schema.Entity('words')
 const sentenceSchema = new schema.Array(wordSchema)
 const normalizeRawSentences = window.n = x => normalize(x, [sentenceSchema])
 
 const RawParticleRoles = ({
-  li: 'indicative_particle',
-  o: 'optative_particle',
-  e: 'direct_object_particle',
-  pi: 'compound_complement_particle',
-  en: 'and_particle',
-  anu: 'or_particle',
-  la: 'context_particle'
+  li: roles.INDICATIVE_PARTICLE,
+  o: roles.OPTATIVE_PARTICLE,
+  e: roles.DIRECT_OBJECT_PARTICLE,
+  pi: roles.COMPOUND_COMPLEMENT_PARTICLE,
+  en: roles.AND_PARTICLE,
+  anu: roles.OR_PARTICLE,
+  la: roles.CONTEXT_PARTICLE,
 } : { [particle: string]: RawParticleRole })
 
 export const getText = ({ before, text, after }: Word) : string =>
@@ -71,27 +73,27 @@ const processWord = (
   let pos = role.endsWith('particle') ? 'p' : 'i'
 
   switch (role) {
-    case 'optative_particle':
+    case roles.OPTATIVE_PARTICLE:
       sentenceProperties.mood = sentenceProperties.mood === 'interrogative' ? sentenceProperties.mood : 'optative'
       break
-    case 'predicate':
+    case roles.PREDICATE:
       sentenceProperties.predicates.push(id)
       break
-    case 'subject':
+    case roles.SUBJECT:
       sentenceProperties.subjects = sentenceProperties.subjects || []
       sentenceProperties.subjects.push(id)
       break
-    case 'vocative':
+    case roles.VOCATIVE:
       sentenceProperties.vocative = id
       break
-    case 'complement': {
+    case roles.COMPLEMENT: {
       if (!headId) throw new Error('whoops')
       const head = words[headId] = words[headId] || processWord(sentenceProperties, rawWords, headId, words, wordsInSameSentence)
       const headComplements = head.complements = head.complements || []
       headComplements.push(id)
       break
     }
-    case 'direct_object': {
+    case roles.DIRECT_OBJECT: {
       // actually, this is complicated by infinitives and complements.
       const parentId = verb
       if (!parentId) throw new Error('No verb linked to this direct object')
@@ -101,15 +103,17 @@ const processWord = (
       directObjects.push(id)
       break
     }
-    case 'infinitive': {
+    case roles.INFINITIVE: {
+      console.log('*'.repeat(50))
       const parentId = wordsInSameSentence[wordsInSameSentence.indexOf(wordId) - 1]
       if (!parentId) throw new Error('whoops')
       const parent = words[parentId]
+      console.log(words[wordId], parent)
       parent.pos = 'prev'
       // prepositionalObject?: WordId,
       break
     }
-    case 'prepositional_object': {
+    case roles.PREPOSITIONAL_OBJECT: {
       const parentId = wordsInSameSentence[wordsInSameSentence.indexOf(wordId) - 1]
       if (!parentId) throw new Error('whoops')
       const parent = words[parentId]
