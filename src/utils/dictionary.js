@@ -278,17 +278,13 @@ export default {
         }],
         "i": [{
             "text": "and (between multiple direct objects)",
-            "pos": "conj"
+            "pos": "xconj"
         }]
     },
     "en": {
         "p": [{
             "text": "and (between multiple subjects)",
-            "pos": "conj"
-        }],
-        "i": [{
-            "text": "and (between multiple subjects)",
-            "pos": "conj"
+            "pos": "xconj"
         }]
     },
     "esun": {
@@ -453,6 +449,12 @@ export default {
         }, {
             "text": "pollution",
             "pos": "n"
+        }, {
+            "text": "ew",
+            "pos": "int"
+        }, {
+            "text": "yuck",
+            "pos": "int"
         }],
         "t": [{
             "text": "soil",
@@ -463,13 +465,6 @@ export default {
         }, {
             "text": "pollute",
             "pos": "vt"
-        }],
-        "clau": [{
-            "text": "ew",
-            "pos": "int"
-        }, {
-            "text": "yuck",
-            "pos": "int"
         }]
     },
     "jan": {
@@ -860,9 +855,12 @@ export default {
             "text": "paint",
             "pos": "n"
         }],
-        "vt": [{
+        "t": [{
+            "text": "color",
+            "pos": "vt"
+        }, {
             "text": "paint",
-            "pos": "color"
+            "pos": "vt"
         }]
     },
     "kulupu": {
@@ -918,7 +916,7 @@ export default {
         }]
     },
     "la": {
-        "i": [{
+        "p": [{
             "text": "when",
             "pos": "conj"
         }, {
@@ -935,18 +933,17 @@ export default {
             "pos": "conj"
         }, {
             "text": "during",
-            "pos": "prep"
+            "pos": "xprep"
         }, {
             "text": "at (time)",
-            "pos": "prep"
+            "pos": "xprep"
         }, {
             "text": "as for",
-            "pos": "prep"
+            "pos": "xprep"
         }, {
             "text": "when it comes to",
-            "pos": "prep"
-        }],
-        "p": [{
+            "pos": "xprep"
+        }, {
             "text": "(separates context from rest of sentence)",
             "pos": "x"
         }]
@@ -1075,10 +1072,9 @@ export default {
         "p": [{
             "text": "(between any subject except mi alone or sina alone and its verb. also to introduce a new verb for the same subject)",
             "pos": "x"
-        }],
-        "i": [{
+        }, {
             "text": "and",
-            "pos": "conj"
+            "pos": "xconj"
         }]
     },
     "lili": {
@@ -1563,6 +1559,18 @@ export default {
         }, {
             "text": "(animal noise or communication)",
             "pos": "int"
+        }, {
+            "text": "moo",
+            "pos": "onom"
+        }, {
+            "text": "meow",
+            "pos": "onom"
+        }, {
+            "text": "woof",
+            "pos": "onom"
+        }, {
+            "text": "(animal noise or communication)",
+            "pos": "onom"
         }]
     },
     "mun": {
@@ -1695,7 +1703,7 @@ export default {
             "pos": "n"
         }, {
             "text": "(signals ordinal number)",
-            "pos": "p"
+            "pos": "x"
         }]
     },
     "nasa": {
@@ -1833,7 +1841,7 @@ export default {
             "pos": "x"
         }, {
             "text": "O",
-            "pos": "interj"
+            "pos": "xint"
         }]
     },
     "olin": {
@@ -2068,19 +2076,19 @@ export default {
         }],
         "i": [{
             "text": "of",
-            "pos": "prep"
+            "pos": "xprep"
         }, {
             "text": "about (topic of discussion)",
-            "pos": "prep"
+            "pos": "xprep"
         }, {
             "text": "regarding (topic of discussion)",
-            "pos": "prep"
+            "pos": "xprep"
         }, {
             "text": "concerning (topic of discussion)",
-            "pos": "prep"
+            "pos": "xprep"
         }, {
             "text": "for (purpose)",
-            "pos": "prep"
+            "pos": "xprep"
         }]
     },
     "pilin": {
@@ -2244,6 +2252,15 @@ export default {
         }, {
             "text": "goodness",
             "pos": "n"
+        }, {
+            "text": "yay",
+            "pos": "int"
+        }, {
+            "text": "hooray",
+            "pos": "int"
+        }, {
+            "text": "hurrah",
+            "pos": "int"
         }],
         "t": [{
             "text": "improve",
@@ -2257,16 +2274,6 @@ export default {
         }, {
             "text": "better",
             "pos": "vt"
-        }],
-        "clau": [{
-            "text": "yay",
-            "pos": "int"
-        }, {
-            "text": "hooray",
-            "pos": "int"
-        }, {
-            "text": "hurrah",
-            "pos": "int"
         }]
     },
     "pu": {
@@ -2301,6 +2308,9 @@ export default {
             "text": "the same",
             "pos": "pno"
         }, {
+            "text": "the same",
+            "pos": "d"
+        }, {
             "text": "sibling",
             "pos": "n"
         }, {
@@ -2310,7 +2320,6 @@ export default {
             "text": "fellow",
             "pos": "n"
         }],
-        "d": [],
         "prep": [{
             "text": "as",
             "pos": "prep"
@@ -2544,7 +2553,7 @@ export default {
         }]
     },
     "sona": {
-        "i": [{
+        "t": [{
             "text": "know",
             "pos": "vt"
         }, {
@@ -2559,7 +2568,8 @@ export default {
         }, {
             "text": "have information on",
             "pos": "vt"
-        }, {
+        }],
+        "i": [{
             "text": "knowledge",
             "pos": "n"
         }, {
@@ -2734,26 +2744,29 @@ export default {
     },
     "tawa": {
         "prep": [{
+            "text": "to (direction)",
+            "pos": "prep"
+        }, {
             "text": "going to",
-            "pos": "to (direction)"
+            "pos": "prep"
         }, {
             "text": "toward",
-            "pos": "to (direction)"
+            "pos": "prep"
         }, {
             "text": "approaching",
-            "pos": "to (direction)"
+            "pos": "prep"
         }, {
             "text": "moving to",
-            "pos": "to (direction)"
+            "pos": "prep"
         }, {
             "text": "until",
-            "pos": "to (direction)"
+            "pos": "prep"
         }, {
             "text": "for (from the perspective of)",
-            "pos": "to (direction)"
+            "pos": "prep"
         }, {
             "text": "to (from the perspective of)",
-            "pos": "to (direction)"
+            "pos": "prep"
         }, {
             "text": "go to",
             "pos": "vt"
@@ -2895,6 +2908,12 @@ export default {
         }, {
             "text": "speech",
             "pos": "n"
+        }, {
+            "text": "hello",
+            "pos": "int"
+        }, {
+            "text": "hi",
+            "pos": "int"
         }],
         "t": [{
             "text": "say",
@@ -2902,13 +2921,6 @@ export default {
         }, {
             "text": "speak",
             "pos": "vt"
-        }],
-        "pred": [{
-            "text": "hello",
-            "pos": "int"
-        }, {
-            "text": "hi",
-            "pos": "int"
         }]
     },
     "tomo": {
@@ -2941,7 +2953,7 @@ export default {
     "tu": {
         "i": [{
             "text": "two",
-            "pos": "adj"
+            "pos": "num"
         }, {
             "text": "double",
             "pos": "adj"
@@ -3038,11 +3050,11 @@ export default {
             "text": "united",
             "pos": "adj"
         }, {
-            "text": "one",
-            "pos": "adj"
-        }, {
             "text": "single",
             "pos": "adj"
+        }, {
+            "text": "one",
+            "pos": "num"
         }]
     },
     "waso": {

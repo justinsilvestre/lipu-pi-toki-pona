@@ -34,7 +34,7 @@ const singleWordSelectionEpic = (action$: any, { getState }: Store<getStateFn, A
 
 const translationEpic = (action$: any, { getState }: Store<getStateFn, Action>) => action$
   .ofType('PARSE_SENTENCES')
-  .map(() => translateSentences(translate(getState().tpSentences)))
+  .map(() => translateSentences(translate(getState().tpSentences, getState().tpWords)))
 
 const epic = combineEpics(
   singleWordSelectionEpic,

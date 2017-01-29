@@ -21,6 +21,7 @@ import {
   CONTEXT_PREDICATE,
   CONTEXT_SUBJECT,
 } from './tokiPonaRoles'
+import type { Word } from './grammar'
 
 type RoleQuery = (word: Word) => boolean
 export const isVocative : RoleQuery = (word) => word.role === VOCATIVE
