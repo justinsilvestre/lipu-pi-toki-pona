@@ -4,9 +4,11 @@ import { connect } from 'react-redux'
 import SentenceOriginal from './SentenceOriginal'
 import SentenceTranslation from './SentenceTranslation'
 import type { Sentence } from '../utils/grammar'
+import type { SentenceTranslation as SentenceTranslationType } from '../utils/english/grammar'
 
 type SentenceProps = {
   tp: Sentence,
+  en: SentenceTranslationType,
   index: number,
 }
 class SentencePair extends Component {
@@ -15,19 +17,23 @@ class SentencePair extends Component {
   render() {
     const {
       tp,
+      en,
       index: sentenceIndex,
     } = this.props
 
     return (
       <div style={{ display: 'inline-block', textAlign: 'left' }}>
         <SentenceOriginal sentenceData={tp} index={sentenceIndex} />
-        <SentenceTranslation sentenceData={tp} />
+        <SentenceTranslation sentenceData={en} />
       </div>
     )
   }
 }
 
-const mapStateToProps = ({ highlightedSentenceIndex, highlightedWordIndex }) => ({ highlightedSentenceIndex, highlightedWordIndex })
+const mapStateToProps = ({ highlightedSentenceIndex, highlightedWordIndex, enSentences }, { index }) => ({
+  highlightedSentenceIndex, highlightedWordIndex,
+  en: enSentences[index]
+})
 const mapDispatchToProps = {
   // wordMouseEnter,
   // wordMouseDown,

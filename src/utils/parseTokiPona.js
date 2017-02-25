@@ -32,7 +32,8 @@ type RawWord = {
   head?: WordId,
   after?: string,
   before?: string,
-  verb?: WordId,
+  parent?: WordId,
+  context?: number,
   // directObjects?: Array<WordId>,
   // infinitive?: WordId,
   // prepositionalObject?: WordId,
@@ -48,8 +49,9 @@ type SentenceSlots = {
   mood: Mood,
   predicates: Array<WordId>,
   subjects?: Array<WordId>,
-  contexts?: Array<WordId>,
+  contexts?: Array<{ subjects?: Array<WordId>, predicates?: Array<WordId> }>,
   vocative?: WordId,
+  seme?: Array<WordId>,
 }
 export type WordsObject = { [wordId: WordId]: Word }
 export type ParsedSentencesData = { sentences: Array<Sentence>, words: WordsObject }
@@ -66,13 +68,44 @@ const processWord = (
   rawWords: NormalizedWords,
   wordId: WordId,
   words: WordsObject,
-  wordsInSameSentence: Array<WordId>
+  wordsInSameSentence: Array<WordId> // should we just pass the whole sentence obj?
 ) : PartiallyProcessedWord => {
-  const { id, text, before, after, head: headId, role: maybeRole, verb } = rawWords[wordId]
+  const { id, text, before, after, head: headId, role: maybeRole, parent: parentId, context: contextIndex } = rawWords[wordId]
   const role = getRole(maybeRole, text)
   let pos = role.endsWith('particle') ? 'p' : 'i'
 
+  switch (text) {
+    case 'anu': {
+      // const nextWordId = wordsInSameSentence[wordsInSameSentence.indexOf(wordId) + 1]
+      // if (!nextWordId) throw new Error('whoops')
+      // words[nextWordId].anu = true
+      break
+    }
+    // case 'anu': {
+    //   const nextWordId = wordsInSameSentence[wordsInSameSentence.indexOf(wordId) + 1]
+    //   if (!(typeof nextWordId === 'string' && nextWordId in words)) throw new Error('whoops')
+    //   words[nextWordId].anu = true
+    //   break
+    // }
+    case 'ala': {
+      const prevWordId = wordsInSameSentence[wordsInSameSentence.indexOf(wordId) - 1]
+      if (!prevWordId) throw new Error('whoops')
+      words[prevWordId][role === 'NEGATIVE' ? 'negative' : 'interrogative'] = true
+      if (role === 'INTERROGATIVE') sentenceProperties.mood = 'interrogative'
+    }
+
+    case 'seme':
+      sentenceProperties.mood = 'interrogative'
+      sentenceProperties.seme = (sentenceProperties.seme || []).concat(id)
+      break
+    default:
+      break
+  }
+
   switch (role) {
+    case roles.INTERROGATIVE:
+      sentenceProperties.mood = 'interrogative'
+      break
     case roles.OPTATIVE_PARTICLE:
       sentenceProperties.mood = sentenceProperties.mood === 'interrogative' ? sentenceProperties.mood : 'optative'
       break
@@ -83,6 +116,22 @@ const processWord = (
       sentenceProperties.subjects = sentenceProperties.subjects || []
       sentenceProperties.subjects.push(id)
       break
+    case roles.CONTEXT_PREDICATE: {
+      if (contextIndex === undefined) throw new Error('No context index for this predicate')
+      const contexts = sentenceProperties.contexts = sentenceProperties.contexts || []
+      const context = contexts[contextIndex] = contexts[contextIndex] || {}
+      const predicates = context.predicates = context.predicates || []
+      predicates.push(id)
+      break
+    }
+    case roles.CONTEXT_SUBJECT: {
+      if (contextIndex === undefined) throw new Error('No context index for this subject')
+      const contexts = sentenceProperties.contexts = sentenceProperties.contexts || []
+      const context = contexts[contextIndex] = contexts[contextIndex] || {}
+      const subjects = context.subjects = context.subjects || []
+      subjects.push(id)
+      break
+    }
     case roles.VOCATIVE:
       sentenceProperties.vocative = id
       break
@@ -94,8 +143,6 @@ const processWord = (
       break
     }
     case roles.DIRECT_OBJECT: {
-      // actually, this is complicated by infinitives and complements.
-      const parentId = verb
       if (!parentId) throw new Error('No verb linked to this direct object')
       const parent = words[parentId]
       parent.pos = 't'
@@ -104,20 +151,19 @@ const processWord = (
       break
     }
     case roles.INFINITIVE: {
-      console.log('*'.repeat(50))
-      const parentId = wordsInSameSentence[wordsInSameSentence.indexOf(wordId) - 1]
-      if (!parentId) throw new Error('whoops')
+      if (!parentId) throw new Error('No verb linked to this infinitive')
       const parent = words[parentId]
+      console.log('INFINITIVE!!')
       console.log(words[wordId], parent)
       parent.pos = 'prev'
-      // prepositionalObject?: WordId,
+      parent.infinitive = wordId
       break
     }
     case roles.PREPOSITIONAL_OBJECT: {
-      const parentId = wordsInSameSentence[wordsInSameSentence.indexOf(wordId) - 1]
-      if (!parentId) throw new Error('whoops')
+      if (!parentId) throw new Error('No verb linked to this infinitive')
       const parent = words[parentId]
       parent.pos = 'prep'
+      parent.prepositionalObject = wordId
       break
     }
     default:
