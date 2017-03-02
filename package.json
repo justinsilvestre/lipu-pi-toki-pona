@@ -4,8 +4,8 @@
   "private": true,
   "devDependencies": {
     "expect": "^1.20.2",
-    "flow-bin": "^0.37.0",
-    "react-scripts": "0.7.0"
+    "flow-bin": "^0.39.0",
+    "react-scripts": "0.8.5"
   },
   "dependencies": {
     "classnames": "^2.2.5",

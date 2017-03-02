@@ -7,16 +7,18 @@ body {
 @keyframes just-selected{
   0% {
     color: rgb(198, 217, 255);
+    transform: translateY(0);
+    text-shadow: 0 0 0 black;
   }
   100% {
   }
 }
 
 .selected {
-  color: lightblue;
   text-shadow: 0px 1px 1px black;
   animation-name: just-selected;
   animation-duration: .2s;
+  transform: translateY(-1px)
 }
 
 .highlighted {
@@ -28,5 +30,5 @@ body {
 
 .word {
   cursor: default;
-  white-space: pre;
+  padding: .1em;
 }
