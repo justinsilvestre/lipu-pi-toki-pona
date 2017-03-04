@@ -6,12 +6,14 @@ import Sentence from './Sentence'
 import type { Sentence as SentenceData } from '../utils/grammar'
 import { parseSentences } from '../redux/actions'
 
+// sina kepeken toki pona la jan li pilin pona.
 const lipu_ni = `jan mute o, toki pona li toki lili.
 jan Sonja li mama pi toki ni.
-sina kepeken toki pona la jan li pilin pona.
 jan Jatin li pali e lipu ni.
+sina toki pona la jan li pilin pona.
 o lukin e lipu ni o kama sona e toki pona!
-jan ale li ken lukin e lipu mute li ken pali e lipu sin a!`
+jan ale li ken lukin e lipu mute li ken pali e lipu sin a!
+jan Mawijo li jo e meli olin. nimi ona li Sili. jan Sili li lape lili lon supa. tenpo suno pini la jan Sili li pona e tomo li telo e len. jan Mawijo li kama lon tenpo seme?`
 window.lipu_ni = lipu_ni
 
 type AppProps = {

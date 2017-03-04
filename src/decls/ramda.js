@@ -55,7 +55,7 @@ declare module ramda {
     & (<A,B,C,D,E>(ab: UnaryFn<A,B>, bc: UnaryFn<B,C>, cd: UnaryFn<C,D>, de: UnaryFn<D,E>, ...rest: Array<void>) => UnaryFn<A,E>)
     & (<A,B,C,D>(ab: UnaryFn<A,B>, bc: UnaryFn<B,C>, cd: UnaryFn<C,D>, ...rest: Array<void>) => UnaryFn<A,D>)
     & (<A,B,C>(ab: UnaryFn<A,B>, bc: UnaryFn<B,C>, ...rest: Array<void>) => UnaryFn<A,C>)
-    & (<A,B>(ab: UnaryFn<A,B>, ...rest: Array<void>) => UnaryFn<A,B>)
+    & (<A,B>(ab: UnaryFn<A,B>, ...rest: Array<void>) => UnaryFn<A,B>);
 
   // declare type Compose = & (<A,B,C,D,E,F,G>(fg: UnaryFn<F,G>, ef: UnaryFn<E,F>, de: UnaryFn<D,E>, cd: UnaryFn<C,D>, bc: UnaryFn<B,C>, ab: UnaryFn<A,B>, ...rest: Array<void>) => UnaryFn<A,G>)
   //   & (<A,B,C,D,E,F>(ef: UnaryFn<E,F>, de: UnaryFn<D,E>, cd: UnaryFn<C,D>, bc: UnaryFn<B,C>, ab: UnaryFn<A,B>, ...rest: Array<void>) => UnaryFn<A,F>)
@@ -86,7 +86,7 @@ declare module ramda {
   //   chain<T,V: Monad<T>|Array<T>>(fn: (a:T) => V, x: V): V;
   //   chain<T,V: Monad<T>|Array<T>>(fn: (a:T) => V): (x: V) => V;
   // }
-  //
+  // 
   // declare class GenericContructor<T> {
   //   constructor(x: T): GenericContructor<any>
   // }
@@ -248,12 +248,12 @@ declare module ramda {
   // declare function lastIndexOf<E>(x: E, xs: Array<E>): number
   // declare function lastIndexOf<E>(x: E, ...rest: Array<void>): (xs: Array<E>) => number
   //
-  // declare function map<T,R>(fn: (x:T) => R, xs: Array<T>): Array<R>;
-  // declare function map<T,R,S:{map:Function}>(fn: (x:T) => R, xs: S): S;
-  // declare function map<T,R>(fn: (x:T) => R, ...rest: Array<void>): ((xs: {[key: string]: T}) => {[key: string]: R}) & ((xs: Array<T>) => Array<R>)
-  // declare function map<T,R,S:{map:Function}>(fn: (x:T) => R, ...rest: Array<void>): ((xs:S) => S) & ((xs: S) => S)
-  // declare function map<T,R>(fn: (x:T) => R, xs: {[key: string]: T}): {[key: string]: R}
-  //
+  declare function map<T,R>(fn: (x:T) => R, xs: Array<T>): Array<R>;
+  declare function map<T,R,S:{map:Function}>(fn: (x:T) => R, xs: S): S;
+  declare function map<T,R>(fn: (x:T) => R, ...rest: Array<void>): ((xs: {[key: string]: T}) => {[key: string]: R}) & ((xs: Array<T>) => Array<R>)
+  declare function map<T,R,S:{map:Function}>(fn: (x:T) => R, ...rest: Array<void>): ((xs:S) => S) & ((xs: S) => S)
+  declare function map<T,R>(fn: (x:T) => R, xs: {[key: string]: T}): {[key: string]: R}
+
   // declare type AccumIterator<A,B,R> = (acc: R, x: A) => [R,B]
   // declare function mapAccum<A,B,R>(fn: AccumIterator<A,B,R>, acc: R, xs: Array<A>): [R, Array<B>];
   // declare function mapAccum<A,B,R>(fn: AccumIterator<A,B,R>, ...rest: Array<void>): (acc: R, xs: Array<A>) => [R, Array<B>];
@@ -261,9 +261,9 @@ declare module ramda {
   // declare function mapAccumRight<A,B,R>(fn: AccumIterator<A,B,R>, acc: R, xs: Array<A>): [R, Array<B>];
   // declare function mapAccumRight<A,B,R>(fn: AccumIterator<A,B,R>, ...rest: Array<void>): (acc: R, xs: Array<A>) => [R, Array<B>];
   //
-  // declare function intersperse<E>(x: E, xs: Array<E>): Array<E>
-  // declare function intersperse<E>(x: E, ...rest: Array<void>): (xs: Array<E>) => Array<E>
-  //
+  declare function intersperse<E>(x: E, xs: Array<E>): Array<E>
+  declare function intersperse<E>(x: E, ...rest: Array<void>): (xs: Array<E>) => Array<E>
+
   // declare function pair<A,B>(a:A, b:B): [A,B]
   // declare function pair<A,B>(a:A, ...rest: Array<void>): (b:B) => [A,B]
   //
@@ -330,8 +330,8 @@ declare module ramda {
   // declare function zipObj<T:string,S>(xs: Array<T>, ys: Array<S>): {[key:T]:S}
   // declare function zipObj<T:string,S>(xs: Array<T>, ...rest: Array<void>): (ys: Array<S>) => {[key:T]:S}
   //
-  // declare type NestedArray<T> = Array<T | NestedArray<T>>
-  // declare function flatten<T>(xs: NestedArray<T>): Array<T>;
+  declare type NestedArray<T> = Array<T | NestedArray<T>>
+  declare function flatten<T>(xs: NestedArray<T>): Array<T>;
   //
   // declare function fromPairs<T,V>(pair: Array<[T,V]>): {[key: string]:V};
   //
