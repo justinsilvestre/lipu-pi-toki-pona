@@ -2,7 +2,7 @@
 import parseTokiPona from '../utils/parseTokiPona'
 import type { WordsObject } from '../utils/parseTokiPona'
 import type { Sentence, WordId } from '../utils/grammar'
-import type { SentenceTranslation } from '../utils/translate'
+import type { SentenceTranslation } from '../utils/english/grammar'
 
 export type Action =
   { type: 'PARSE_SENTENCES', tpSentences: Array<Sentence>, tpWords: WordsObject }
