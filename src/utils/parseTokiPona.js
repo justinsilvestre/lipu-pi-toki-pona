@@ -1,6 +1,6 @@
 // @flow
 import { parse } from 'parse-toki-pona'
-import { pipe, last } from 'ramda'
+import { pipe } from 'ramda'
 import { normalize, schema } from 'normalizr'
 import * as roles from '../utils/tokiPonaRoles'
 import type { Role, RawParticleRole } from '../utils/tokiPonaRoles'
@@ -94,7 +94,7 @@ const processWord = (
       prevWord[role === 'NEGATIVE' ? 'negative' : 'interrogative'] = true
       if (role === 'INTERROGATIVE') sentenceProperties.mood = 'interrogative'
     }
-
+    break
     case 'seme':
       sentenceProperties.mood = 'interrogative'
       sentenceProperties.seme = (sentenceProperties.seme || []).concat(id)
@@ -154,8 +154,6 @@ const processWord = (
     case roles.INFINITIVE: {
       if (!parentId) throw new Error('No verb linked to this infinitive')
       const parent = words[parentId]
-      console.log('INFINITIVE!!')
-      console.log(words[wordId], parent)
       parent.pos = 'prev'
       parent.infinitive = wordId
       break

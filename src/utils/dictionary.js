@@ -9,6 +9,7 @@ export type WordTranslation = {
   before?: string,
   after?: string,
   interrogative?: boolean,
+  root?: string,
 }
 export type SentenceTranslation = Array<WordTranslation>
 

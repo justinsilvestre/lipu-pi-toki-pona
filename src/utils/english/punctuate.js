@@ -11,7 +11,6 @@ const punctuate = (punctuation: Punctuation, wordTranslations: Array<WordTransla
   const first = head(wordTranslations)
   const final = last(wordTranslations)
   const { before, after } = punctuation
-  console.log(punctuation, wordTranslations)
   return [
     { ...first, ...(punctuation.before ? { before } : null) },
     ...wordTranslations.slice(1, wordTranslations.length - 1),

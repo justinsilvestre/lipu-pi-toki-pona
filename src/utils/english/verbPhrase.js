@@ -11,7 +11,7 @@ import prepositionalPhrase, { realizePrepositionalPhrase } from './prepositional
 import conjoin from './conjoin'
 import conjugate from './conjugate'
 import { ANIMATE_SUBJECT_VERBS } from '../tokiPonaSemanticGroups'
-import RiTa, { SINGULAR, PLURAL, FIRST_PERSON, THIRD_PERSON, string } from '../rita'
+import { string } from '../rita'
 
 const realizeSubjectComplement = (englishTranslation: NounPhrase | AdjectivePhrase | PrepositionalPhrase) : Array<WordTranslation> => {
   if (englishTranslation.head.pos === 'adj') {
@@ -41,8 +41,12 @@ const getObjects = (words, word) : Array<WordId> => {
   }
 }
 
-// use options to coerce to copula phrase,
-// or give different POS priorities
+const extractPreposition = (text: string): string => {
+  const [, prepositionText] = text.match(/\((.*)\)/) || []
+  if (!prepositionText) throw new Error('whoops')
+  return prepositionText
+}
+
 export default function verbPhrase(words: WordsObject, wordId: WordId, options: Object = {}) : VerbPhrase {
   const word = words[wordId]
   const englishOptionsByPartOfSpeech = lookUpEnglish(word)
@@ -62,10 +66,10 @@ export default function verbPhrase(words: WordsObject, wordId: WordId, options: 
 
   // those that are part of head's translation, rather than modifiers'
   const firstPrepositionalPhrases = head.pos === 'vp'
-    ? (console.log('VT!!!!!!', head, word) || [prepositionalPhrase(words, wordId, {
-      preposition: { ...head, text: head.text.match(/\((.*)\)/)[1]},
+    ? [prepositionalPhrase(words, wordId, {
+      preposition: { ...head, text: extractPreposition(head.text)},
       objectIds: getObjects(words, word),
-    })])
+    })]
     : []
 
   const complements = word.complements || []
@@ -75,8 +79,6 @@ export default function verbPhrase(words: WordsObject, wordId: WordId, options: 
   } = verbModifiers(words, complements) || {}
 
   const prepositionalPhrases = firstPrepositionalPhrases.concat(otherPrepositionalPhrases)
-
-  console.log(word.text + ' prepositional', head, prepositionalPhrases)
 
   let result : Object = { head, adverbPhrases, prepositionalPhrases }
 
@@ -110,16 +112,14 @@ export default function verbPhrase(words: WordsObject, wordId: WordId, options: 
   return result
 }
 
-const getSubjectComplement = (subjectComplement: WordTranslation): SubjectComplementPhrase => {
-  switch(subjectComplement.pos) {
-    case 'adj':
-      return adjectivePhrase
-    case 'prep':
-      return prepositionalPhrase
-    default:
-      console.log('sa noun!!', subjectComplement)
-      return nounPhrase
-  }
+const getSubjectComplement = (words: WordsObject, sc: WordId, options: Object): SubjectComplementPhrase => {
+  const subjectComplement = words[sc]
+  if (!subjectComplement) throw new Error(JSON.stringify(sc))
+  let getPhrase = nounPhrase
+  if (subjectComplement.pos === 'adj') getPhrase = adjectivePhrase
+  if (subjectComplement.pos === 'prep') getPhrase = prepositionalPhrase
+
+  return getPhrase(words, sc, options)
 }
 // copula phrases come from predicate nouns, and from tp verb phrases whose head translates to 'vc's.
 export function copulaPhrase(words: WordsObject, wordId: WordId, options: Object = {}): VerbPhrase {
@@ -128,27 +128,24 @@ export function copulaPhrase(words: WordsObject, wordId: WordId, options: Object
   const word = words[wordId]
   const tokiPonaInfinitive = word.infinitive
   const infinitiveTranslations = tokiPonaInfinitive ? lookUpEnglish(words[tokiPonaInfinitive]) : {}
-  const predicateInfinitive = tokiPonaInfinitive && // does this translate best to a noun?
-    (options.inanimateSubject && ANIMATE_SUBJECT_VERBS.includes(words[tokiPonaInfinitive].text)) // properly, primary text
+  const predicateInfinitive = (tokiPonaInfinitive && // does this translate best to a noun?
+    options.inanimateSubject && ANIMATE_SUBJECT_VERBS.includes(words[tokiPonaInfinitive].text)) // properly, primary text
     || (!['vc', 'vi', 'vt', 'vm', 'vp'].some(pos => pos in infinitiveTranslations))
-
-console.log('tokiPonaInfinitive', tokiPonaInfinitive)
 
   const isNegative = word.negative
   const copula = options.copula || { text: 'be', pos: 'vi' }
   const subjectComplements: Array<SubjectComplementPhrase> = (options.subjectComplements
-    && options.subjectComplements.map(sc => getSubjectComplement(sc)(words, wordId, { negatedCopula: isNegative}))
+    && options.subjectComplements.map(sc => getSubjectComplement(words, wordId, { negatedCopula: isNegative })) // should pass on english translation
   ) || (
-    predicateInfinitive
-    ? [getSubjectComplement(words[tokiPonaInfinitive])(words, tokiPonaInfinitive)]
+    predicateInfinitive && tokiPonaInfinitive // if the one is there, the other will be
+    ? [getSubjectComplement(words, tokiPonaInfinitive, { negatedCopula: isNegative })]
     : []
   )
 
-  const result = {
+  const result : VerbPhrase = {
     head: copula,
     isNegative,
     subjectComplements,
-    infinitive: undefined,
   }
   if (!predicateInfinitive) {
     if (!tokiPonaInfinitive) throw new Error('whoops')
@@ -160,7 +157,7 @@ console.log('tokiPonaInfinitive', tokiPonaInfinitive)
 const flatten = (a, b) => a.concat(b)
 
 export const realizeVerbPhrase = (phrase: VerbPhrase, subject?: SubjectPhrase) : Array<WordTranslation> => {
-  const { head, isNegative, adverbPhrases = [], prepositionalPhrases = [], subjectComplements = [], directObjects = [], infinitive } = phrase
+  const { isNegative, adverbPhrases = [], prepositionalPhrases = [], subjectComplements = [], directObjects = [], infinitive } = phrase
   // should make sure d.o. and subj complement arent both present at once?
   const { mainVerb, auxiliaryVerb } = conjugate(phrase, subject)
   return [
@@ -178,10 +175,8 @@ export const realizeVerbPhrase = (phrase: VerbPhrase, subject?: SubjectPhrase) :
 function verbModifiers(words: WordsObject, complements: Array<WordId>) : Object {
   return complements.reduceRight((obj, c) => {
     const complement = words[c]
-    console.log('COMPLEMENT???', complement)
     const englishOptions = lookUpEnglish(complement)
     const english = findByPartsOfSpeech(['adv', 'prep'], englishOptions)
-    console.log(english)
     switch (english.pos) {
       case 'adv':
         obj.adverbPhrases = (obj.adverbPhrases || []).concat(adverbPhrase(words, c))

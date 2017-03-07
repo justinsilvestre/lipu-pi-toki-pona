@@ -1,5 +1,5 @@
 // @flow
-import { lookUpEnglish, findByPartsOfSpeech } from '../dictionary'
+import { lookUpEnglish } from '../dictionary'
 import nounPhrase, { realizeNounPhrase } from './nounPhrase'
 import { ANIMATE_NOUNS, INANIMATE_NOUNS, ANIMATE_SUBJECT_VERBS } from '../tokiPonaSemanticGroups.js'
 import type { SubjectPhrase } from './grammar'
@@ -15,20 +15,17 @@ export default function subjectPhrase(words: WordsObject, headIds: Array<WordId>
     isFirstPerson: false,
   }
 
-  let muteComplement = false
-
   const nounPhrases = headIds.map((s, i) => {
-    console.log(words[s].text, lookUpEnglish(words[s]))
     // TODO: anu phrases
     // return (i > 0 ? [{ text: 'and', pos: 'conj' }] : []).concat(nounPhrase(words, s))
     return nounPhrase(words, s, { casus: 'NOMINATIVE' })
   })
-  // console.log('SUBJECT!', nounPhrases[0] && nounPhrases[0].head, nounPhrases.some(np => ['I', 'we', 'me'].includes(np.head.text)))
 
-  const result = {
+  const result : SubjectPhrase = {
     nounPhrases,
     isPlural: nounPhrases.length > 1
-      || (nounPhrases[0] && nounPhrases[0].number === 'PLURAL' || nounPhrases[0].head.text === 'you'),
+      || (nounPhrases[0] && nounPhrases[0].number === 'PLURAL')
+      || nounPhrases[0].head.text === 'you',
     isFirstPerson: nounPhrases.some(np => ['I', 'we', 'me'].includes(np.head.text)),
   }
 

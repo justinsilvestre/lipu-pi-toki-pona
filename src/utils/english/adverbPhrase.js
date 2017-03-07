@@ -57,7 +57,7 @@ function adverbModifiers(words: WordsObject, complements: Array<WordId>) : Objec
   }, {})
 }
 
-export const realizeAdverbPhrase = ({ head, prepositionalPhrases = [], adverbPhrases = [], isNegative }: AdverbPhrase) : Array<WordTranslation> => console.log(head) || [
+export const realizeAdverbPhrase = ({ head, prepositionalPhrases = [], adverbPhrases = [], isNegative }: AdverbPhrase) : Array<WordTranslation> => [
   ...adverbPhrases.map(realizeAdverbPhrase).reduce((a, b) => a.concat(b), []),
   ...(isNegative ? [{ text: 'not', pos: 'adv' }] : []),
   head,

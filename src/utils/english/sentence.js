@@ -19,7 +19,6 @@ export default function sentence(words: WordsObject, tokiPonaSentence: Sentence)
     const predicateTranslations = predicatePhrase(words, predicates, subjects, subjectTranslations)
     const subordinateClauses = contexts.filter(c => c.subjects).map(c => subordinateClause(words, c.subjects, c.predicates))
     const { adverbPhrases, prepositionalPhrases } = sentenceModifiers(words, contexts)
-    console.log('adv', adverbPhrases)
 
     return {
       ...(vocativeTranslation && { vocative: vocativeTranslation }),
@@ -36,13 +35,15 @@ function sentenceModifiers(words: WordsObject, contexts: Array<SentenceContext>)
   return contexts.reduceRight((obj, c) => {
     if (c.subjects) {
       obj.subordinateClauses = (obj.subordinateClauses || []).concat(subordinateClause(words, c.subjects, c.predicates))
+      return obj
     }
 
     const predicateId = c.predicates[0] // should only be one--otherwise, throw error?
     const predicate = words[predicateId]
 
     if (predicate.pos === 'prep') {
-      obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, predicate))
+      obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, predicateId))
+      return obj
     }
 
     const englishOptions = lookUpEnglish(predicate)

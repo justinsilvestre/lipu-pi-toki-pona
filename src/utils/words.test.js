@@ -22,7 +22,6 @@ const parseSentence : ParseSentence = (text) => {
 describe('children()', () => {
   it('retrieves complements', () => {
     const { sentenceWords, words } = parseSentence('toki pona lili')
-    // console.log('*'.repeat(50), sentence)
     const [toki, pona, lili] = sentenceWords
 
     expect(children(words, toki)).toEqual([pona, lili])

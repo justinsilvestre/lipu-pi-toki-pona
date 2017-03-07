@@ -1,6 +1,6 @@
 // @flow
 import { lookUpEnglish, findByPartsOfSpeech } from '../dictionary'
-import { SINGULAR, pluralize } from '../rita'
+import { pluralize } from '../rita'
 import prepositionalPhrase, { realizePrepositionalPhrase } from './prepositionalPhrase'
 import adjectivePhrase, { realizeAdjectivePhrase } from './adjectivePhrase'
 import type { WordsObject } from '../parseTokiPona'
@@ -34,12 +34,10 @@ export default function nounPhrase(words: WordsObject, wordId: WordId, options?:
   // qualifier - determiner - adjective phrases - noun - prepositional phrases - appositives
   // qualifier - pronoun - conjoined adjective phrases - prepositional phrases
   const head : WordTranslation = findByPartsOfSpeech(getPossiblePartsOfSpeech(casus, number), englishOptionsByPartOfSpeech)
-  // const noun = toNoun(findByPartsOfSpeech(['n', 'pn'], englishOptionsByPartOfSpeech))
   const complements : Array<WordId> = word.complements || []
   const isPronoun = head.pos.startsWith('pn')
   if (head.pos !== 'n' && !isPronoun && head.pos !=='prop') throw new Error('invalid noun phrase: ' + JSON.stringify(head))
   const isNegative = Boolean(!options.negatedCopula && word.negative)
-  console.log('isnegative?', word.text, isNegative)
   const {
     determiner,
     adjectivePhrases = [],
@@ -57,7 +55,7 @@ export default function nounPhrase(words: WordsObject, wordId: WordId, options?:
 
 function nounModifiers(words: WordsObject, complements: Array<WordId>, options: Object) : Object {
   let obj = {}
-  if (options.isNegative === true) obj.determiner = console.log('NOPE!!!!') || { text: 'no', pos: 'd' }
+  if (options.isNegative === true) obj.determiner = { text: 'no', pos: 'd' }
   return complements.reduceRight((obj, c) => {
     const complement = words[c]
     const englishOptions = lookUpEnglish(complement)
@@ -66,7 +64,6 @@ function nounModifiers(words: WordsObject, complements: Array<WordId>, options: 
     if (!options.isPronoun && !obj.determiner && determinerPos) obj.determiner = englishOptions[determinerPos][0]
     else {
       const english : WordTranslation = findByPartsOfSpeech(['adj', 'prep', 'n'], englishOptions)
-      console.log('ENGLISH C', english)
       switch (english.pos) {
         case 'adj':
           if (options.isPronoun && complement.text === 'mute') break
@@ -93,7 +90,7 @@ function nounModifiers(words: WordsObject, complements: Array<WordId>, options: 
           //
           break
         // case ''
-        // default:
+        default:
         //   throw new Error(`No viable noun translation for ${words[c].text} (${words[c].pos})`)
       }
     }
@@ -102,7 +99,7 @@ function nounModifiers(words: WordsObject, complements: Array<WordId>, options: 
 }
 
 const pl = (head, number, isPronoun) => {
-  if (!isPronoun && number == 'PLURAL')
+  if (!isPronoun && number === 'PLURAL')
     return { ...head, text: pluralize(head.text), root: head.text }
   else {
     return head
