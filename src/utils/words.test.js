@@ -1,10 +1,9 @@
 // @flow
 import expect from 'expect'
-import { pipe, head } from 'ramda'
 import processSentences from './parseTokiPona'
 import type { WordsObject } from './parseTokiPona'
 import { children, isComplementOf, isDescendantOf } from './words'
-import type { Sentence, Word, WordId } from './grammar'
+import type { WordId } from './grammar'
 
 type ParseSentence = (text: string) => {
   words: WordsObject,

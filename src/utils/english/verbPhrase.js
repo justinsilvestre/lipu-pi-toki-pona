@@ -12,6 +12,7 @@ import conjoin from './conjoin'
 import conjugate from './conjugate'
 import { ANIMATE_SUBJECT_VERBS } from '../tokiPonaSemanticGroups'
 import { string } from '../rita'
+import { getPossiblePartsOfSpeech } from './nounPartsOfSpeech'
 
 const realizeSubjectComplement = (englishTranslation: NounPhrase | AdjectivePhrase | PrepositionalPhrase) : Array<WordTranslation> => {
   if (englishTranslation.head.pos === 'adj') {
@@ -116,8 +117,15 @@ const getSubjectComplement = (words: WordsObject, sc: WordId, options: Object): 
   const subjectComplement = words[sc]
   if (!subjectComplement) throw new Error(JSON.stringify(sc))
   let getPhrase = nounPhrase
-  if (subjectComplement.pos === 'adj') getPhrase = adjectivePhrase
-  if (subjectComplement.pos === 'prep') getPhrase = prepositionalPhrase
+  const englishOptionsByPartOfSpeech = lookUpEnglish(subjectComplement)
+  const head : WordTranslation = findByPartsOfSpeech([
+    ...getPossiblePartsOfSpeech('OBLIQUE', 'SINGULAR'), // maybe number should match subjectComplement
+    'adj',
+    'prep',
+  ], englishOptionsByPartOfSpeech)
+
+  if (head.pos === 'adj') getPhrase = adjectivePhrase
+  if (head.pos === 'prep') getPhrase = prepositionalPhrase
 
   return getPhrase(words, sc, options)
 }

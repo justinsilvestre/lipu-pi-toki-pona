@@ -7,24 +7,7 @@ import type { WordsObject } from '../parseTokiPona'
 import type { WordId } from '../grammar'
 import type { NounPhrase } from './grammar'
 import type { WordTranslation } from '../dictionary'
-
-const RESTRICTED_PRONOUN_PARTS_OF_SPEECH = {
-  OBLIQUE_SINGULAR: ['pnio', 'pnso', 'pno', 'pns'],
-  OBLIQUE_PLURAL: ['pnpo', 'pno', 'pnp'],
-  NOMINATIVE_SINGULAR: ['pnin', 'pnsn', 'pns', 'pnsn'],
-  NOMINATIVE_PLURAL: ['pnp', 'pnpn'],
-}
-
-
-const DETERMINER_PARTS_OF_SPEECH = {
-  SINGULAR: ['d', 'ds'],
-  PLURAL: ['d', 'dp'],
-}
-
-const getPossiblePartsOfSpeech = (casus, number) => {
-  const restricted = RESTRICTED_PRONOUN_PARTS_OF_SPEECH[`${casus}_${number}`] || []
-  return ['n', 'pn', ...restricted]
-}
+import { getPossiblePartsOfSpeech, DETERMINER_PARTS_OF_SPEECH } from './nounPartsOfSpeech'
 
 export default function nounPhrase(words: WordsObject, wordId: WordId, options?: Object = {}) : NounPhrase {
   let { casus = 'OBLIQUE', number = 'SINGULAR' } = options
