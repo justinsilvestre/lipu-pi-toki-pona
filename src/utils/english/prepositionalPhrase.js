@@ -1,16 +1,20 @@
 // @flow
 import type { WordsObject } from '../parseTokiPona'
-import type { WordId } from '../grammar'
+import type { WordId, Word } from '../grammar'
 import type { WordTranslation } from '../dictionary'
 import type { PrepositionalPhrase } from './grammar'
 import { lookUpEnglish, findByPartsOfSpeech } from '../dictionary'
 import nounPhrase, { realizeNounPhrase } from './nounPhrase'
 import conjoin from './conjoin'
 
-// export default function prepositionalPhrase(words: WordsObject, preposition: WordTranslation, objectIds: Array<WordId>) : PrepositionalPhrase {
+const getHead = (word: Word): WordTranslation  => {
+  const englishOptionsByPartOfSpeech = lookUpEnglish(word)
+  return findByPartsOfSpeech(['prep'], englishOptionsByPartOfSpeech)
+}
+
 export default function prepositionalPhrase(words: WordsObject, wordId: WordId, options: Object = {}) : PrepositionalPhrase {
   const word = words[wordId]
-  const head: WordTranslation = options.preposition || findByPartsOfSpeech(['prep'], lookUpEnglish(word))
+  const head: WordTranslation = options.head || getHead(word)
 
   let objectIds: Array<WordId> = options.objectIds
   if (!options.objectIds) {

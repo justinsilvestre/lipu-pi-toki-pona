@@ -3,14 +3,18 @@ import { lookUpEnglish, findByPartsOfSpeech } from '../dictionary'
 import prepositionalPhrase, { realizePrepositionalPhrase } from './prepositionalPhrase'
 import type { AdjectivePhrase } from './grammar'
 import type { WordsObject } from '../parseTokiPona'
-import type { WordId } from '../grammar'
+import type { WordId, Word } from '../grammar'
 import adverbPhrase, { realizeAdverbPhrase } from './adverbPhrase'
 import type { WordTranslation } from '../dictionary'
 
+const getHead = (word: Word): WordTranslation  => {
+  const englishOptionsByPartOfSpeech = lookUpEnglish(word)
+  return findByPartsOfSpeech(['adj'], englishOptionsByPartOfSpeech)
+}
+
 export default function adjectivePhrase(words: WordsObject, wordId: WordId, options: Object = {}) : AdjectivePhrase {
   const word = words[wordId]
-  const englishOptionsByPartOfSpeech = lookUpEnglish(word)
-  const head = findByPartsOfSpeech(['adj'], englishOptionsByPartOfSpeech)
+  const head = getHead(word)
   const complements = word.complements || []
   const isNegative = Boolean(!options.negatedCopula && word.negative)
   const { prepositionalPhrases = [], adverbPhrases = [] } = adjectiveModifiers(words, complements, { isNegative }) || {}
@@ -32,7 +36,7 @@ function adjectiveModifiers(words: WordsObject, complements: Array<WordId>, opti
         case 'prep':
           if (typeof complement.prepositionalObject === 'string') {
             obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, c, {
-              preposition: english,
+              head: english,
               objectIds: [complement.prepositionalObject],
             }))
           } else {
@@ -41,7 +45,7 @@ function adjectiveModifiers(words: WordsObject, complements: Array<WordId>, opti
           break
         case 'n':
           obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, c, {
-            preposition: { text: 'of', pos: 'prep' },
+            head: { text: 'of', pos: 'prep' },
             objectIds: [c],
           }))
           break

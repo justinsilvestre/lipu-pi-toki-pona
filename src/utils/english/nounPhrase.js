@@ -4,19 +4,23 @@ import { pluralize } from '../rita'
 import prepositionalPhrase, { realizePrepositionalPhrase } from './prepositionalPhrase'
 import adjectivePhrase, { realizeAdjectivePhrase } from './adjectivePhrase'
 import type { WordsObject } from '../parseTokiPona'
-import type { WordId } from '../grammar'
-import type { NounPhrase } from './grammar'
+import type { WordId, Word } from '../grammar'
+import type { NounPhrase, Case, GrammaticalNumber } from './grammar'
 import type { WordTranslation } from '../dictionary'
 import { getPossiblePartsOfSpeech, DETERMINER_PARTS_OF_SPEECH } from './nounPartsOfSpeech'
+
+const getHead = (word: Word, casus: Case, number: GrammaticalNumber): WordTranslation  => {
+  const englishOptionsByPartOfSpeech = lookUpEnglish(word)
+  return findByPartsOfSpeech(getPossiblePartsOfSpeech(casus, number), englishOptionsByPartOfSpeech)
+}
 
 export default function nounPhrase(words: WordsObject, wordId: WordId, options?: Object = {}) : NounPhrase {
   let { casus = 'OBLIQUE', number = 'SINGULAR' } = options
   const word = words[wordId]
   if ((word.complements || []).some(c => words[c].text === 'mute')) number = 'PLURAL'
-  const englishOptionsByPartOfSpeech = lookUpEnglish(word)
   // qualifier - determiner - adjective phrases - noun - prepositional phrases - appositives
   // qualifier - pronoun - conjoined adjective phrases - prepositional phrases
-  const head : WordTranslation = findByPartsOfSpeech(getPossiblePartsOfSpeech(casus, number), englishOptionsByPartOfSpeech)
+  const head : WordTranslation = options.head || getHead(word, casus, number)
   const complements : Array<WordId> = word.complements || []
   const isPronoun = head.pos.startsWith('pn')
   if (head.pos !== 'n' && !isPronoun && head.pos !=='prop') throw new Error('invalid noun phrase: ' + JSON.stringify(head))
@@ -56,13 +60,13 @@ function nounModifiers(words: WordsObject, complements: Array<WordId>, options: 
         case 'prep':
           if (typeof complement.prepositionalObject !== 'string') throw new Error('complement needs prepositional object')
           obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, c, {
-            preposition: english,
+            head: english,
             objectIds: [complement.prepositionalObject],
           }))
           break
         case 'n':
           obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, c, {
-            preposition: { text: 'of', pos: 'prep' },
+            head: { text: 'of', pos: 'prep' },
             objectIds: [c],
           }))
           break

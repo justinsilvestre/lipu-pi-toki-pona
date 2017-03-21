@@ -68,7 +68,7 @@ export default function verbPhrase(words: WordsObject, wordId: WordId, options: 
   // those that are part of head's translation, rather than modifiers'
   const firstPrepositionalPhrases = head.pos === 'vp'
     ? [prepositionalPhrase(words, wordId, {
-      preposition: { ...head, text: extractPreposition(head.text)},
+      head: { ...head, text: extractPreposition(head.text)},
       objectIds: getObjects(words, word),
     })]
     : []
@@ -127,7 +127,10 @@ const getSubjectComplement = (words: WordsObject, sc: WordId, options: Object): 
   if (head.pos === 'adj') getPhrase = adjectivePhrase
   if (head.pos === 'prep') getPhrase = prepositionalPhrase
 
-  return getPhrase(words, sc, options)
+  return getPhrase(words, sc, {
+    ...options,
+    head,
+  })
 }
 // copula phrases come from predicate nouns, and from tp verb phrases whose head translates to 'vc's.
 export function copulaPhrase(words: WordsObject, wordId: WordId, options: Object = {}): VerbPhrase {
@@ -194,14 +197,14 @@ function verbModifiers(words: WordsObject, complements: Array<WordId>) : Object 
         if (typeof complement.prepositionalObject !== 'string') throw new Error('complement needs prepositional object')
         obj.prepositionalPhrases = (obj.prepositionalPhrases || [])
           .concat(prepositionalPhrase(words, c, {
-            preposition: english,
+            head: english,
             objectIds: [complement.prepositionalObject],
           }))
         break
       case 'n':
         obj.prepositionalPhrases = (obj.prepositionalPhrases || [])
           .concat(prepositionalPhrase(words, c, {
-            preposition: { text: 'by', pos: 'conj' },
+            head: { text: 'by', pos: 'conj' },
             objectIds: [c],
           }))
         break

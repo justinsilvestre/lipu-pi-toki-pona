@@ -52,7 +52,7 @@ function sentenceModifiers(words: WordsObject, contexts: Array<SentenceContext>)
       obj.adverbPhrases = (obj.adverbPhrases || []).concat(adverbPhrase(words, predicateId))
     } else if (english.pos === 'n' || english.pos.startsWith('pn')) {
       obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, predicateId, {
-        preposition: { text: 'by', pos: 'prep' },
+        head: { text: 'by', pos: 'prep' },
         objectIds: [predicateId],
       }))
     } // else throw error?

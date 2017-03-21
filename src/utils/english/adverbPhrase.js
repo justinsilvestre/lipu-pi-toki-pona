@@ -31,7 +31,7 @@ function adverbModifiers(words: WordsObject, complements: Array<WordId>) : Objec
           if (typeof complement.prepositionalObject === 'string') {
             // obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, english, [complement.prepositionalObject]))
             obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, c, {
-              preposition: english,
+              head: english,
               objectIds: [complement.prepositionalObject]
             }))
           } else {
@@ -41,7 +41,7 @@ function adverbModifiers(words: WordsObject, complements: Array<WordId>) : Objec
         case 'n':
         // obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, { text: 'of', pos: 'prep' }, [c]))
           obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, c, {
-            preposition: { text: 'of', pos: 'prep' },
+            head: { text: 'of', pos: 'prep' },
             objectIds: [c],
           }))
           break
