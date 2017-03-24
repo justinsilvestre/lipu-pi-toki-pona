@@ -67,8 +67,10 @@ export default function app(state: AppState = initialState, action: Action) : Ap
         ...state,
         pendingSelectionStart: null,
         pendingSelectionEnd: null,
-        selectionStart: state.pendingSelectionStart ? state.tpWords[state.pendingSelectionStart.id] : null,
-        selectionEnd: state.pendingSelectionEnd ? state.tpWords[state.pendingSelectionEnd.id] : null,
+        // selectionStart: state.pendingSelectionStart ? state.tpWords[state.pendingSelectionStart.id] : null,
+        // selectionEnd: state.pendingSelectionEnd ? state.tpWords[state.pendingSelectionEnd.id] : null,
+        selectionStart: state.pendingSelectionStart ? state.highlightedWord : null,
+        selectionEnd: state.pendingSelectionEnd ? state.highlightedWord : null,
       }
     case 'TRANSLATE_SENTENCES':
       return {
