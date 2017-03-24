@@ -5,6 +5,7 @@ import './App.css';
 import Sentence from './Sentence'
 import type { Sentence as SentenceData } from '../utils/grammar'
 import { parseSentences } from '../actions'
+import { getSentences } from '../reducers'
 
 // sina kepeken toki pona la jan li pilin pona.
 const lipu_ni = `jan mute o, toki pona li toki lili.
@@ -57,7 +58,7 @@ export class App extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({ sentences: state.tpSentences })
+const mapStateToProps = (state) => ({ sentences: getSentences(state) })
 const mapDispatchToProps = { parseSentences }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

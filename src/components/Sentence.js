@@ -5,6 +5,7 @@ import SentenceOriginal from './SentenceOriginal'
 import SentenceTranslation from './SentenceTranslation'
 import type { Sentence } from '../utils/grammar'
 import type { SentenceTranslation as SentenceTranslationType } from '../utils/english/grammar'
+import { getEnSentence } from '../reducers'
 
 type SentenceProps = {
   tp: Sentence,
@@ -30,14 +31,10 @@ class SentencePair extends Component {
   }
 }
 
-const mapStateToProps = ({ highlightedSentenceIndex, highlightedWordIndex, enSentences }, { index }) => ({
-  highlightedSentenceIndex, highlightedWordIndex,
-  en: enSentences[index]
+const mapStateToProps = (state, { index }) => ({
+  en: getEnSentence(state, index)
 })
 const mapDispatchToProps = {
-  // wordMouseEnter,
-  // wordMouseDown,
-  // wordMouseUp,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SentencePair)

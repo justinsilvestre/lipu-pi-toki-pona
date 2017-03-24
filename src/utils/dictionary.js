@@ -11,7 +11,6 @@ export type WordTranslation = {
   interrogative?: boolean,
   root?: string,
 }
-export type SentenceTranslation = Array<WordTranslation>
 
 const ALTERNATES = {
   kin: 'a',

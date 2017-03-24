@@ -4,6 +4,7 @@ import type { WordsObject } from '../utils/parseTokiPona'
 import getHighlighting from '../utils/getHighlighting'
 import type { Color } from '../utils/getHighlighting'
 import type { Action } from '../actions'
+import type { SentenceTranslation } from '../utils/english/grammar'
 
 export type AppState = {
   tpSentences: Array<Sentence>,
@@ -16,6 +17,7 @@ export type AppState = {
   selectionStart: ?Word,
   selectionEnd: ?Word,
 
+  enSentences: Array<SentenceTranslation>
 }
 const initialState : AppState = {
   tpSentences: [],
@@ -78,12 +80,14 @@ export default function app(state: AppState = initialState, action: Action) : Ap
   }
 }
 
-const getWord = (state : AppState, wordId : WordId) => state.tpWords[wordId]
-const getSentenceFromWord = (state : AppState, wordId : WordId) => state.tpSentences[state.tpWords[wordId].sentence]
+export const getSentences = (state: AppState): Array<Sentence> => state.tpSentences
+export const getWord = (state: AppState, wordId: WordId): Word => state.tpWords[wordId]
+const getSentenceFromWord = (state: AppState, wordId: WordId) => getSentences(state)[state.tpWords[wordId].sentence]
+export const getEnSentence = (state: AppState, index: number): SentenceTranslation => state.enSentences[index]
 
-export const wasSelectionMade = (state : AppState) : bool => (!state.selectionStart || !state.selectionEnd)
+export const wasSelectionMade = (state: AppState) : bool => (!state.selectionStart || !state.selectionEnd)
 
-export const isWordSelected = (state : AppState, wordId: WordId) => {
+export const isWordSelected = (state: AppState, wordId: WordId) => {
   if (!state.selectionStart || !state.selectionEnd) return false
 
   const word = state.tpWords[wordId]
@@ -94,7 +98,7 @@ export const isWordSelected = (state : AppState, wordId: WordId) => {
 
   return startIndex <= wordIndex && wordIndex <= endIndex
 }
-export const isWordInPendingSelection = (state : AppState, wordId: WordId) => {
+export const isWordInPendingSelection = (state: AppState, wordId: WordId) => {
   if (!state.pendingSelectionStart || !state.pendingSelectionEnd) return false
 
   const word = state.tpWords[wordId]
@@ -106,8 +110,8 @@ export const isWordInPendingSelection = (state : AppState, wordId: WordId) => {
   return startIndex <= wordIndex && wordIndex <= endIndex
 }
 
-const getIndexInSentence = (state : AppState, wordId: WordId) : number =>
+const getIndexInSentence = (state: AppState, wordId: WordId) : number =>
   getSentenceFromWord(state, wordId).words.indexOf(wordId)
 
-export const getWordColor = (state : AppState, wordId: WordId) =>
+export const getWordColor = (state: AppState, wordId: WordId) =>
   state.colors[getWord(state, wordId).sentence][getIndexInSentence(state, wordId)]
