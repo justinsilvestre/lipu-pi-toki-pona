@@ -87,7 +87,7 @@ export const getWord = (state: AppState, wordId: WordId): Word => state.tpWords[
 const getSentenceFromWord = (state: AppState, wordId: WordId) => getSentences(state)[state.tpWords[wordId].sentence]
 export const getEnSentence = (state: AppState, index: number): SentenceTranslation => state.enSentences[index]
 
-export const wasSelectionMade = (state: AppState) : bool => (!state.selectionStart || !state.selectionEnd)
+export const wasSelectionMade = (state: AppState) : bool => Boolean(state.selectionStart && state.selectionEnd)
 
 export const isWordSelected = (state: AppState, wordId: WordId) => {
   if (!state.selectionStart || !state.selectionEnd) return false

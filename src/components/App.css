@@ -32,3 +32,36 @@ body {
   cursor: default;
   padding: .1em;
 }
+
+.translationMenu {
+  position: absolute;
+  background-color: rgba(221, 222, 221, 0.94);
+  border: solid 1px rgb(247, 247, 247);
+  border-radius: .3rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.translationMenuPartsOfSpeech {
+  list-style-type: none;
+  padding-left: 0;
+  display: flex;
+  margin: 0;
+  background-color: rgb(175, 178, 175);
+  justify-content: flex-start;
+}
+.translationMenuPartsOfSpeech > li {
+  padding: .2rem .5rem;
+  font-size: .6rem;
+  background-color: rgba(222,222,222,.8);
+  margin-left: 0.1rem;
+}
+.translationMenuPartsOfSpeech > li:first-child {
+  margin-left: 0;
+}
+.translationMenuLemmaOptions {
+  list-style-type: none;
+  padding: .3em;
+  margin: 0;
+  text-align: center;
+}
