@@ -3,7 +3,7 @@ import type { Sentence, Word, WordId } from '../utils/grammar'
 import type { WordsObject } from '../utils/parseTokiPona'
 import getHighlighting from '../utils/getHighlighting'
 import type { Color } from '../utils/getHighlighting'
-import type { Action } from './actions'
+import type { Action } from '../actions'
 
 export type AppState = {
   tpSentences: Array<Sentence>,

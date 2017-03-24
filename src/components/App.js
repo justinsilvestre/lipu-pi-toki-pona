@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import './App.css';
 import Sentence from './Sentence'
 import type { Sentence as SentenceData } from '../utils/grammar'
-import { parseSentences } from '../redux/actions'
+import { parseSentences } from '../actions'
 
 // sina kepeken toki pona la jan li pilin pona.
 const lipu_ni = `jan mute o, toki pona li toki lili.

@@ -6,11 +6,11 @@ import type { ConnectedComponentClass } from 'react-redux'
 import { getText } from '../utils/parseTokiPona'
 import type { Word, WordId } from '../utils/grammar'
 import type { Color } from '../utils/getHighlighting'
-import type { AppState } from '../redux/reducer'
-import { isWordSelected, isWordInPendingSelection, getWordColor } from '../redux/reducer'
+import type { AppState } from '../reducers'
+import { isWordSelected, isWordInPendingSelection, getWordColor } from '../reducers'
 import {
   wordMouseEnter, wordMouseLeave, wordMouseDown, wordMouseUp, wordClick,
-} from '../redux/actions'
+} from '../actions'
 
 const adjustColor = (selecting: bool, selected: bool, [h, s, l]: Color) : Color =>
   [h, s + (selected || selecting ? 1 : 0) * 60, l + (selecting ? 1 : 0) * 20]

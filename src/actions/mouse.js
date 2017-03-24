@@ -1,11 +1,10 @@
 // @flow
-import parseTokiPona from '../utils/parseTokiPona'
 import type { WordsObject } from '../utils/parseTokiPona'
 import type { Sentence, WordId } from '../utils/grammar'
 import type { SentenceTranslation } from '../utils/english/grammar'
 
 export type Action =
-  { type: 'PARSE_SENTENCES', tpSentences: Array<Sentence>, tpWords: WordsObject }
+  | { type: 'PARSE_SENTENCES', tpSentences: Array<Sentence>, tpWords: WordsObject }
   | { type: 'WORD_MOUSE_ENTER', word: WordId }
   | { type: 'WORD_MOUSE_LEAVE', word: WordId }
   | { type: 'WORD_MOUSE_DOWN', word: WordId }
@@ -15,15 +14,6 @@ export type Action =
   | { type: 'DELIMIT_PENDING_SELECTION', start: WordId, end: WordId }
   | { type: 'TRANSLATE_SENTENCES', enSentences: Array<SentenceTranslation> }
 
-export const parseSentences = (text: string) : Action => {
-  const { sentences, words } = parseTokiPona(text)
-  return ({
-    type: 'PARSE_SENTENCES',
-    tpSentences: sentences,
-    tpWords: words,
-    // tpSentences: parseTokiPona(text),
-  })
-}
 
 export const wordMouseEnter = (word: WordId) : Action => ({
   type: 'WORD_MOUSE_ENTER',
@@ -54,9 +44,4 @@ export const delimitPendingSelection = (start: WordId, end: WordId) : Action  =>
 
 export const selectWords = () : Action => ({
   type: 'SELECT_WORDS',
-})
-
-export const translateSentences = (enSentences: Array<SentenceTranslation>) : Action => ({
-  type: 'TRANSLATE_SENTENCES',
-  enSentences,
 })
