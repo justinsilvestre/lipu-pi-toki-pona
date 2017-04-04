@@ -1,7 +1,4 @@
-import 'rita'
-
 const RiTa = window.RiTa
-
 
 module.exports = RiTa
 
