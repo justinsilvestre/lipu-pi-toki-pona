@@ -1,0 +1,11 @@
+info "Building Phoenix static assets"
+
+pwd
+yarn run build
+
+echo "Moving built files to priv/static"
+mkdir -p ./priv/static/js
+cp ./build/static/js/main.*.js ./priv/static/js/app.js
+cp ./build/static/js/main.*.js.map ./priv/static/js/app.js.map
+
+mix phoenix.digest
