@@ -24,7 +24,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && mv ./build/static/js/main.*.js ./priv/static/js/app.js && mv ./build/static/js/main.*.js.map ./priv/static/js/app.js.map",
+    "build": "react-scripts build",
     "test": "react-scripts test --verbose --env=jsdom",
     "eject": "react-scripts eject",
     "flow": "flow"
