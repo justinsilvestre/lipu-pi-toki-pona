@@ -12,6 +12,8 @@
     "classnames": "^2.2.5",
     "normalizr": "^3.0.0",
     "parse-toki-pona": "0.0.1",
+    "phoenix": "file:deps/phoenix",
+    "phoenix_html": "file:deps/phoenix_html",
     "ramda": "^0.22.1",
     "react": "^15.4.2",
     "react-dom": "^15.3.2",
@@ -22,7 +24,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && mv ./build/static/js/main.*.js ./priv/static/js/app.js && mv ./build/static/js/main.*.js.map ./priv/static/js/app.js.map",
     "test": "react-scripts test --verbose --env=jsdom",
     "eject": "react-scripts eject",
     "flow": "flow"
