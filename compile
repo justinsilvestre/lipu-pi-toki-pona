@@ -8,4 +8,8 @@ mkdir -p ./priv/static/js
 cp ./build/static/js/main.*.js ./priv/static/js/app.js
 cp ./build/static/js/main.*.js.map ./priv/static/js/app.js.map
 
+mkdir -p ./priv/static/css
+cp ./build/static/css/main.*.css ./priv/static/css/app.css
+cp ./build/static/css/main.*.css.map ./priv/static/css/app.css.map
+
 mix phoenix.digest
