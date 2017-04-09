@@ -1,0 +1,15 @@
+{
+  "ANIMATE_NOUNS": [
+    "mi", "sina", "ona",
+    "meli", "mije",
+    "akesi", "soweli", "jan", "kala", "waso", "kasi", "pipi"
+  ],
+  "ANIMATE_SUBJECT_VERBS": [
+    "alasa", "lukin", "kute", "moku", "moli", "lape", "unpa", "pilin", "sitelen", "toki", "pakala", "utala", "nasa", "olin", "pilin", "pu", "sona", "wile", "mu"
+  ],
+  "INANIMATE_NOUNS": [
+    "ni", "ma", "tenpo",
+    "ijo", "esun", "ilo", "tomo", "kili", "lawa", "luka", "uta", "suno", "mun", "mani", "tomo", "nimi", "len", "oko", "noka", "pan", "sijelo"
+  ],
+  "PRONOUNS": ["mi", "sina", "ona", "ni"]
+}
