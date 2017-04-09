@@ -3,6 +3,7 @@ defmodule Lipu.EnPartOfSpeech do
 
   schema "en_parts_of_speech" do
     field :name, :string
+    has_many :en_lemmas, Lipu.EnLemma, foreign_key: :pos_id
 
     timestamps()
   end

@@ -17,6 +17,6 @@ defmodule Lipu.TpLemma do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:text, :animacy, :pos_id, :primary_id])
-    |> validate_required([:text, :animacy])
+    |> validate_required([:text, :pos_id])
   end
 end

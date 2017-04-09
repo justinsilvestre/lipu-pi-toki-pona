@@ -32,7 +32,7 @@ defmodule Lipu.BuildDictionary do
     acc = %{tp_lemmas: tp_ls, en_lemmas: en_ls, tp_parts_of_speech: tp_poss, en_parts_of_speech: en_poss}
   ) do
     tp_lemmas = MapSet.put(tp_ls, %{text: tp_text, pos: tp_pos, animacy: get_animacy(tp_text)})
-    en_lemmas = Enum.concat(en_ls, Enum.map(en_ls, fn (en_text) -> %{text: en_text, pos: en_pos} end))
+    en_lemmas = Enum.concat(en_ls, Enum.map(en_texts, fn (en_text) -> %{text: en_text, pos: en_pos} end))
     %{acc |
       tp_lemmas: tp_lemmas,
       en_lemmas: en_lemmas,
@@ -42,7 +42,12 @@ defmodule Lipu.BuildDictionary do
   end
 
   def build(csv_list) do
-    all = %{alternates: alternates, tp_lemmas: tp_lemmas_without_alternates, en_parts_of_speech: en_parts_of_speech} = Enum.reduce(csv_list, @accumulator, &Lipu.BuildDictionary.reduce/2)
+    all = %{
+      alternates: alternates,
+      tp_lemmas: tp_lemmas_without_alternates,
+      en_parts_of_speech: en_parts_of_speech,
+      en_lemmas: en_lemmas,
+    } = Enum.reduce(csv_list, @accumulator, &Lipu.BuildDictionary.reduce/2)
     alternate_tp_lemmas = Enum.flat_map(alternates, fn({tp_text, primary}) ->
       tp_lemmas_without_alternates
         |> Enum.filter_map(
@@ -53,7 +58,8 @@ defmodule Lipu.BuildDictionary do
 
     %{all
       | alternate_tp_lemmas: alternate_tp_lemmas,
-      en_parts_of_speech: Enum.reject(en_parts_of_speech, &(String.starts_with?(&1, "x")))
+      en_parts_of_speech: Enum.reject(en_parts_of_speech, &(String.starts_with?(&1, "x"))),
+      en_lemmas: Enum.reject(en_lemmas, fn %{pos: pos} -> String.starts_with?(pos, "x") end)
     }
   end
 end

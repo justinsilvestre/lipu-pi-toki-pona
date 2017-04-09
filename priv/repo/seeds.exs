@@ -56,7 +56,6 @@ build_tp_lemma = fn (entry = %{text: text, pos: pos_name}, alternate) ->
 end
 
 Enum.each(tp_lemmas, &(build_tp_lemma.(&1, false)))
-
 Enum.each(alternate_tp_lemmas, &(build_tp_lemma.(&1, true)))
 
 tp_roles = [
@@ -84,3 +83,19 @@ tp_roles = [
 Enum.each(tp_roles, fn role ->
   Repo.get_by(Lipu.TpRole, name: role)
   || Repo.insert!(%Lipu.TpRole{name: role}) end)
+
+Enum.each(en_parts_of_speech, fn pos ->
+  Repo.get_by(Lipu.EnPartOfSpeech, name: pos)
+  || Repo.insert!(%Lipu.EnPartOfSpeech{name: pos}) end)
+
+Enum.each(en_lemmas, fn (entry = %{text: text, pos: pos_name}) ->
+  pos = Repo.get_by(Lipu.EnPartOfSpeech, name: pos_name)
+
+  attrs =  %{
+    text: text,
+    pos_id: pos.id
+  }
+
+  Repo.get_by(Lipu.EnLemma, attrs)
+    || Repo.insert!(struct(Lipu.EnLemma, attrs))
+end)
