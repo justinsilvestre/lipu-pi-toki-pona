@@ -31,8 +31,9 @@ defmodule Lipu.BuildDictionary do
     [tp_text| [tp_pos | [en_pos | en_texts]]],
     acc = %{tp_lemmas: tp_ls, en_lemmas: en_ls, tp_parts_of_speech: tp_poss, en_parts_of_speech: en_poss}
   ) do
-    tp_lemmas = MapSet.put(tp_ls, %{text: tp_text, pos: tp_pos, animacy: get_animacy(tp_text)})
-    en_lemmas = Enum.concat(en_ls, Enum.map(en_texts, fn (en_text) -> %{text: en_text, pos: en_pos} end))
+    tp_attrs = %{text: tp_text, pos: tp_pos}
+    tp_lemmas = MapSet.put(tp_ls, Map.put(tp_attrs, :animacy, get_animacy(tp_text)))
+    en_lemmas = Enum.concat(en_ls, Enum.map(en_texts, fn (en_text) -> %{text: en_text, pos: en_pos, tp: tp_attrs} end))
     %{acc |
       tp_lemmas: tp_lemmas,
       en_lemmas: en_lemmas,

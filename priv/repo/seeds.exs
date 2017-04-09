@@ -88,14 +88,22 @@ Enum.each(en_parts_of_speech, fn pos ->
   Repo.get_by(Lipu.EnPartOfSpeech, name: pos)
   || Repo.insert!(%Lipu.EnPartOfSpeech{name: pos}) end)
 
-Enum.each(en_lemmas, fn (entry = %{text: text, pos: pos_name}) ->
+Enum.each(en_lemmas, fn (entry = %{text: text, pos: pos_name, tp: %{text: tp_text, pos: tp_pos_name}}) ->
   pos = Repo.get_by(Lipu.EnPartOfSpeech, name: pos_name)
 
-  attrs =  %{
+  en_attrs =  %{
     text: text,
     pos_id: pos.id
   }
 
-  Repo.get_by(Lipu.EnLemma, attrs)
-    || Repo.insert!(struct(Lipu.EnLemma, attrs))
+  en_lemma = Repo.get_by(Lipu.EnLemma, en_attrs)
+    || Repo.insert!(struct(Lipu.EnLemma, en_attrs))
+
+  tp_lemma = Repo.get_by(Lipu.TpLemma, %{
+    pos_id: Repo.get_by(Lipu.TpPartOfSpeech, name: tp_pos_name).id,
+    text: tp_text
+  })
+  translation_attrs = %{en_lemma_id: en_lemma.id, tp_lemma_id: tp_lemma.id}
+  Repo.get_by(Lipu.PhraseTranslation, translation_attrs)
+    || Repo.insert(struct(Lipu.PhraseTranslation, translation_attrs))
 end)
