@@ -3,6 +3,7 @@ defmodule Lipu.TpPartOfSpeech do
 
   schema "tp_parts_of_speech" do
     field :name, :string
+    has_many :tp_lemmas, Lipu.TpLemma, foreign_key: :pos_id
 
     timestamps()
   end

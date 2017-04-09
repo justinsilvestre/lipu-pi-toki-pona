@@ -3,9 +3,10 @@ defmodule Lipu.TpLemma do
 
   schema "tp_lemmas" do
     field :text, :string
-    field :animacy, :boolean, default: false
-    belongs_to :pos, Lipu.Pos
-    belongs_to :primary, Lipu.Primary
+    field :animacy, :boolean
+    belongs_to :pos, Lipu.TpPartOfSpeech
+    belongs_to :primary, Lipu.TpLemma
+    has_one :secondary, Lipu.TpLemma, foreign_key: :primary_id
 
     timestamps()
   end
@@ -15,7 +16,7 @@ defmodule Lipu.TpLemma do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:text, :animacy])
+    |> cast(params, [:text, :animacy, :pos_id, :primary_id])
     |> validate_required([:text, :animacy])
   end
 end
