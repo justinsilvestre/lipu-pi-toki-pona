@@ -2,7 +2,7 @@ defmodule Lipu.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", Lipu.RoomChannel
+  channel "translate:*", Lipu.TranslateChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket,
