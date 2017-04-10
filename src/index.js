@@ -8,13 +8,15 @@ import socket from './utils/socket'
 
 socket.connect()
 const channel = socket.channel('translate:' + 42)
-channel.on('ping', (o) => console.log("PING!", o.count, o))
+channel.on('lookup_success', o => console.log('lookup success', o))
+// channel.on('ping', (o) => console.log("PING!", o.count, o))
+window.channel = channel
+
 channel.join()
   .receive('ok', (r) => {
     console.log('JOIN WORKEDDED???! :OOO')
   })
   .receive('error', reason => console.log('join failed :(', reason))
-
 ReactDOM.render(
   <Provider store={store}>
     <App />
