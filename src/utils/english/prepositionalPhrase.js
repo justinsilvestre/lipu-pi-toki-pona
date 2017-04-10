@@ -12,7 +12,7 @@ const getHead = (word: Word): WordTranslation  => {
   return findByPartsOfSpeech(['prep'], englishOptionsByPartOfSpeech)
 }
 
-export default function prepositionalPhrase(words: WordsObject, wordId: WordId, options: Object = {}) : PrepositionalPhrase {
+export default async function prepositionalPhrase(words: WordsObject, wordId: WordId, options: Object = {}) : Promise<PrepositionalPhrase> {
   const word = words[wordId]
   const head: WordTranslation = options.head || getHead(word)
 
@@ -24,7 +24,7 @@ export default function prepositionalPhrase(words: WordsObject, wordId: WordId, 
 
   return {
     head,
-    objects: objectIds.map(objectId => nounPhrase(words, objectId)),
+    objects: await Promise.all(objectIds.map(objectId => nounPhrase(words, objectId))),
     // isNegative: preposition
   }
 }

@@ -12,13 +12,13 @@ import subordinateClause, { realizeSubordinateClause } from './subordinateClause
 import adverbPhrase, { realizeAdverbPhrase } from './adverbPhrase'
 import prepositionalPhrase, { realizePrepositionalPhrase } from './prepositionalPhrase'
 
-export default function sentence(words: WordsObject, tokiPonaSentence: Sentence) : SentenceTranslation {
+export default async function sentence(words: WordsObject, tokiPonaSentence: Sentence) : Promise<SentenceTranslation> {
     const { predicates, mood, subjects = [], vocative, contexts = [], seme = [], words: sentenceWords } = tokiPonaSentence
-    const vocativeTranslation = vocative ? vocativePhrase(words, vocative) : null
-    const subjectTranslations = subjectPhrase(words, subjects)
-    const predicateTranslations = predicatePhrase(words, predicates, subjects, subjectTranslations)
-    const subordinateClauses = contexts.filter(c => c.subjects).map(c => subordinateClause(words, c.subjects, c.predicates))
-    const { adverbPhrases, prepositionalPhrases } = sentenceModifiers(words, contexts)
+    const vocativeTranslation = await (vocative ? vocativePhrase(words, vocative) : Promise.resolve(null))
+    const subjectTranslations = await subjectPhrase(words, subjects)
+    const predicateTranslations = await predicatePhrase(words, predicates, subjects, subjectTranslations)
+    const subordinateClauses = await Promise.all(contexts.filter(c => c.subjects).map(c => subordinateClause(words, c.subjects, c.predicates)))
+    const { adverbPhrases, prepositionalPhrases } = await sentenceModifiers(words, contexts)
 
     return {
       ...(vocativeTranslation && { vocative: vocativeTranslation }),
@@ -31,8 +31,8 @@ export default function sentence(words: WordsObject, tokiPonaSentence: Sentence)
     }
 }
 
-function sentenceModifiers(words: WordsObject, contexts: Array<SentenceContext>) : Object {
-  return contexts.reduceRight((obj, c) => {
+async function sentenceModifiers(words: WordsObject, contexts: Array<SentenceContext>) : Promise<Object> {
+  const { adverbPhrases = [], prepositionalPhrases = [] } = contexts.reduceRight((obj, c) => {
     if (c.subjects) {
       obj.subordinateClauses = (obj.subordinateClauses || []).concat(subordinateClause(words, c.subjects, c.predicates))
       return obj
@@ -60,6 +60,10 @@ function sentenceModifiers(words: WordsObject, contexts: Array<SentenceContext>)
     return obj
 
   }, {})
+  return {
+    adverbPhrases: await Promise.all(adverbPhrases),
+    prepositionalPhrases: await Promise.all(prepositionalPhrases),
+  }
 }
 
 export const realizeSentence = (sentence: SentenceTranslation) : Array<WordTranslation> => {

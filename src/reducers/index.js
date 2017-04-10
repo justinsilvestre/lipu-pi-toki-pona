@@ -72,7 +72,7 @@ export default function app(state: AppState = initialState, action: Action) : Ap
         selectionStart: state.pendingSelectionStart ? state.highlightedWord : null,
         selectionEnd: state.pendingSelectionEnd ? state.highlightedWord : null,
       }
-    case 'TRANSLATE_SENTENCES':
+    case 'TRANSLATE_SENTENCES_SUCCESS':
       return {
         ...state,
         enSentences: action.enSentences,
@@ -85,7 +85,7 @@ export default function app(state: AppState = initialState, action: Action) : Ap
 export const getSentences = (state: AppState): Array<Sentence> => state.tpSentences
 export const getWord = (state: AppState, wordId: WordId): Word => state.tpWords[wordId]
 const getSentenceFromWord = (state: AppState, wordId: WordId) => getSentences(state)[state.tpWords[wordId].sentence]
-export const getEnSentence = (state: AppState, index: number): SentenceTranslation => state.enSentences[index]
+export const getEnSentence = (state: AppState, index: number): SentenceTranslation => state.enSentences && state.enSentences[index]
 
 export const wasSelectionMade = (state: AppState) : bool => Boolean(state.selectionStart && state.selectionEnd)
 

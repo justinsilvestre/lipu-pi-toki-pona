@@ -7,9 +7,9 @@ import type { WordId } from '../grammar'
 import punctuate from './punctuate'
 import type { WordTranslation } from '../dictionary'
 
-export default function subordinateClause(words: WordsObject, subjects: Array<WordId> = [], predicates: Array<WordId> = []) : SubordinateClause {
-  const subjectTranslations = subjectPhrase(words, subjects)
-  const predicateTranslations = predicatePhrase(words, predicates, subjects, subjectTranslations)
+export default async function subordinateClause(words: WordsObject, subjects: Array<WordId> = [], predicates: Array<WordId> = []) : Promise<SubordinateClause> {
+  const subjectTranslations = await subjectPhrase(words, subjects)
+  const predicateTranslations = await predicatePhrase(words, predicates, subjects, subjectTranslations)
 
   return {
     conjunction: { text: 'when', pos: 'conj' },

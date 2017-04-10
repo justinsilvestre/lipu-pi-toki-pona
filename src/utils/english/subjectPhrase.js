@@ -7,7 +7,7 @@ import { getPrimary } from '../dictionary'
 import type { WordsObject } from '../parseTokiPona'
 import type { WordId } from '../grammar'
 
-export default function subjectPhrase(words: WordsObject, headIds: Array<WordId>) : SubjectPhrase {
+export default async function subjectPhrase(words: WordsObject, headIds: Array<WordId>) : Promise<SubjectPhrase> {
   if (!headIds.length) return {
     // nounPhrases: [{ head: { text: 'it', pos: 'pns' } }],
     nounPhrases: [],
@@ -15,11 +15,11 @@ export default function subjectPhrase(words: WordsObject, headIds: Array<WordId>
     isFirstPerson: false,
   }
 
-  const nounPhrases = headIds.map((s, i) => {
+  const nounPhrases = await Promise.all(headIds.map((s, i) => {
     // TODO: anu phrases
     // return (i > 0 ? [{ text: 'and', pos: 'conj' }] : []).concat(nounPhrase(words, s))
     return nounPhrase(words, s, { casus: 'NOMINATIVE' })
-  })
+  }))
 
   const result : SubjectPhrase = {
     nounPhrases,
