@@ -14,7 +14,7 @@ const getHead = (word: Word, casus: Case, number: GrammaticalNumber): WordTransl
   return findByPartsOfSpeech(getPossiblePartsOfSpeech(casus, number), englishOptionsByPartOfSpeech)
 }
 
-export default function nounPhrase(words: WordsObject, wordId: WordId, options?: Object = {}) : NounPhrase {
+async function nounPhrase(words: WordsObject, wordId: WordId, options?: Object = {}): Promise<NounPhrase> {
   let { casus = 'OBLIQUE', number = 'SINGULAR' } = options
   const word = words[wordId]
   if ((word.complements || []).some(c => words[c].text === 'mute')) number = 'PLURAL'
@@ -27,10 +27,10 @@ export default function nounPhrase(words: WordsObject, wordId: WordId, options?:
   const isNegative = Boolean(!options.negatedCopula && word.negative)
   const {
     determiner,
-    adjectivePhrases = [],
-    prepositionalPhrases = [],
-    appositives = [],
-  } = nounModifiers(words, complements, { number, isPronoun, isNegative }) || {}
+    adjectivePhrases,
+    prepositionalPhrases,
+    appositives,
+  } = await nounModifiers(words, complements, { number, isPronoun, isNegative })
   // const determiner = d || (number === 'SINGULAR' && word.pos !== 'prop' ? { text: 'the', pos: 'd' } : undefined)
   return { isPronoun, head, determiner, adjectivePhrases, prepositionalPhrases, appositives, number, or: word.anu }
   // const pronouns = englishOptionsByPartOfSpeech.pn
@@ -39,11 +39,18 @@ export default function nounPhrase(words: WordsObject, wordId: WordId, options?:
   //   || (pronouns && pronouns[0])
   //   || Object.values(englishOptionsByPartOfSpeech)[0][0]
 }
+console.log('nounPhrase', nounPhrase)
+export default nounPhrase
 
-function nounModifiers(words: WordsObject, complements: Array<WordId>, options: Object) : Object {
+async function nounModifiers(words: WordsObject, complements: Array<WordId>, options: Object) : Promise<Object> {
   let obj = {}
-  if (options.isNegative === true) obj.determiner = { text: 'no', pos: 'd' }
-  return complements.reduceRight((obj, c) => {
+  if (options.isNegative === true) obj.determiner = Promise.resolve({ text: 'no', pos: 'd' })
+  const {
+    determiner = Promise.resolve(null),
+    adjectivePhrases = [],
+    prepositionalPhrases = [],
+    appositives = [],
+  } = complements.reduceRight((obj, c) => {
     const complement = words[c]
     const englishOptions = lookUpEnglish(complement)
     const possiblePartsOfSpeech = (Object.keys(englishOptions) : any)
@@ -83,6 +90,13 @@ function nounModifiers(words: WordsObject, complements: Array<WordId>, options: 
     }
     return obj
   }, obj)
+
+  return {
+    determiner: await determiner,
+    adjectivePhrases: await Promise.all(adjectivePhrases),
+    prepositionalPhrases: await Promise.all(prepositionalPhrases),
+    appositives: await Promise.all(appositives),
+  }
 }
 
 const pl = (head, number, isPronoun) => {

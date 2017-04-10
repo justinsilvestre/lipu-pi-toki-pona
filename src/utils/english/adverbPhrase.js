@@ -6,19 +6,19 @@ import type { WordsObject } from '../parseTokiPona'
 import type { WordId } from '../grammar'
 import type { WordTranslation } from '../dictionary'
 
-export default function adverbPhrase(words: WordsObject, wordId: WordId) : AdverbPhrase {
+export default async function adverbPhrase(words: WordsObject, wordId: WordId) : Promise<AdverbPhrase> {
   const word = words[wordId]
   const englishOptionsByPartOfSpeech = lookUpEnglish(word)
   const head : WordTranslation = findByPartsOfSpeech(['adv'], englishOptionsByPartOfSpeech)
   const complements = word.complements || []
-  const { prepositionalPhrases = [], adverbPhrases = [] } = adverbModifiers(words, complements) || {}
+  const { prepositionalPhrases, adverbPhrases } = await adverbModifiers(words, complements) || {}
   const isNegative = Boolean(word.negative)
 
   return { head, prepositionalPhrases, adverbPhrases, isNegative }
 }
 
-function adverbModifiers(words: WordsObject, complements: Array<WordId>) : Object {
-  return complements.reduceRight((obj, c) => {
+async function adverbModifiers(words: WordsObject, complements: Array<WordId>) : Object {
+  const { prepositionalPhrases = [], adverbPhrases = [] } = complements.reduceRight((obj, c) => {
     const complement = words[c]
     const englishOptions = lookUpEnglish(complement)
       const english = findByPartsOfSpeech(['adv', 'prep'], englishOptions)
@@ -55,6 +55,10 @@ function adverbModifiers(words: WordsObject, complements: Array<WordId>) : Objec
       }
     return obj
   }, {})
+  return {
+    prepositionalPhrases: await Promise.all(prepositionalPhrases),
+    adverbPhrases: await Promise.all(adverbPhrases),
+  }
 }
 
 export const realizeAdverbPhrase = ({ head, prepositionalPhrases = [], adverbPhrases = [], isNegative }: AdverbPhrase) : Array<WordTranslation> => [

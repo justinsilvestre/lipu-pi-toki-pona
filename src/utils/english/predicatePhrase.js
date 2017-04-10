@@ -8,21 +8,21 @@ import type { SubjectPhrase, VerbPhrase, PredicatePhrase } from './grammar'
 const complementPartsOfSpeech = ['adj', 'n', 'pn', 'pnp', 'pnin', 'pnio', 'pnpn', 'pnpo', 'pns', 'pnsn', 'pnso', 'pno']
 
 // should be able to shorten this function signature
-export default function predicatePhrase(
+export default async function predicatePhrase(
   words: WordsObject,
   headIds: Array<WordId>,
   tokiPonaSubjectIds: Array<WordId>,
   englishSubjectPhrase: SubjectPhrase
-) : PredicatePhrase {
+) : Promise<PredicatePhrase> {
   // if subj is animate and pred is animate-subj-verb, translate predicate head to verb.
   // if subj is inanimate and pred is animate-subj-verb, translate predicate head to noun, use copula.
 
   // const getPhrase = englishSubjectPhrase.animacy === 'INANIMATE' ? (w, p, t) => copulaPhrase(w, p, t) : verbPhrase
-  const phrases = headIds.map(p => {
+  const phrases = await Promise.all(headIds.map(p => {
     const t = findByPartsOfSpeech(complementPartsOfSpeech, lookUpEnglish(words[p]))
     // return verbPhrase(words, p, t)
     return verbPhrase(words, p, { subjectPhrase: englishSubjectPhrase })
-  })
+  }))
 
   return { phrases }
 }

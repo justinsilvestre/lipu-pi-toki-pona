@@ -3,7 +3,7 @@ import { combineEpics } from 'redux-observable'
 import type { Store } from 'redux'
 import { Observable } from 'rxjs'
 import type { AppState } from '../redux'
-import { selectWords, delimitPendingSelection, translateSentences } from '../actions'
+import { selectWords, delimitPendingSelection, translateSentences, translateSentencesSuccess } from '../actions'
 import type { Action } from '../actions'
 import translate from '../utils/translate'
 import type { WordsObject } from '../utils/parseTokiPona'
@@ -34,7 +34,8 @@ const singleWordSelectionEpic = (action$: any, { getState }: Store<getStateFn, A
 
 const translationEpic = (action$: any, { getState }: Store<getStateFn, Action>) => action$
   .ofType('PARSE_SENTENCES')
-  .map(() => translateSentences(translate(getState().tpSentences, getState().tpWords)))
+  .flatMap(() => translate(getState().tpSentences, getState().tpWords).catch(err => console.warn(err)))
+  .map((x) => translateSentencesSuccess(x))
 
 const epic = combineEpics(
   singleWordSelectionEpic,

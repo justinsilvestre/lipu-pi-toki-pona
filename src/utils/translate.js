@@ -13,6 +13,6 @@ export type WordTranslation = {
 
 export type EnglishDictionaryEntry = { [englishPartOfSpeech: EnglishPartOfSpeech]: Array<WordTranslation> }
 
-export default function translate(sentences: Array<Sentence>, words: WordsObject) : Array<SentenceTranslation> {
-  return sentences.map(s => sentence(words, s))
+export default async function translate(sentences: Array<Sentence>, words: WordsObject) : Promise<Array<SentenceTranslation>> {
+  return Promise.all(sentences.map(s => sentence(words, s)))
 }

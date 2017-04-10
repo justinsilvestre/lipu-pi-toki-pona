@@ -12,19 +12,19 @@ const getHead = (word: Word): WordTranslation  => {
   return findByPartsOfSpeech(['adj'], englishOptionsByPartOfSpeech)
 }
 
-export default function adjectivePhrase(words: WordsObject, wordId: WordId, options: Object = {}) : AdjectivePhrase {
+export default async function adjectivePhrase(words: WordsObject, wordId: WordId, options: Object = {}) : Promise<AdjectivePhrase> {
   const word = words[wordId]
   const head = getHead(word)
   const complements = word.complements || []
   const isNegative = Boolean(!options.negatedCopula && word.negative)
-  const { prepositionalPhrases = [], adverbPhrases = [] } = adjectiveModifiers(words, complements, { isNegative }) || {}
+  const { prepositionalPhrases, adverbPhrases } = await adjectiveModifiers(words, complements, { isNegative }) || {}
 
   return { head, prepositionalPhrases, adverbPhrases, isNegative }
 }
 
-function adjectiveModifiers(words: WordsObject, complements: Array<WordId>, options: Object) : Object {
+async function adjectiveModifiers(words: WordsObject, complements: Array<WordId>, options: Object) : Promise<Object> {
   const obj = {}
-  const modifiers = complements.reduceRight((obj, c) => {
+  const { prepositionalPhrases = [], adverbPhrases = [] } = complements.reduceRight((obj, c) => {
     const complement = words[c]
     const englishOptions = lookUpEnglish(complement)
       const english = findByPartsOfSpeech(['adv', 'prep'], englishOptions)
@@ -59,7 +59,10 @@ function adjectiveModifiers(words: WordsObject, complements: Array<WordId>, opti
       }
     return obj
   }, obj)
-  return modifiers
+  return {
+    prepositionalPhrases: await Promise.all(prepositionalPhrases),
+    adverbPhrases: await Promise.all(adverbPhrases),
+  }
 }
 
 export const realizeAdjectivePhrase = ({ head, prepositionalPhrases = [], adverbPhrases = [], isNegative }: AdjectivePhrase) : Array<WordTranslation> => [
