@@ -1,5 +1,6 @@
 defmodule Lipu.TpPartOfSpeech do
   use Lipu.Web, :model
+  alias Lipu.Repo
 
   schema "tp_parts_of_speech" do
     field :name, :string
@@ -15,5 +16,9 @@ defmodule Lipu.TpPartOfSpeech do
     struct
     |> cast(params, [:name])
     |> validate_required([:name])
+  end
+
+  def get(name) do
+    Repo.get_by(Lipu.TpPartOfSpeech, name: name)
   end
 end
