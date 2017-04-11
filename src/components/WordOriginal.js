@@ -7,7 +7,7 @@ import { getText } from '../utils/parseTokiPona'
 import type { Word, WordId } from '../utils/grammar'
 import type { Color } from '../utils/getHighlighting'
 import type { AppState } from '../reducers'
-import { getWord, isWordSelected, isWordInPendingSelection, getWordColor } from '../reducers'
+import { getWord, getHighlightedWord, isWordSelected, isWordInPendingSelection, getWordColor } from '../reducers'
 import {
   wordMouseEnter, wordMouseLeave, wordMouseDown, wordMouseUp, wordClick,
 } from '../actions'
@@ -19,7 +19,7 @@ type WordOriginalOwnProps = {
   originalId: WordId,
 }
 type WordOriginalStateProps = {
-  highlightedWord: ?Word,
+  highlightedWord: ?WordId,
   color: Color,
   original: Word,
   selecting: boolean,
@@ -66,7 +66,7 @@ class WordOriginal extends Component {
 }
 
 const mapStateToProps = (state: AppState, { originalId }: WordOriginalOwnProps) : WordOriginalStateProps => ({
-  highlightedWord: state.highlightedWord,
+  highlightedWord: getHighlightedWord(state),
   color: getWordColor(state, originalId),
   original: getWord(state, originalId),
   selecting: isWordInPendingSelection(state, originalId),
