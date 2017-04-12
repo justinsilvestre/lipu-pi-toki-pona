@@ -58,6 +58,7 @@ type SelectionRange = {
   end: ?WordId,
 }
 
+
 export const getSelection = (state: MouseState): SelectionRange => ({
   start: state.selectionStart,
   end: state.selectionEnd,
