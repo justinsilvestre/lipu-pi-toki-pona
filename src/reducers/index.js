@@ -1,119 +1,75 @@
 // @flow
+import { combineReducers } from 'redux'
 import type { Sentence, Word, WordId } from '../utils/grammar'
+import type { SentenceTranslation } from '../utils/english/grammar'
 import type { WordsObject } from '../utils/parseTokiPona'
-import getHighlighting from '../utils/getHighlighting'
 import type { Color } from '../utils/getHighlighting'
 import type { Action } from '../actions'
-import type { SentenceTranslation } from '../utils/english/grammar'
+
+import mouse, * as mouseSelectors from './mouse'
+import tpSentences, * as tpSentencesSelectors from './tpSentences'
+import tpWords, * as tpWordsSelectors from './tpWords'
+import colors, * as colorsSelectors from './colors'
+import enSentences, { getEnSentence as e}from './enSentences'
+
+import type { MouseState } from './mouse'
+import type { TpSentencesState } from './tpSentences'
+import type { TpWordsState } from './tpWords'
+import type { ColorsState } from './colors'
+import type { EnSentencesState } from './enSentences'
 
 export type AppState = {
-  tpSentences: Array<Sentence>,
-  tpWords: WordsObject,
-  colors: Array<Array<Color>>,
+  tpSentences: TpSentencesState,
+  tpWords: TpWordsState,
+  colors: ColorsState,
 
-  highlightedWord: ?Word,
-  pendingSelectionStart: ?Word,
-  pendingSelectionEnd: ?Word,
-  selectionStart: ?Word,
-  selectionEnd: ?Word,
+  mouse: MouseState,
 
-  enSentences: Array<SentenceTranslation>
-}
-const initialState : AppState = {
-  tpSentences: [],
-  tpWords: {},
-  colors: [],
-
-  highlightedWord: null,
-  pendingSelectionStart: null,
-  pendingSelectionEnd: null,
-  selectionStart: null,
-  selectionEnd: null,
-
-  enSentences: [],
+  enSentences: EnSentencesState,
 }
 
-export default function app(state: AppState = initialState, action: Action) : AppState {
-  switch(action.type) {
-    case 'WORD_MOUSE_DOWN':
-      return state
-    case 'PARSE_SENTENCES': {
-      const { tpWords } = action
-      return {
-        ...state,
-        tpSentences: action.tpSentences,
-        tpWords,
-        colors: action.tpSentences.map(s => getHighlighting(tpWords, s.words))
-      }
-    }
-    case 'WORD_MOUSE_ENTER':
-      return {
-        ...state,
-        highlightedWord: state.tpWords[action.word],
-      }
-    case 'WORD_MOUSE_LEAVE':
-      return {
-        ...state,
-        highlightedWord: null,
-      }
-    case 'DELIMIT_PENDING_SELECTION':
-      return {
-        ...state,
-        pendingSelectionStart: state.tpWords[action.start],
-        pendingSelectionEnd: state.tpWords[action.end],
-      }
-    case 'SELECT_WORDS':
-      return {
-        ...state,
-        pendingSelectionStart: null,
-        pendingSelectionEnd: null,
-        // selectionStart: state.pendingSelectionStart ? state.tpWords[state.pendingSelectionStart.id] : null,
-        // selectionEnd: state.pendingSelectionEnd ? state.tpWords[state.pendingSelectionEnd.id] : null,
-        selectionStart: state.pendingSelectionStart ? state.highlightedWord : null,
-        selectionEnd: state.pendingSelectionEnd ? state.highlightedWord : null,
-      }
-    case 'TRANSLATE_SENTENCES_SUCCESS':
-      return {
-        ...state,
-        enSentences: action.enSentences,
-      }
-    default:
-      return state
-  }
-}
+type Reducer = (state: AppState, action: Action) => AppState
+
+const reducer = combineReducers({
+  tpSentences,
+  tpWords,
+  colors,
+  enSentences,
+  mouse,
+})
+
+export default reducer
 
 export const getSentences = (state: AppState): Array<Sentence> => state.tpSentences
 export const getWord = (state: AppState, wordId: WordId): Word => state.tpWords[wordId]
-const getSentenceFromWord = (state: AppState, wordId: WordId) => getSentences(state)[state.tpWords[wordId].sentence]
-export const getEnSentence = (state: AppState, index: number): SentenceTranslation => state.enSentences && state.enSentences[index]
+const getWordIndex = (state, wordId): number => (getWord(state, wordId) || { index: -1 }).index
+const getSentenceFromWord = (state: AppState, wordId: WordId): Sentence => getSentences(state)[state.tpWords[wordId].sentence]
 
-export const wasSelectionMade = (state: AppState) : bool => Boolean(state.selectionStart && state.selectionEnd)
+export const getEnSentence = (state: AppState, index: number): SentenceTranslation => e(state.enSentences, index)
 
-export const isWordSelected = (state: AppState, wordId: WordId) => {
-  if (!state.selectionStart || !state.selectionEnd) return false
-
-  const word = state.tpWords[wordId]
-  const { selectionStart, selectionEnd } = state
-  const startIndex = selectionStart.index
-  const wordIndex = word.index
-  const endIndex = selectionEnd.index
-
-  return startIndex <= wordIndex && wordIndex <= endIndex
+export const getHighlightedWord = (state: AppState): ?Word => {
+  const id = mouseSelectors.getHighlightedWord(state.mouse)
+  return id ? getWord(state, id) : null
 }
-export const isWordInPendingSelection = (state: AppState, wordId: WordId) => {
-  if (!state.pendingSelectionStart || !state.pendingSelectionEnd) return false
-
-  const word = state.tpWords[wordId]
-  const { pendingSelectionStart, pendingSelectionEnd } = state
-  const startIndex = pendingSelectionStart.index
-  const wordIndex = word.index
-  const endIndex = pendingSelectionEnd.index
-
-  return startIndex <= wordIndex && wordIndex <= endIndex
+export const wasSelectionMade = (state: AppState): boolean => mouseSelectors.wasSelectionMade(state.mouse)
+const isWordBetween = (state, wordId, startId, endId): boolean => {
+  const wordIndex = getWordIndex(state, wordId)
+  return Boolean(
+    (startId && endId)
+    && getWordIndex(state, startId) <= wordIndex
+    && wordIndex <= getWordIndex(state, endId)
+  )
 }
-
-const getIndexInSentence = (state: AppState, wordId: WordId) : number =>
+export const isWordSelected = (state: AppState, wordId: WordId): boolean => {
+  const { start, end } = mouseSelectors.getSelection(state.mouse);
+  return isWordBetween(state, wordId, start, end)
+}
+export const isWordInPendingSelection = (state: AppState, wordId: WordId): boolean => {
+  const { start, end } = mouseSelectors.getPendingSelection(state.mouse)
+  return isWordBetween(state, wordId, start, end)
+}
+const getIndexInSentence = (state: AppState, wordId: WordId): number =>
   getSentenceFromWord(state, wordId).words.indexOf(wordId)
 
-export const getWordColor = (state: AppState, wordId: WordId) =>
+export const getWordColor = (state: AppState, wordId: WordId): Color =>
   state.colors[getWord(state, wordId).sentence][getIndexInSentence(state, wordId)]
