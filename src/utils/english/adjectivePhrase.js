@@ -17,7 +17,7 @@ export default async function adjectivePhrase(words: WordsObject, wordId: WordId
   const head = getHead(word)
   const complements = word.complements || []
   const isNegative = Boolean(!options.negatedCopula && word.negative)
-  const { prepositionalPhrases, adverbPhrases } = await adjectiveModifiers(words, complements, { isNegative }) || {}
+  const { prepositionalPhrases, adverbPhrases } = await adjectiveModifiers(words, complements, { isNegative })
 
   return { head, prepositionalPhrases, adverbPhrases, isNegative }
 }

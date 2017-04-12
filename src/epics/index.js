@@ -8,6 +8,7 @@ import type { Action } from '../actions'
 import translate from '../utils/translate'
 import type { WordsObject } from '../utils/parseTokiPona'
 import type { WordId } from '../utils/grammar'
+import lookup from '../actions/lookup'
 
 const sortByIndex = (words: WordsObject, word1: WordId, word2: WordId) : Array<WordId> =>
 [word1, word2].sort((a, b) => {
@@ -32,9 +33,9 @@ const singleWordSelectionEpic = (action$: any, { getState }: Store<getStateFn, A
   .map((mouseDown) => delimitPendingSelection(mouseDown.word, mouseDown.word))
   .concat(Observable.of(selectWords()))
 
-const translationEpic = (action$: any, { getState }: Store<getStateFn, Action>) => action$
+const translationEpic = (action$: any, { getState, dispatch }: Store<getStateFn, Action>) => action$
   .ofType('PARSE_SENTENCES')
-  .flatMap(() => translate(getState().tpSentences, getState().tpWords).catch(err => console.warn(err)))
+  .flatMap(() => translate(getState().tpSentences, getState().tpWords, lookup(getState, dispatch)).catch(err => console.warn(err)))
   .map((x) => translateSentencesSuccess(x))
 
 const epic = combineEpics(

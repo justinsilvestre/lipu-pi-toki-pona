@@ -17,7 +17,7 @@ export default async function adverbPhrase(words: WordsObject, wordId: WordId) :
   return { head, prepositionalPhrases, adverbPhrases, isNegative }
 }
 
-async function adverbModifiers(words: WordsObject, complements: Array<WordId>) : Object {
+async function adverbModifiers(words: WordsObject, complements: Array<WordId>) : Promise<Object> {
   const { prepositionalPhrases = [], adverbPhrases = [] } = complements.reduceRight((obj, c) => {
     const complement = words[c]
     const englishOptions = lookUpEnglish(complement)

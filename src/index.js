@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux'
 import rxjs from 'rxjs' // eslint-disable-line no-unused-vars
 import App from './components/App'
-import store from './redux'
+import getStore from './redux'
 import socket from './utils/socket'
 
 socket.connect()
@@ -17,9 +17,12 @@ channel.join()
     console.log('JOIN WORKEDDED???! :OOO')
   })
   .receive('error', reason => console.log('join failed :(', reason))
-ReactDOM.render(
-  <Provider store={store}>
+
+getStore().then((store) => {
+  ReactDOM.render(
+    <Provider store={store}>
     <App />
-  </Provider>,
-  document.getElementById('root')
-);
+    </Provider>,
+    document.getElementById('root')
+  );
+})
