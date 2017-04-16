@@ -8,19 +8,35 @@ import type { WordId, Word } from '../grammar'
 import type { NounPhrase, Case, GrammaticalNumber } from './grammar'
 import type { WordTranslation } from '../dictionary'
 import { getPossiblePartsOfSpeech, DETERMINER_PARTS_OF_SPEECH } from './nounPartsOfSpeech'
+import type { Lookup } from '../../actions/lookup'
 
 const getHead = (word: Word, casus: Case, number: GrammaticalNumber): WordTranslation  => {
   const englishOptionsByPartOfSpeech = lookUpEnglish(word)
   return findByPartsOfSpeech(getPossiblePartsOfSpeech(casus, number), englishOptionsByPartOfSpeech)
 }
 
-async function nounPhrase(words: WordsObject, wordId: WordId, options?: Object = {}): Promise<NounPhrase> {
+async function nounPhrase(lookup: Lookup, wordId: WordId, options?: Object = {}): Promise<NounPhrase> {
+  const { words } = lookup
+
   let { casus = 'OBLIQUE', number = 'SINGULAR' } = options
   const word = words[wordId]
   if ((word.complements || []).some(c => words[c].text === 'mute')) number = 'PLURAL'
   // qualifier - determiner - adjective phrases - noun - prepositional phrases - appositives
   // qualifier - pronoun - conjoined adjective phrases - prepositional phrases
-  const head : WordTranslation = options.head || getHead(word, casus, number)
+  // const head : WordTranslation = options.head || getHead(word, casus, number)
+  console.log("lookup??")
+  let t
+  try {
+
+    t = await(lookup.translate(word.lemmaId, getPossiblePartsOfSpeech(casus, number)))
+  } catch (err) {
+    console.error('lookup failed!!', err)
+  }
+  const { enLemma } = t
+  console.log('T!!', t, word)
+  console.log("-----------lookup")
+
+  const head : WordTranslation = options.head || enLemma
   const complements : Array<WordId> = word.complements || []
   const isPronoun = head.pos.startsWith('pn')
   if (head.pos !== 'n' && !isPronoun && head.pos !=='prop') throw new Error('invalid noun phrase: ' + JSON.stringify(head))
@@ -30,7 +46,7 @@ async function nounPhrase(words: WordsObject, wordId: WordId, options?: Object =
     adjectivePhrases,
     prepositionalPhrases,
     appositives,
-  } = await nounModifiers(words, complements, { number, isPronoun, isNegative })
+  } = await nounModifiers(lookup, complements, { number, isPronoun, isNegative })
   // const determiner = d || (number === 'SINGULAR' && word.pos !== 'prop' ? { text: 'the', pos: 'd' } : undefined)
   return { isPronoun, head, determiner, adjectivePhrases, prepositionalPhrases, appositives, number, or: word.anu }
   // const pronouns = englishOptionsByPartOfSpeech.pn
@@ -42,7 +58,8 @@ async function nounPhrase(words: WordsObject, wordId: WordId, options?: Object =
 console.log('nounPhrase', nounPhrase)
 export default nounPhrase
 
-async function nounModifiers(words: WordsObject, complements: Array<WordId>, options: Object) : Promise<Object> {
+async function nounModifiers(lookup: Lookup, complements: Array<WordId>, options: Object) : Promise<Object> {
+  const { words } = lookup
   let obj = {}
   if (options.isNegative === true) obj.determiner = Promise.resolve({ text: 'no', pos: 'd' })
   const {
@@ -61,24 +78,24 @@ async function nounModifiers(words: WordsObject, complements: Array<WordId>, opt
       switch (english.pos) {
         case 'adj':
           if (options.isPronoun && complement.text === 'mute') break
-          obj.adjectivePhrases = (obj.adjectivePhrases || []).concat(adjectivePhrase(words, c))
+          obj.adjectivePhrases = (obj.adjectivePhrases || []).concat(adjectivePhrase(lookup, c))
           // adverb modifiers
           break
         case 'prep':
           if (typeof complement.prepositionalObject !== 'string') throw new Error('complement needs prepositional object')
-          obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, c, {
+          obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(lookup, c, {
             head: english,
             objectIds: [complement.prepositionalObject],
           }))
           break
         case 'n':
-          obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, c, {
+          obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(lookup, c, {
             head: { text: 'of', pos: 'prep' },
             objectIds: [c],
           }))
           break
         case 'prop':
-          obj.appositives = (obj.appositives || []).concat(nounPhrase(words, c))
+          obj.appositives = (obj.appositives || []).concat(nounPhrase(lookup, c))
           break
         case 'vi':
           //

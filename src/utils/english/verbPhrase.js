@@ -13,6 +13,7 @@ import conjugate from './conjugate'
 import { ANIMATE_SUBJECT_VERBS } from '../tokiPonaSemanticGroups'
 import { string } from '../rita'
 import { getPossiblePartsOfSpeech } from './nounPartsOfSpeech'
+import type { Lookup } from '../../actions/lookup'
 
 const realizeSubjectComplement = (englishTranslation: NounPhrase | AdjectivePhrase | PrepositionalPhrase) : Array<WordTranslation> => {
   if (englishTranslation.head.pos === 'adj') {
@@ -48,7 +49,8 @@ const extractPreposition = (text: string): string => {
   return prepositionText
 }
 
-async function verbPhrase(words: WordsObject, wordId: WordId, options: Object = {}): Promise<VerbPhrase> {
+async function verbPhrase(lookup: Lookup, wordId: WordId, options: Object = {}): Promise<VerbPhrase> {
+  const { words } = lookup
   const word = words[wordId]
   const englishOptionsByPartOfSpeech = lookUpEnglish(word)
   const head = findByPartsOfSpeech(['vi', 'vt', 'vm', 'vc', 'vp'], englishOptionsByPartOfSpeech)
@@ -59,15 +61,15 @@ async function verbPhrase(words: WordsObject, wordId: WordId, options: Object = 
     (inanimateSubject && ANIMATE_SUBJECT_VERBS.includes(word.text)) // properly, primary text
     || (head && !['vc', 'vi', 'vt', 'vm', 'vp'].includes(head.pos))
   ) {
-    return await copulaPhrase(words, wordId, { subjectComplements: [head], inanimateSubject }
+    return await copulaPhrase(lookup, wordId, { subjectComplements: [head], inanimateSubject }
     )
   } else if (head.pos === 'vc') {
-    return await copulaPhrase(words, wordId, { copula: head, inanimateSubject })
+    return await copulaPhrase(lookup, wordId, { copula: head, inanimateSubject })
   }
 
   // those that are part of head's translation, rather than modifiers'
   const firstPrepositionalPhrases = await Promise.all(head.pos === 'vp'
-    ? [prepositionalPhrase(words, wordId, {
+    ? [prepositionalPhrase(lookup, wordId, {
       head: { ...head, text: extractPreposition(head.text)},
       objectIds: getObjects(words, word),
     })]
@@ -78,7 +80,7 @@ async function verbPhrase(words: WordsObject, wordId: WordId, options: Object = 
   const {
     adverbPhrases = [],
     prepositionalPhrases: otherPrepositionalPhrases = [],
-  } = await verbModifiers(words, complements)
+  } = await verbModifiers(lookup, complements)
 
   const prepositionalPhrases = firstPrepositionalPhrases.concat(otherPrepositionalPhrases)
 
@@ -86,17 +88,17 @@ async function verbPhrase(words: WordsObject, wordId: WordId, options: Object = 
 
   if (string(head.text).features().pos === 'md') result.isModal = true
 
-  if (word.directObjects && head.pos === 'vt') result.directObjects = await Promise.all(word.directObjects.map(dos => nounPhrase(words, dos)))
-  if (word.prepositionalObject && head.pos === 'vt') result.directObjects = await Promise.all([nounPhrase(words, word.prepositionalObject)])
+  if (word.directObjects && head.pos === 'vt') result.directObjects = await Promise.all(word.directObjects.map(dos => nounPhrase(lookup, dos)))
+  if (word.prepositionalObject && head.pos === 'vt') result.directObjects = await Promise.all([nounPhrase(lookup, word.prepositionalObject)])
   if (typeof word.infinitive === 'string') {
     // const translations = lookUpEnglish(words[word.infinitive])
     // const nominalPos = Object.keys(translations).find(t => t === 'n' || t.startsWith('pn'))
     // if (nominalPos) {
     //   if (typeof word.infinitive !== 'string') throw new Error('whoops')
-    //   result.directObjects = (result.directObjects || []).concat(nounPhrase(words, word.infinitive))
+    //   result.directObjects = (result.directObjects || []).concat(nounPhrase(lookup, word.infinitive))
     // } else {
       if (typeof word.infinitive !== 'string') throw new Error('whoops')
-      result.infinitive = await verbPhrase(words, word.infinitive, {
+      result.infinitive = await verbPhrase(lookup, word.infinitive, {
         [result.isModal ? 'isBareInfinitive' : 'isInfinitive']: true,
       })
     // }
@@ -115,7 +117,8 @@ async function verbPhrase(words: WordsObject, wordId: WordId, options: Object = 
 }
 export default verbPhrase
 
-async function getSubjectComplement(words: WordsObject, sc: WordId, options: Object): Promise<SubjectComplementPhrase> {
+async function getSubjectComplement(lookup: Lookup, sc: WordId, options: Object): Promise<SubjectComplementPhrase> {
+  const { words } = lookup
   const subjectComplement = words[sc]
   if (!subjectComplement) throw new Error(JSON.stringify(sc))
   let getPhrase = nounPhrase
@@ -129,13 +132,14 @@ async function getSubjectComplement(words: WordsObject, sc: WordId, options: Obj
   if (head.pos === 'adj') getPhrase = adjectivePhrase
   if (head.pos === 'prep') getPhrase = prepositionalPhrase
 
-  return await getPhrase(words, sc, {
+  return await getPhrase(lookup, sc, {
     ...options,
     head,
   })
 }
 // copula phrases come from predicate nouns, and from tp verb phrases whose head translates to 'vc's.
-export async function copulaPhrase(words: WordsObject, wordId: WordId, options: Object = {}): Promise<VerbPhrase> {
+export async function copulaPhrase(lookup: Lookup, wordId: WordId, options: Object = {}): Promise<VerbPhrase> {
+  const { words } = lookup
   // either wordId is for copula or for subject complements.
   // should throw an error if combination doesn't make sense (leaves something missing)?
   const word = words[wordId]
@@ -148,10 +152,10 @@ export async function copulaPhrase(words: WordsObject, wordId: WordId, options: 
   const isNegative = word.negative
   const copula = options.copula || { text: 'be', pos: 'vi' }
   const subjectComplements: Array<SubjectComplementPhrase> = await Promise.all((options.subjectComplements
-    && options.subjectComplements.map(sc => getSubjectComplement(words, wordId, { negatedCopula: isNegative })) // should pass on english translation
+    && options.subjectComplements.map(sc => getSubjectComplement(lookup, wordId, { negatedCopula: isNegative })) // should pass on english translation
   ) || (
     predicateInfinitive && tokiPonaInfinitive // if the one is there, the other will be
-    ? [getSubjectComplement(words, tokiPonaInfinitive, { negatedCopula: isNegative })]
+    ? [getSubjectComplement(lookup, tokiPonaInfinitive, { negatedCopula: isNegative })]
     : []
   ))
 
@@ -162,7 +166,7 @@ export async function copulaPhrase(words: WordsObject, wordId: WordId, options: 
   }
   if (!predicateInfinitive) {
     if (!tokiPonaInfinitive) throw new Error('whoops')
-    result.infinitive = await verbPhrase(words, tokiPonaInfinitive, { isInfinitive: true })
+    result.infinitive = await verbPhrase(lookup, tokiPonaInfinitive, { isInfinitive: true })
   }
   return result
 }
@@ -185,27 +189,28 @@ export const realizeVerbPhrase = (phrase: VerbPhrase, subject?: SubjectPhrase) :
   ]
 }
 
-async function verbModifiers(words: WordsObject, complements: Array<WordId>): Promise<Object> {
+async function verbModifiers(lookup: Lookup, complements: Array<WordId>): Promise<Object> {
+  const { words } = lookup
   const { adverbPhrases = [], prepositionalPhrases = [] } = complements.reduceRight((obj, c) => {
     const complement = words[c]
     const englishOptions = lookUpEnglish(complement)
     const english = findByPartsOfSpeech(['adv', 'prep'], englishOptions)
     switch (english.pos) {
       case 'adv':
-        obj.adverbPhrases = (obj.adverbPhrases || []).concat(adverbPhrase(words, c))
+        obj.adverbPhrases = (obj.adverbPhrases || []).concat(adverbPhrase(lookup, c))
         // adverb modifiers
         break
       case 'prep':
         if (typeof complement.prepositionalObject !== 'string') throw new Error('complement needs prepositional object')
         obj.prepositionalPhrases = (obj.prepositionalPhrases || [])
-          .concat(prepositionalPhrase(words, c, {
+          .concat(prepositionalPhrase(lookup, c, {
             head: english,
             objectIds: [complement.prepositionalObject],
           }))
         break
       case 'n':
         obj.prepositionalPhrases = (obj.prepositionalPhrases || [])
-          .concat(prepositionalPhrase(words, c, {
+          .concat(prepositionalPhrase(lookup, c, {
             head: { text: 'by', pos: 'conj' },
             objectIds: [c],
           }))

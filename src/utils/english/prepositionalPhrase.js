@@ -6,13 +6,15 @@ import type { PrepositionalPhrase } from './grammar'
 import { lookUpEnglish, findByPartsOfSpeech } from '../dictionary'
 import nounPhrase, { realizeNounPhrase } from './nounPhrase'
 import conjoin from './conjoin'
+import type { Lookup } from '../../actions/lookup'
 
 const getHead = (word: Word): WordTranslation  => {
   const englishOptionsByPartOfSpeech = lookUpEnglish(word)
   return findByPartsOfSpeech(['prep'], englishOptionsByPartOfSpeech)
 }
 
-export default async function prepositionalPhrase(words: WordsObject, wordId: WordId, options: Object = {}) : Promise<PrepositionalPhrase> {
+export default async function prepositionalPhrase(lookup: Lookup, wordId: WordId, options: Object = {}) : Promise<PrepositionalPhrase> {
+  const { words } = lookup
   const word = words[wordId]
   const head: WordTranslation = options.head || getHead(word)
 
@@ -24,7 +26,7 @@ export default async function prepositionalPhrase(words: WordsObject, wordId: Wo
 
   return {
     head,
-    objects: await Promise.all(objectIds.map(objectId => nounPhrase(words, objectId))),
+    objects: await Promise.all(objectIds.map(objectId => nounPhrase(lookup, objectId))),
     // isNegative: preposition
   }
 }

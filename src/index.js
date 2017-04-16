@@ -1,16 +1,10 @@
+import channel from './utils/channel'
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux'
 import rxjs from 'rxjs' // eslint-disable-line no-unused-vars
 import App from './components/App'
 import getStore from './redux'
-import socket from './utils/socket'
-
-socket.connect()
-const channel = socket.channel('translate:' + 42)
-channel.on('lookup_success', o => console.log('lookup success', o))
-// channel.on('ping', (o) => console.log("PING!", o.count, o))
-window.channel = channel
 
 channel.join()
   .receive('ok', (r) => {

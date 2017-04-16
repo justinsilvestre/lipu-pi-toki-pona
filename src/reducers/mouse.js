@@ -43,8 +43,6 @@ export default function mouse(state: MouseState = initialState, action: Action) 
         ...state,
         pendingSelectionStart: null,
         pendingSelectionEnd: null,
-        // selectionStart: state.pendingSelectionStart ? state.tpWords[state.pendingSelectionStart.id] : null,
-        // selectionEnd: state.pendingSelectionEnd ? state.tpWords[state.pendingSelectionEnd.id] : null,
         selectionStart: state.pendingSelectionStart ? state.highlightedWord : null,
         selectionEnd: state.pendingSelectionEnd ? state.highlightedWord : null,
       }

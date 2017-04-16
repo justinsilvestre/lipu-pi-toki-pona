@@ -86,7 +86,7 @@ declare module ramda {
   //   chain<T,V: Monad<T>|Array<T>>(fn: (a:T) => V, x: V): V;
   //   chain<T,V: Monad<T>|Array<T>>(fn: (a:T) => V): (x: V) => V;
   // }
-  // 
+  //
   // declare class GenericContructor<T> {
   //   constructor(x: T): GenericContructor<any>
   // }
