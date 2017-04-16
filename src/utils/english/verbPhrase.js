@@ -1,5 +1,4 @@
 // @flow
-import { lookUpEnglish, findByPartsOfSpeech } from '../dictionary'
 import type { WordTranslation } from '../dictionary'
 import type { WordId } from '../grammar'
 import type { WordsObject } from '../parseTokiPona'
@@ -52,14 +51,12 @@ const extractPreposition = (text: string): string => {
 async function verbPhrase(lookup: Lookup, wordId: WordId, options: Object = {}): Promise<VerbPhrase> {
   const { words } = lookup
   const word = words[wordId]
-  const englishOptionsByPartOfSpeech = lookUpEnglish(word)
-  // let head = findByPartsOfSpeech(['vi', 'vt', 'vm', 'vc', 'vp'], englishOptionsByPartOfSpeech)
-  let { enLemma: head, phraseTranslation } =
-    await lookup.translate(word.lemmaId, ['vt'])
-    || await lookup.translate(word.lemmaId, ['vi'])
-    || await lookup.translate(word.lemmaId, ['vm'])
-    || await lookup.translate(word.lemmaId, ['vc'])
-    || await lookup.translate(word.lemmaId, ['vp'])
+  let head =
+    (await lookup.translate(word.lemmaId, ['vt'])).enLemma
+    || (await lookup.translate(word.lemmaId, ['vi'])).enLemma
+    || (await lookup.translate(word.lemmaId, ['vm'])).enLemma
+    || (await lookup.translate(word.lemmaId, ['vc'])).enLemma
+    || (await lookup.translate(word.lemmaId, ['vp'])).enLemma
   const { subjectPhrase } = options
   const inanimateSubject = subjectPhrase && subjectPhrase.animacy === 'INANIMATE'
 
@@ -68,7 +65,7 @@ async function verbPhrase(lookup: Lookup, wordId: WordId, options: Object = {}):
 
   if (
     (inanimateSubject && ANIMATE_SUBJECT_VERBS.includes(word.text)) // properly, primary text
-    || (head && !['vc', 'vi', 'vt', 'vm', 'vp'].includes(head.pos))
+    || (!['vc', 'vi', 'vt', 'vm', 'vp'].includes(head.pos))
   ) {
     return await copulaPhrase(lookup, wordId, { subjectComplements: [head], inanimateSubject }
     )
@@ -136,9 +133,13 @@ async function getSubjectComplement(lookup: Lookup, sc: WordId, options: Object)
     'adj',
     'prep',
   ]
-  const { enLemma: head } = await lookup.translate(subjectComplement.lemmaId, partsOfSpeech)
+  const head = (await lookup.translate(subjectComplement.lemmaId, partsOfSpeech)).enLemma
+    || (await lookup.translate(subjectComplement.lemmaId)).enLemma
 
-  if (!head) throw new Error('no translation for subject complement')
+  if (!head) {
+    console.error('subjectComplement', subjectComplement, await lookup.translate(subjectComplement.lemmaId))
+    throw new Error('no translation for subject complement')
+  }
 
   if (head.pos === 'adj') getPhrase = adjectivePhrase
   if (head.pos === 'prep') getPhrase = prepositionalPhrase
@@ -155,20 +156,29 @@ export async function copulaPhrase(lookup: Lookup, wordId: WordId, options: Obje
   // should throw an error if combination doesn't make sense (leaves something missing)?
   const word = words[wordId]
   const tokiPonaInfinitive = word.infinitive
-  const infinitiveTranslations = tokiPonaInfinitive ? lookUpEnglish(words[tokiPonaInfinitive]) : {}
+  const infinitiveTranslation = tokiPonaInfinitive
+    ? ((await lookup.translate(words[tokiPonaInfinitive].lemmaId, ['vt'])).enLemma
+      || (await lookup.translate(words[tokiPonaInfinitive].lemmaId, ['vi'])).enLemma
+      || (await lookup.translate(words[tokiPonaInfinitive].lemmaId, ['vm'])).enLemma
+      || (await lookup.translate(words[tokiPonaInfinitive].lemmaId, ['vc'])).enLemma
+      || (await lookup.translate(words[tokiPonaInfinitive].lemmaId, ['vp'])).enLemma
+    )
+    : null
   const predicateInfinitive = (tokiPonaInfinitive && // does this translate best to a noun?
     options.inanimateSubject && ANIMATE_SUBJECT_VERBS.includes(words[tokiPonaInfinitive].text)) // properly, primary text
-    || (!['vc', 'vi', 'vt', 'vm', 'vp'].some(pos => pos in infinitiveTranslations))
+    || (!['vc', 'vi', 'vt', 'vm', 'vp'].some(pos => pos === (infinitiveTranslation || {}).pos))
 
   const isNegative = word.negative
   const copula = options.copula || { text: 'be', pos: 'vi' }
-  const subjectComplements: Array<SubjectComplementPhrase> = await Promise.all((options.subjectComplements
-    && options.subjectComplements.map(sc => getSubjectComplement(lookup, wordId, { negatedCopula: isNegative })) // should pass on english translation
-  ) || (
-    predicateInfinitive && tokiPonaInfinitive // if the one is there, the other will be
-    ? [getSubjectComplement(lookup, tokiPonaInfinitive, { negatedCopula: isNegative })]
-    : []
-  ))
+  const subjectComplements: Array<SubjectComplementPhrase> = await Promise.all(
+    (options.subjectComplements
+      ? options.subjectComplements.map(sc => getSubjectComplement(lookup, wordId, { negatedCopula: isNegative })) // should pass on english translation
+      : (predicateInfinitive && tokiPonaInfinitive // if the one is there, the other will be
+        ? [getSubjectComplement(lookup, tokiPonaInfinitive, { negatedCopula: isNegative })]
+        : []
+      )
+    )
+  )
 
   const result : VerbPhrase = {
     head: copula,
