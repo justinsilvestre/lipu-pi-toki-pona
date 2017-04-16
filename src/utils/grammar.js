@@ -19,6 +19,7 @@ export type Word = {
   after: string,
   role: Role,
   pos: TokiPonaPartOfSpeech,
+  lemmaId: string,
 
   anu?: boolean,
   negative?: boolean,

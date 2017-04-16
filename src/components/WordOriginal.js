@@ -3,11 +3,10 @@ import React, { Component } from 'react'
 import cn from 'classnames'
 import { connect } from 'react-redux'
 import type { ConnectedComponentClass } from 'react-redux'
-import { getText } from '../utils/parseTokiPona'
 import type { Word, WordId } from '../utils/grammar'
 import type { Color } from '../utils/getHighlighting'
 import type { AppState } from '../reducers'
-import { getWord, getHighlightedWord, isWordSelected, isWordInPendingSelection, getWordColor } from '../reducers'
+import { getWord, getHighlightedWord, isWordSelected, isWordInPendingSelection, getWordColor, getTpText } from '../reducers'
 import {
   wordMouseEnter, wordMouseLeave, wordMouseDown, wordMouseUp, wordClick,
 } from '../actions'
@@ -24,6 +23,7 @@ type WordOriginalStateProps = {
   original: Word,
   selecting: boolean,
   selected: boolean,
+  text: string,
 }
 type WordOriginalDispatchProps = {
   onMouseUp: Function, onMouseDown: Function, onMouseEnter: Function, onMouseLeave: Function, onClick: Function,
@@ -53,13 +53,13 @@ class WordOriginal extends Component {
 
   render() {
     const { mouseEvents } = this
-    const { original, color, selecting, selected } = this.props
+    const { original, color, selecting, selected, text } = this.props
     const [h, s, l] = adjustColor(selecting, selected, color)
-    const style = { color: `hsl(${h}, ${s}%, ${l}%)`, fontWeight: original.role.endsWith('particle') ? 300 : 'normal' }
+    const style = { color: `hsl(${h}, ${s}%, ${l}%)`, fontWeight: original.role.endsWith('PARTICLE') ? 300 : 'normal' }
 
     return (
       <span className={cn('word', { selecting, selected })}  style={style} {...mouseEvents}>
-        {getText(original)}{' '}
+        {text}{' '}
       </span>
     )
   }
@@ -71,6 +71,7 @@ const mapStateToProps = (state: AppState, { originalId }: WordOriginalOwnProps) 
   original: getWord(state, originalId),
   selecting: isWordInPendingSelection(state, originalId),
   selected: isWordSelected(state, originalId),
+  text: getTpText(state, originalId),
 })
 
 const mapDispatchToProps : WordOriginalDispatchProps = {

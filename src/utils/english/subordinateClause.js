@@ -6,10 +6,12 @@ import type { SubordinateClause } from './grammar'
 import type { WordId } from '../grammar'
 import punctuate from './punctuate'
 import type { WordTranslation } from '../dictionary'
+import type { Lookup } from '../../actions/lookup'
 
-export default async function subordinateClause(words: WordsObject, subjects: Array<WordId> = [], predicates: Array<WordId> = []) : Promise<SubordinateClause> {
-  const subjectTranslations = await subjectPhrase(words, subjects)
-  const predicateTranslations = await predicatePhrase(words, predicates, subjects, subjectTranslations)
+export default async function subordinateClause(lookup: Lookup, subjects: Array<WordId> = [], predicates: Array<WordId> = []) : Promise<SubordinateClause> {
+  const { words } = lookup
+  const subjectTranslations = await subjectPhrase(lookup, subjects)
+  const predicateTranslations = await predicatePhrase(lookup, predicates, subjects, subjectTranslations)
 
   return {
     conjunction: { text: 'when', pos: 'conj' },

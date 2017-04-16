@@ -1,13 +1,14 @@
 // @flow
-import { lookUpEnglish } from '../dictionary'
 import nounPhrase, { realizeNounPhrase } from './nounPhrase'
 import { ANIMATE_NOUNS, INANIMATE_NOUNS, ANIMATE_SUBJECT_VERBS } from '../tokiPonaSemanticGroups.js'
 import type { SubjectPhrase } from './grammar'
 import { getPrimary } from '../dictionary'
 import type { WordsObject } from '../parseTokiPona'
 import type { WordId } from '../grammar'
+import type { Lookup } from '../../actions/lookup'
 
-export default async function subjectPhrase(words: WordsObject, headIds: Array<WordId>) : Promise<SubjectPhrase> {
+export default async function subjectPhrase(lookup: Lookup, headIds: Array<WordId>) : Promise<SubjectPhrase> {
+  const { words } = lookup
   if (!headIds.length) return {
     // nounPhrases: [{ head: { text: 'it', pos: 'pns' } }],
     nounPhrases: [],
@@ -17,8 +18,8 @@ export default async function subjectPhrase(words: WordsObject, headIds: Array<W
 
   const nounPhrases = await Promise.all(headIds.map((s, i) => {
     // TODO: anu phrases
-    // return (i > 0 ? [{ text: 'and', pos: 'conj' }] : []).concat(nounPhrase(words, s))
-    return nounPhrase(words, s, { casus: 'NOMINATIVE' })
+    // return (i > 0 ? [{ text: 'and', pos: 'conj' }] : []).concat(nounPhrase(lookup, s))
+    return nounPhrase(lookup, s, { casus: 'NOMINATIVE' })
   }))
 
   const result : SubjectPhrase = {

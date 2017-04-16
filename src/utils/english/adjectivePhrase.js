@@ -6,36 +6,37 @@ import type { WordsObject } from '../parseTokiPona'
 import type { WordId, Word } from '../grammar'
 import adverbPhrase, { realizeAdverbPhrase } from './adverbPhrase'
 import type { WordTranslation } from '../dictionary'
+import type { Lookup } from '../../actions/lookup'
 
-const getHead = (word: Word): WordTranslation  => {
-  const englishOptionsByPartOfSpeech = lookUpEnglish(word)
-  return findByPartsOfSpeech(['adj'], englishOptionsByPartOfSpeech)
-}
 
-export default async function adjectivePhrase(words: WordsObject, wordId: WordId, options: Object = {}) : Promise<AdjectivePhrase> {
+export default async function adjectivePhrase(lookup: Lookup, wordId: WordId, options: Object = {}) : Promise<AdjectivePhrase> {
+  const { words } = lookup
   const word = words[wordId]
-  const head = getHead(word)
+  const { enLemma: head } = await lookup.translate(word.lemmaId, ['adj'])
   const complements = word.complements || []
   const isNegative = Boolean(!options.negatedCopula && word.negative)
-  const { prepositionalPhrases, adverbPhrases } = await adjectiveModifiers(words, complements, { isNegative })
+  const { prepositionalPhrases, adverbPhrases } = await adjectiveModifiers(lookup, complements, { isNegative })
 
   return { head, prepositionalPhrases, adverbPhrases, isNegative }
 }
 
-async function adjectiveModifiers(words: WordsObject, complements: Array<WordId>, options: Object) : Promise<Object> {
+async function adjectiveModifiers(lookup: Lookup, complements: Array<WordId>, options: Object) : Promise<Object> {
+  const { words } = lookup
   const obj = {}
-  const { prepositionalPhrases = [], adverbPhrases = [] } = complements.reduceRight((obj, c) => {
+  const complementsWithEnglish = await Promise.all(complements.map(async (c) => {
+    const english = await lookup.translate(words[c].lemmaId, ['adv', 'prep'])
+    return { c, english }
+  }))
+  const { prepositionalPhrases = [], adverbPhrases = [] } = complementsWithEnglish.reduceRight((obj, { c, english }) => {
     const complement = words[c]
-    const englishOptions = lookUpEnglish(complement)
-      const english = findByPartsOfSpeech(['adv', 'prep'], englishOptions)
       switch (english.pos) {
         case 'adv':
-          obj.adverbPhrases = (obj.adverbPhrases || []).concat(adverbPhrase(words, c))
+          obj.adverbPhrases = (obj.adverbPhrases || []).concat(adverbPhrase(lookup, c))
           // adverb modifiers
           break
         case 'prep':
           if (typeof complement.prepositionalObject === 'string') {
-            obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, c, {
+            obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(lookup, c, {
               head: english,
               objectIds: [complement.prepositionalObject],
             }))
@@ -44,7 +45,7 @@ async function adjectiveModifiers(words: WordsObject, complements: Array<WordId>
           }
           break
         case 'n':
-          obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, c, {
+          obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(lookup, c, {
             head: { text: 'of', pos: 'prep' },
             objectIds: [c],
           }))

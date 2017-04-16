@@ -5,23 +5,29 @@ import type { AdverbPhrase } from './grammar'
 import type { WordsObject } from '../parseTokiPona'
 import type { WordId } from '../grammar'
 import type { WordTranslation } from '../dictionary'
+import type { Lookup } from '../../actions/lookup'
 
-export default async function adverbPhrase(words: WordsObject, wordId: WordId) : Promise<AdverbPhrase> {
+export default async function adverbPhrase(lookup: Lookup, wordId: WordId) : Promise<AdverbPhrase> {
+  const { words } = lookup
   const word = words[wordId]
-  const englishOptionsByPartOfSpeech = lookUpEnglish(word)
-  const head : WordTranslation = findByPartsOfSpeech(['adv'], englishOptionsByPartOfSpeech)
+  const { enLemma: head } = await lookup.translate(word.lemmaId, ['adv'])
+
+
   const complements = word.complements || []
-  const { prepositionalPhrases, adverbPhrases } = await adverbModifiers(words, complements) || {}
+  const { prepositionalPhrases, adverbPhrases } = await adverbModifiers(lookup, complements) || {}
   const isNegative = Boolean(word.negative)
 
   return { head, prepositionalPhrases, adverbPhrases, isNegative }
 }
 
-async function adverbModifiers(words: WordsObject, complements: Array<WordId>) : Promise<Object> {
-  const { prepositionalPhrases = [], adverbPhrases = [] } = complements.reduceRight((obj, c) => {
+async function adverbModifiers(lookup: Lookup, complements: Array<WordId>) : Promise<Object> {
+  const { words } = lookup
+  const complementsWithEnglish = await Promise.all(complements.map(async (c) => {
+    const english = await lookup.translate(words[c].lemmaId, ['adv', 'prep'])
+    return { c, english }
+  }))
+  const { prepositionalPhrases = [], adverbPhrases = [] } = complementsWithEnglish.reduceRight((obj, { c, english }) => {
     const complement = words[c]
-    const englishOptions = lookUpEnglish(complement)
-      const english = findByPartsOfSpeech(['adv', 'prep'], englishOptions)
       switch (english.pos) {
         case 'adv':
           obj.adverbPhrases = (obj.adverbPhrases || []).concat(english)
@@ -29,8 +35,8 @@ async function adverbModifiers(words: WordsObject, complements: Array<WordId>) :
           break
         case 'prep':
           if (typeof complement.prepositionalObject === 'string') {
-            // obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, english, [complement.prepositionalObject]))
-            obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, c, {
+            // obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(lookup, english, [complement.prepositionalObject]))
+            obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(lookup, c, {
               head: english,
               objectIds: [complement.prepositionalObject]
             }))
@@ -39,8 +45,8 @@ async function adverbModifiers(words: WordsObject, complements: Array<WordId>) :
           }
           break
         case 'n':
-        // obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, { text: 'of', pos: 'prep' }, [c]))
-          obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, c, {
+        // obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(lookup, { text: 'of', pos: 'prep' }, [c]))
+          obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(lookup, c, {
             head: { text: 'of', pos: 'prep' },
             objectIds: [c],
           }))

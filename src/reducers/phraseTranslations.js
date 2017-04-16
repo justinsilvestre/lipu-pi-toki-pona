@@ -1,4 +1,5 @@
-
+// @flow
+import type { Action } from '../actions'
 
 export type PhraseTranslation = {
   id: string,
@@ -6,16 +7,22 @@ export type PhraseTranslation = {
   tpLemmaId: string,
 }
 
-export type PhraseTranslationsState = {
+export type State = {
   [id: string]: PhraseTranslation,
 }
 
-export function phraseTranslations(state: PhraseTranslationsState, action: Action): PhraseTranslationsState {
+export default function phraseTranslations(state: State = {}, action: Action): State {
   switch (action.type) {
     case 'ADD_PHRASE_TRANSLATION':
+      if (!action.phraseTranslation || state[action.phraseTranslation.id]) return state
       return {
         ...state,
-        [action.id]: action.phraseTranslation,
+        [action.phraseTranslation.id]: action.phraseTranslation,
+        // [action.phraseTranslation.id]: {
+        //   id: action.phraseTranslation.id,
+        //   enLemmaId: action.phraseTranslation.en.id,
+        //   tpLemmaId: action.phraseTranslation.tp,
+        // },
       }
     default:
       return state

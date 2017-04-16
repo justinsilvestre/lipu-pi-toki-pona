@@ -5,10 +5,12 @@ import { normalize, schema } from 'normalizr'
 import * as roles from '../utils/tokiPonaRoles'
 import type { Role, RawParticleRole } from '../utils/tokiPonaRoles'
 import type { Sentence, Word, WordId, Mood, TokiPonaPartOfSpeech, SentenceContext } from './grammar'
+import { getId } from '../reducers/tpLemmas'
+import type { TpLemmasState, TpLemma } from '../reducers/tpLemmas'
 
 const wordSchema = new schema.Entity('words')
 const sentenceSchema = new schema.Array(wordSchema)
-const normalizeRawSentences = window.n = x => normalize(x, [sentenceSchema])
+const normalizeRawSentences = x => normalize(x, [sentenceSchema])
 
 const RawParticleRoles = ({
   li: roles.INDICATIVE_PARTICLE,
@@ -28,6 +30,7 @@ export const getIndex = (word: ?Word) : number => word ? word.index : -1
 type RawWord = {
   text: string,
   id: WordId,
+  pos: string,
   role?: Role,
   head?: WordId,
   after?: string,
@@ -54,7 +57,7 @@ type SentenceSlots = {
   seme?: Array<WordId>,
 }
 export type WordsObject = { [wordId: WordId]: Word }
-export type ParsedSentencesData = { sentences: Array<Sentence>, words: WordsObject }
+export type ParsedSentencesData = { sentences: Array<Sentence>, words: WordsObject, properNouns: Array<TpLemma> }
 
 
   //   predicate: '',          // i t prev prep
@@ -68,11 +71,11 @@ const processWord = (
   rawWords: NormalizedWords,
   wordId: WordId,
   words: WordsObject,
-  wordsInSameSentence: Array<WordId> // should we just pass the whole sentence obj?
+  wordsInSameSentence: Array<WordId>, // should we just pass the whole sentence obj?
 ) : PartiallyProcessedWord => {
   const { id, text, before, after, head: headId, role: maybeRole, parent: parentId, context: contextIndex } = rawWords[wordId]
   const role = getRole(maybeRole, text)
-  let pos = role.endsWith('particle') ? 'p' : 'i'
+  let pos = role.endsWith('PARTICLE') ? 'p' : 'i'
 
   switch (text) {
     case 'anu': {
@@ -179,7 +182,7 @@ const processWord = (
   }
 }
 
-const addRelations = (ns: NormalizedSentences) : ParsedSentencesData => {
+const addRelations = (tpLemmas: TpLemmasState) => (ns: NormalizedSentences) : ParsedSentencesData => {
   const { result, entities: { words: rawWords } } = ns
 
   const [sentences, words] = result
@@ -188,12 +191,24 @@ const addRelations = (ns: NormalizedSentences) : ParsedSentencesData => {
       let sentenceProperties : SentenceSlots = { mood: 'indicative', predicates: [] } // filled out in processWord
 
       wordIds.forEach((wordId, i) => {
+        const processed = processWord(sentenceProperties, rawWords, wordId, words, result[sentenceIndex])
+        // const lemmaId = getId(tpLemmas, processed.text, processed.pos)
+        //   || rawWords[wordId].text // proper nouns
+        // if (!Number.isInteger(lemmaId)) properNounLemmas.push({
+        //   text: processed.text,
+        //   id: processed.text,
+        //   pos: processed.pos,
+        //   animacy: null,
+        //   primary: null,
+        // })
+
+
         words[wordId] = ({
           ...(words[wordId] || {}),
           sentence: sentenceIndex,
           index: i + position,
           id: wordId,
-          ...processWord(sentenceProperties, rawWords, wordId, words, result[sentenceIndex]),
+          ...processed,
         } : Word)
       })
 
@@ -204,13 +219,32 @@ const addRelations = (ns: NormalizedSentences) : ParsedSentencesData => {
       return accumulator
     }, [[], {}, 0])
 
+  const properNouns = []
+
   return {
     sentences,
-    words,
+    words: Object.keys(words).reduce((hash, id) => {
+      const w = words[id]
+      const lemmaId = getId(tpLemmas, w.text, w.pos)
+        || rawWords[w.id].text // proper nouns
+      if (!Number.isInteger(lemmaId)) {
+        properNouns.push({
+          text: w.text,
+          id: w.text,
+          pos: w.pos,
+          animacy: null,
+          primary: null,
+        })
+      }
+      w.lemmaId = lemmaId
+      hash[id] = w
+      return hash
+    }, {}),
+    properNouns,
   }
 }
 
-type ParseTokiPona =  (s: string) => ParsedSentencesData
-const parseTokiPona : ParseTokiPona = pipe(parse, normalizeRawSentences, addRelations)
+type ParseTokiPona =  (s: string, tpLemmas: TpLemmasState) => ParsedSentencesData
+const parseTokiPona : ParseTokiPona = (text, tpLemmas) => pipe(parse, normalizeRawSentences, addRelations(tpLemmas))(text)
 
 export default parseTokiPona

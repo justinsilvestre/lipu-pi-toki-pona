@@ -16,4 +16,10 @@ defmodule Lipu.EnLemma do
     |> cast(params, [:text, :pos_id])
     |> validate_required([:text, :pos_id])
   end
+
+  def by_part_of_speech(query, parts_of_speech) do
+    from x in query,
+      join: pos in assoc(x, :pos),
+      where: pos.name in ^parts_of_speech
+  end
 end
