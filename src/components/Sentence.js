@@ -23,7 +23,7 @@ class SentencePair extends Component {
     } = this.props
 
     return (
-      <div style={{ display: 'inline-block', textAlign: 'left' }}>
+      <div style={{ display: 'inline-block', textAlign: 'left', minHeight: '4em' }}>
         <SentenceOriginal sentenceData={tp} index={sentenceIndex} />
         {en && <SentenceTranslation sentenceData={en} />}
       </div>

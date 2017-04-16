@@ -5,6 +5,7 @@ import './App.css';
 import Sentence from './Sentence'
 import TranslationMenu from './TranslationMenu'
 import type { Sentence as SentenceData } from '../utils/grammar'
+import type { TpLemmasState } from '../reducers/tpLemmas' 
 import { parseSentences } from '../actions'
 import { getSentences } from '../reducers'
 
@@ -20,6 +21,7 @@ window.lipu_ni = lipu_ni
 type AppProps = {
   sentences: Array<SentenceData>,
   parseSentences: Function,
+  tpLemmas: TpLemmasState,
 }
 type AppState = {
   text: string,
@@ -38,7 +40,7 @@ export class App extends Component {
   }
 
   parse = () : void => {
-    this.props.parseSentences(this.state.text)
+    this.props.parseSentences(this.state.text, this.props.tpLemmas)
   }
 
   render() {
@@ -59,7 +61,10 @@ export class App extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({ sentences: getSentences(state) })
+const mapStateToProps = (state) => ({
+  sentences: getSentences(state),
+  tpLemmas: state.tpLemmas,
+})
 const mapDispatchToProps = { parseSentences }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

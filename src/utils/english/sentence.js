@@ -11,14 +11,17 @@ import type { WordTranslation } from '../dictionary'
 import subordinateClause, { realizeSubordinateClause } from './subordinateClause'
 import adverbPhrase, { realizeAdverbPhrase } from './adverbPhrase'
 import prepositionalPhrase, { realizePrepositionalPhrase } from './prepositionalPhrase'
+import type { Lookup } from '../../actions/lookup'
 
-export default async function sentence(words: WordsObject, tokiPonaSentence: Sentence) : Promise<SentenceTranslation> {
+export default async function sentence(lookup: Lookup, tokiPonaSentence: Sentence) : Promise<SentenceTranslation> {
+    const { words } = lookup
+
     const { predicates, mood, subjects = [], vocative, contexts = [], seme = [], words: sentenceWords } = tokiPonaSentence
-    const vocativeTranslation = await (vocative ? vocativePhrase(words, vocative) : Promise.resolve(null))
-    const subjectTranslations = await subjectPhrase(words, subjects)
-    const predicateTranslations = await predicatePhrase(words, predicates, subjects, subjectTranslations)
-    const subordinateClauses = await Promise.all(contexts.filter(c => c.subjects).map(c => subordinateClause(words, c.subjects, c.predicates)))
-    const { adverbPhrases, prepositionalPhrases } = await sentenceModifiers(words, contexts)
+    const vocativeTranslation = await (vocative ? vocativePhrase(lookup, vocative) : Promise.resolve(null))
+    const subjectTranslations = await subjectPhrase(lookup, subjects)
+    const predicateTranslations = await predicatePhrase(lookup, predicates, subjects, subjectTranslations)
+    const subordinateClauses = await Promise.all(contexts.filter(c => c.subjects).map(c => subordinateClause(lookup, c.subjects, c.predicates)))
+    const { adverbPhrases, prepositionalPhrases } = await sentenceModifiers(lookup, contexts)
 
     return {
       ...(vocativeTranslation && { vocative: vocativeTranslation }),
@@ -31,10 +34,11 @@ export default async function sentence(words: WordsObject, tokiPonaSentence: Sen
     }
 }
 
-async function sentenceModifiers(words: WordsObject, contexts: Array<SentenceContext>) : Promise<Object> {
+async function sentenceModifiers(lookup, contexts: Array<SentenceContext>) : Promise<Object> {
+  const { words } = lookup
   const { adverbPhrases = [], prepositionalPhrases = [] } = contexts.reduceRight((obj, c) => {
     if (c.subjects) {
-      obj.subordinateClauses = (obj.subordinateClauses || []).concat(subordinateClause(words, c.subjects, c.predicates))
+      obj.subordinateClauses = (obj.subordinateClauses || []).concat(subordinateClause(lookup, c.subjects, c.predicates))
       return obj
     }
 
@@ -42,16 +46,16 @@ async function sentenceModifiers(words: WordsObject, contexts: Array<SentenceCon
     const predicate = words[predicateId]
 
     if (predicate.pos === 'prep') {
-      obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, predicateId))
+      obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(lookup, predicateId))
       return obj
     }
 
     const englishOptions = lookUpEnglish(predicate)
     const english = findByPartsOfSpeech(['adv', 'n'], englishOptions)
     if (english.pos === 'adv') {
-      obj.adverbPhrases = (obj.adverbPhrases || []).concat(adverbPhrase(words, predicateId))
+      obj.adverbPhrases = (obj.adverbPhrases || []).concat(adverbPhrase(lookup, predicateId))
     } else if (english.pos === 'n' || english.pos.startsWith('pn')) {
-      obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(words, predicateId, {
+      obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(lookup, predicateId, {
         head: { text: 'by', pos: 'prep' },
         objectIds: [predicateId],
       }))

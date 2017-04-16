@@ -4,7 +4,7 @@ import punctuate from './punctuate'
 
 export default async function vocativePhrase(words: WordsObject, wordId: WordId): Promise<VocativePhrase> {
   return {
-    head: nounPhrase(words, wordId)
+    head: await nounPhrase(words, wordId)
   }
 }
 
