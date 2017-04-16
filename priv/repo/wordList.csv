@@ -250,7 +250,7 @@ sinpin,i,n,face,foremost,front,wall
 sitelen,i,n,image,picture,representation,symbol,mark,writing
 sitelen,t,vt,write,draw
 sitelen,t,vi,write,draw
-sona,t,vt,know,know how,
+sona,t,vt,know,know how
 sona,t,vp,be skilled (in),be wise (about),have information (on)
 sona,i,n,knowledge,wisdom
 sona,i,vi,know

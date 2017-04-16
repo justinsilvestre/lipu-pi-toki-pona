@@ -1,5 +1,4 @@
 // @flow
-import { lookUpEnglish, findByPartsOfSpeech } from '../dictionary'
 import prepositionalPhrase, { realizePrepositionalPhrase } from './prepositionalPhrase'
 import type { AdjectivePhrase } from './grammar'
 import type { WordsObject } from '../parseTokiPona'

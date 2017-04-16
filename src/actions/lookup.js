@@ -5,24 +5,22 @@ import channel, { pull } from '../utils/channel'
 import type { WordsObject } from '../utils/parseTokiPona'
 import type { AppState } from '../reducers'
 import type { EnLemma } from '../reducers/enLemmas'
+import type { TpLemmasState } from '../reducers/tpLemmas'
 import type { EnglishPartOfSpeech } from '../utils/english/grammar'
 
 export type Action =
-  // { type: 'ADD_TP_WORD' }
   | { type: 'ADD_PHRASE_TRANSLATION', phraseTranslation: PhraseTranslation }
-  // | { type: 'ADD_TP_LEMMA', tpLemma: TpLemma }
-  // | { type: 'ADD_EN_LEMMA', enLemma: EnLemma }
 
 export type Lookup = {
   //temp
   words: WordsObject,
+  tpLemmas: TpLemmasState,
 
-  translate: (tpLemmaId: string) => Promise<{
+  translate: (tpLemmaId: string, enPartsOfSpeech: ?Array<EnglishPartOfSpeech>) => Promise<{
     enLemma: ?EnLemma,
     phraseTranslation: ?PhraseTranslation,
   }>,
-  // tpLemma: () => TpLemma,
-  // getAlternateTranslations
+  browse: (tpLemmaId: string, enPartsOfSpeech: Array<EnglishPartOfSpeech>) => Promise<Array<PhraseTranslation>>
 }
 
 export const addPhraseTranslation = (phraseTranslation: PhraseTranslation, enLemma: EnLemma): Action => ({
@@ -54,9 +52,10 @@ export const fetchTranslation = async (tpLemmaId: string, enPartsOfSpeech: ?Arra
 window.fetchTranslation = fetchTranslation
 
 export default function lookup(getState: Function, dispatch: Function): Lookup {
-  const state = getState()
+  const state: AppState = getState()
   return {
     words: state.tpWords,
+    tpLemmas: state.tpLemmas,
     translate: async (tpLemmaId, enPartsOfSpeech) => {
       if (!Number.isInteger(tpLemmaId)) {
         return { phraseTranslation: { tpLemmaId, enLemmaId: null }, enLemma: { text: tpLemmaId, pos: "n" } }
@@ -72,5 +71,8 @@ export default function lookup(getState: Function, dispatch: Function): Lookup {
         return { phraseTranslation, enLemma }
       }
     },
+    browse: async (tpLemmaId, enPartsOfSpeech) => {
+      return []
+    }
   }
 }

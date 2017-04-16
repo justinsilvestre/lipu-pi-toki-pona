@@ -12,8 +12,6 @@ export type WordTranslation = {
   pos: EnglishPartOfSpeech,
 }
 
-export type EnglishDictionaryEntry = { [englishPartOfSpeech: EnglishPartOfSpeech]: Array<WordTranslation> }
-
 export default async function translate(sentences: Array<Sentence>, words: WordsObject, lookup: Lookup) : Promise<Array<SentenceTranslation>> {
   return Promise.all(sentences.map(s => sentence(lookup, s)))
 }
