@@ -81,11 +81,16 @@ export const isWordInPendingSelection = (state: AppState, wordId: WordId): boole
 }
 const getIndexInSentence = (state: AppState, wordId: WordId): number =>
   getSentenceFromWord(state, wordId).words.indexOf(wordId)
+export const getSelection = (state: AppState): ?Word => {
+  const id = mouseSelectors.getSelection(state.mouse).start
+  console.log('selection id',)
+  return id ? getWord(state, id) : null
+}
 
 export const getWordColor = (state: AppState, wordId: WordId): Color =>
   state.colors[getWord(state, wordId).sentence][getIndexInSentence(state, wordId)]
 
-export const lookUpTranslation = (state: AppState, tpLemmaId: string, enPartsOfSpeech: Array<EnglishPartOfSpeech>) => {
+export const lookUpTranslation = (state: AppState, tpLemmaId: string, enPartsOfSpeech: ?Array<EnglishPartOfSpeech>) => {
   for (const id in state.phraseTranslations) {
     const translation = state.phraseTranslations[id]
     const enLemma = state.enLemmas[translation.enLemmaId]
@@ -94,8 +99,22 @@ export const lookUpTranslation = (state: AppState, tpLemmaId: string, enPartsOfS
     }
   }
 }
-  // state.phraseTranslations
-  // phraseTranslationsSelectors.lookUpTranslation(state.phraseTranslations, tpLemmaId, enPartsOfSpeech)
+export const lookUpTranslations = (state: AppState, tpLemmaId: string, enPartsOfSpeech: ?Array<EnglishPartOfSpeech>) => {
+  const result = []
+  for (const id in state.phraseTranslations) {
+    const translation = state.phraseTranslations[id]
+    const enLemma = state.enLemmas[translation.enLemmaId]
+    if (enLemma && tpLemmaId == translation.tpLemmaId && (!enPartsOfSpeech || enPartsOfSpeech.some(pos => enLemma.pos === pos))) {
+      result.push(translation)
+    }
+  }
+  return result
+}
+export const getEnLemmaText = (state: AppState, phraseTranslationId: string) => {
+  const enLemmaId = state.phraseTranslations[phraseTranslationId].enLemmaId
+  const enLemma = state.enLemmas[enLemmaId]
+  return enLemma.text
+}
 
 export const getTpLemmaId = (state: AppState, text: string, pos: string): ?string => tpLemmasSelectors.getId(state.tpLemmas, text, pos)
 export const getTpLemmaText = (state: AppState, tpLemmaId: string): string => tpLemmasSelectors.getText(state.tpLemmas, tpLemmaId)

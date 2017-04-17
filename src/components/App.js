@@ -3,9 +3,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import './App.css';
 import Sentence from './Sentence'
-import TranslationMenu from './TranslationMenu'
 import type { Sentence as SentenceData } from '../utils/grammar'
-import type { TpLemmasState } from '../reducers/tpLemmas' 
+import type { TpLemmasState } from '../reducers/tpLemmas'
 import { parseSentences } from '../actions'
 import { getSentences } from '../reducers'
 
@@ -52,7 +51,6 @@ export class App extends Component {
         <textarea value={text} onChange={this.handleInputChange} ref={(e) => this.textarea = e} />
         <button onClick={this.parse}>hi!</button>
         <br />
-        <TranslationMenu />
         <section>
         {sentences.map((s, i) => <Sentence tp={s} key={i} index={i}/>)}
         </section>

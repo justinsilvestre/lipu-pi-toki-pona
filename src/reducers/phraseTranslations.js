@@ -18,11 +18,12 @@ export default function phraseTranslations(state: State = {}, action: Action): S
       return {
         ...state,
         [action.phraseTranslation.id]: action.phraseTranslation,
-        // [action.phraseTranslation.id]: {
-        //   id: action.phraseTranslation.id,
-        //   enLemmaId: action.phraseTranslation.en.id,
-        //   tpLemmaId: action.phraseTranslation.tp,
-        // },
+      }
+    case 'ADD_PHRASE_TRANSLATIONS':
+      // shouldn't add more if already there
+      return {
+        ...state,
+        ...action.phraseTranslations,
       }
     default:
       return state

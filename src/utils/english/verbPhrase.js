@@ -61,7 +61,10 @@ async function verbPhrase(lookup: Lookup, wordId: WordId, options: Object = {}):
   const inanimateSubject = subjectPhrase && subjectPhrase.animacy === 'INANIMATE'
 
   head = head || (await lookup.translate(word.lemmaId)).enLemma
-  if (!head) throw new Error('no head!!', word)
+  if (!head) {
+    console.error('no head!!', word)
+    throw new Error('no head!!', word)
+  }
 
   if (
     (inanimateSubject && ANIMATE_SUBJECT_VERBS.includes(word.text)) // properly, primary text

@@ -46,6 +46,8 @@ export default function mouse(state: MouseState = initialState, action: Action) 
         selectionStart: state.pendingSelectionStart ? state.highlightedWord : null,
         selectionEnd: state.pendingSelectionEnd ? state.highlightedWord : null,
       }
+    case 'DESELECT':
+      return initialState
     default:
       return state
   }

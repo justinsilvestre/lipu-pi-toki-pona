@@ -5,6 +5,7 @@ import type { AppState } from '../redux'
 import type { SentenceTranslation as SentenceTranslationType } from '../utils/english/grammar'
 import { realizeSentence } from '../utils/english/sentence'
 import type { WordTranslation } from '../utils/dictionary'
+// import getTranslation
 
 type SentenceTranslationOwnProps = {
   sentenceData: SentenceTranslationType
