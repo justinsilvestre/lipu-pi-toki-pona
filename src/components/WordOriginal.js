@@ -10,6 +10,7 @@ import { getWord, getHighlightedWord, isWordSelected, isWordInPendingSelection, 
 import {
   wordMouseEnter, wordMouseLeave, wordMouseDown, wordMouseUp, wordClick,
 } from '../actions'
+import TranslationMenu from './TranslationMenu'
 
 const adjustColor = (selecting: bool, selected: bool, [h, s, l]: Color) : Color =>
   [h, s + (selected || selecting ? 1 : 0) * 60, l + (selecting ? 1 : 0) * 20]
@@ -58,8 +59,11 @@ class WordOriginal extends Component {
     const style = { color: `hsl(${h}, ${s}%, ${l}%)`, fontWeight: original.role.endsWith('PARTICLE') ? 300 : 'normal' }
 
     return (
-      <span className={cn('word', { selecting, selected })}  style={style} {...mouseEvents}>
-        {text}{' '}
+      <span className="wordContainer" {...mouseEvents}>
+        <span className={cn('word', { selecting, selected })}  style={style}>
+          {text}{' '}
+        </span>
+        {selected && <TranslationMenu />}
       </span>
     )
   }
@@ -71,7 +75,7 @@ const mapStateToProps = (state: AppState, { originalId }: WordOriginalOwnProps) 
   original: getWord(state, originalId),
   selecting: isWordInPendingSelection(state, originalId),
   selected: isWordSelected(state, originalId),
-  text: getTpText(state, originalId),
+  text: originalId && getTpText(state, originalId),
 })
 
 const mapDispatchToProps : WordOriginalDispatchProps = {

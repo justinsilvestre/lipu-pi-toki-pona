@@ -5,7 +5,7 @@ import type { AppState } from '../redux'
 import type { SentenceTranslation as SentenceTranslationType } from '../utils/english/grammar'
 import { realizeSentence } from '../utils/english/sentence'
 import type { WordTranslation } from '../utils/dictionary'
-import { wasSelectionMade } from '../reducers'
+import { wasSelectionMade, getSelection, lookUpTranslations, getEnLemmaText } from '../reducers'
 
 type OwnProps = {
   translation: WordTranslation,
@@ -14,20 +14,27 @@ type StateProps = {
   selectionWasMade: boolean,
 }
 type Props = OwnProps & StateProps
-
-const TranslationMenu = ({ selectionWasMade, translation }: Props) => selectionWasMade ?
+selectedWord:
+const TranslationMenu = ({ selectionWasMade, englishTranslations, text }: Props) => selectionWasMade ?
   <div className="translationMenu">
     <ul className="translationMenuLemmaOptions">
-      <li>come</li>
-      <li>become</li>
+      {englishTranslations.map(t => <li>{t}</li>)}
     </ul>
     <ul className="translationMenuPartsOfSpeech">
       <li>prev</li><li>prep</li><li>n/mod</li>
     </ul>
   </div> : null
 
-const mapStateToProps = (state: AppState) : StateProps => ({
-  selectionWasMade: wasSelectionMade(state),
-})
+const mapStateToProps = (state: AppState) : StateProps => {
+  const selectionWasMade = wasSelectionMade(state)
+  if (!selectionWasMade) return { selectionWasMade }
+
+  const word = getSelection(state)
+  return {
+    selectionWasMade,
+    text: word.text,
+    englishTranslations: lookUpTranslations(state, word.lemmaId).map(t => getEnLemmaText(state, t.id))
+  }
+}
 
 export default connect(mapStateToProps)(TranslationMenu)

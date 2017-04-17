@@ -13,6 +13,7 @@ export type Action =
   | { type: 'SELECT_WORDS' }
   | { type: 'DELIMIT_PENDING_SELECTION', start: WordId, end: WordId }
   | { type: 'TRANSLATE_SENTENCES', enSentences: Array<SentenceTranslation> }
+  | { type: 'DESELECT' }
 
 
 export const wordMouseEnter = (word: WordId) : Action => ({
@@ -44,4 +45,8 @@ export const delimitPendingSelection = (start: WordId, end: WordId) : Action  =>
 
 export const selectWords = () : Action => ({
   type: 'SELECT_WORDS',
+})
+
+export const deselect = () : Action => ({
+  type: 'DESELECT',
 })

@@ -9,7 +9,7 @@ defmodule Lipu.TranslateChannel do
 
 
   # def handle_in("lookup", %{"pos" => pos_name, "text" => text}, socket) do
-  def handle_in("lookup",  %{"tpLemmaId" => tp_lemma_id, "enPartsOfSpeech" => en_parts_of_speech}, socket) do
+  def handle_in("look_up_one",  %{"tpLemmaId" => tp_lemma_id, "enPartsOfSpeech" => en_parts_of_speech}, socket) do
     for_lemma =
       PhraseTranslation
       |> PhraseTranslation.for_tp_lemma(tp_lemma_id)
@@ -23,9 +23,9 @@ defmodule Lipu.TranslateChannel do
 
     phrase_translation = Phoenix.View.render_one(translation, Lipu.PhraseTranslationView, "phrase_translation.json")
     response = %{phraseTranslation: phrase_translation}
-    {:reply, {:ok, %{phraseTranslation: phrase_translation}}, socket}
+    {:reply, {:ok, response}, socket}
   end
-  def handle_in("lookup",  %{"tpLemmaId" => tp_lemma_id}, socket) do
+  def handle_in("look_up_one",  %{"tpLemmaId" => tp_lemma_id}, socket) do
     for_lemma =
       PhraseTranslation
       |> PhraseTranslation.for_tp_lemma(tp_lemma_id)
@@ -35,6 +35,35 @@ defmodule Lipu.TranslateChannel do
 
     response = %{phraseTranslation: phrase_translation}
 
-    {:reply, {:ok, %{phraseTranslation: phrase_translation}}, socket}
+    {:reply, {:ok, response}, socket}
+  end
+
+  def handle_in("look_up_many", %{"tpLemmaId" => tp_lemma_id}, socket) do
+    for_lemma =
+      PhraseTranslation
+      |> PhraseTranslation.for_tp_lemma(tp_lemma_id)
+    translations = Repo.all(from t in for_lemma, preload: [en_lemma: :pos])
+
+    phrase_translations = Phoenix.View.render_many(translations, Lipu.PhraseTranslationView, "phrase_translation.json")
+
+    response = %{phraseTranslations: phrase_translations}
+
+    {:reply, {:ok, response}, socket}
+  end
+  def handle_in("look_up_many", %{"tpLemmaId" => tp_lemma_id, "enPartsOfSpeech" => en_parts_of_speech}, socket) do
+    for_lemma =
+      PhraseTranslation
+      |> PhraseTranslation.for_tp_lemma(tp_lemma_id)
+    translations = Repo.all(from t in for_lemma,
+      join: e in assoc(t, :en_lemma),
+      join: p in assoc(e, :pos),
+      where: p.name in ^en_parts_of_speech,
+      preload: [en_lemma: :pos]
+    )
+    phrase_translations = Phoenix.View.render_many(translations, Lipu.PhraseTranslationView, "phrase_translation.json")
+
+    response = %{phraseTranslations: phrase_translations}
+
+    {:reply, {:ok, response}, socket}
   end
 end

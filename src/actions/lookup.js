@@ -37,7 +37,7 @@ const normalizeTranslationResponse = ({ phraseTranslation: raw }) => {
   }
   const phraseTranslation = raw && {
     id: raw.id,
-    enLemmaId: raw.en.id,
+    enLemmaId: raw.en && raw.en.id,
     tpLemmaId: raw.tp,
   }
 
@@ -46,10 +46,16 @@ const normalizeTranslationResponse = ({ phraseTranslation: raw }) => {
 
 export const fetchTranslation = async (tpLemmaId: string, enPartsOfSpeech: ?Array<EnglishPartOfSpeech>) => {
   const opts = { tpLemmaId, ...(enPartsOfSpeech ? { enPartsOfSpeech } : null) }
-  const response = await pull('lookup', opts)
+  const response = await pull('look_up_one', opts)
   return normalizeTranslationResponse(response)
 }
 window.fetchTranslation = fetchTranslation
+export const fetchTranslations = async (tpLemmaId: string, enPartsOfSpeech: ?Array<EnglishPartOfSpeech>) => {
+  const opts = { tpLemmaId, ...(enPartsOfSpeech ? { enPartsOfSpeech } : null) }
+  const response = await pull('look_up_many', opts)
+  return normalizeTranslationResponse(response)
+}
+window.fetchTranslations = fetchTranslations
 
 export default function lookup(getState: Function, dispatch: Function): Lookup {
   const state: AppState = getState()
@@ -58,7 +64,7 @@ export default function lookup(getState: Function, dispatch: Function): Lookup {
     tpLemmas: state.tpLemmas,
     translate: async (tpLemmaId, enPartsOfSpeech) => {
       if (!Number.isInteger(tpLemmaId)) {
-        return { phraseTranslation: { tpLemmaId, enLemmaId: null }, enLemma: { text: tpLemmaId, pos: "n" } }
+        return { phraseTranslation: { tpLemmaId, enLemmaId: null }, enLemma: { text: tpLemmaId, pos: "prop" } }
       }
 
       const existing = lookUpTranslation(state, tpLemmaId, enPartsOfSpeech)
@@ -72,7 +78,7 @@ export default function lookup(getState: Function, dispatch: Function): Lookup {
       }
     },
     browse: async (tpLemmaId, enPartsOfSpeech) => {
-      return []
+      // const options = await fetchTranslations(tpLemmaId, enPartsOfSpeech)
     }
   }
 }

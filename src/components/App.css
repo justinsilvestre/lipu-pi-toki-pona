@@ -32,6 +32,9 @@ body {
   cursor: default;
   padding: .1em;
 }
+.word:focus {
+  /*outline: 0;*/
+}
 
 .translationMenu {
   position: absolute;
@@ -40,6 +43,9 @@ body {
   border-radius: .3rem;
   display: flex;
   flex-direction: column;
+  transform: translateX(-50%);
+  left: 50%;
+  z-index: 1000;
 }
 
 .translationMenuPartsOfSpeech {
@@ -64,4 +70,10 @@ body {
   padding: .3em;
   margin: 0;
   text-align: center;
+  font-size: initial;
+  max-height: 5em;
+  overflow-y: auto;
+}
+.wordContainer {
+  position: relative;
 }
