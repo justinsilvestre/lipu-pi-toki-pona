@@ -193,9 +193,10 @@ open,i,vi,begin,start
 open,i,adj,beginning,open,on
 pakala,i,adj,botched,broken,damaged,harmed,messed up
 pakala,t,vt,botch,break,damage,mess up
-pali,t,vt,do,take action on,work on,build,make,prepare,create
-pali,i,vi,act,work,function,operate
+pali,t,vt,do,take action on,build,make,prepare,create
+pali,i,vi,act,work,function,operate,take action
 pali,i,adj,active
+pali,t,vp,work (on)
 palisa,i,n,long hard thing,branch,rod,stick
 pan,i,n,cereal,grain,barley,corn,oat,rice,wheat,bread,pasta
 pana,i,vt,give,send,emit,provide,put,release
@@ -271,7 +272,7 @@ taso,i,adj,only,sole
 taso,i,adv,only,just
 tawa,prep,prep,to (direction),toward,approaching,until,for (from the perspective of),to (from the perspective of)
 tawa,prep,vt,approach
-tawa,prep,vp,go (to), move (to), move (towards),
+tawa,prep,vp,go (to), move (to), move (towards)
 tawa,t,vt,e,move,displace
 tawa,i,vi,go,leave,move,walk,travel
 tawa,i,adj,moving

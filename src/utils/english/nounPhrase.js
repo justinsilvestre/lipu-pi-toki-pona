@@ -17,7 +17,7 @@ async function nounPhrase(lookup: Lookup, wordId: WordId, options?: Object = {})
   if ((word.complements || []).some(c => words[c].text === 'mute')) number = 'PLURAL'
   // qualifier - determiner - adjective phrases - noun - prepositional phrases - appositives
   // qualifier - pronoun - conjoined adjective phrases - prepositional phrases
-  const { enLemma } = await(lookup.translate(word.lemmaId, getPossiblePartsOfSpeech(casus, number)))
+  const { enLemma } = await(lookup.translate(wordId, getPossiblePartsOfSpeech(casus, number)))
 
   const head : WordTranslation = options.head || enLemma
   const complements : Array<WordId> = word.complements || []
@@ -37,7 +37,7 @@ export default nounPhrase
 
 const getDeterminer = async (lookup, complements, partsOfSpeech) => {
   for (let i = complements.length - 1; i >= 0; i--) {
-    const { enLemma } = await lookup.translate(lookup.words[complements[i]].lemmaId, partsOfSpeech)
+    const { enLemma } = await lookup.translate(complements[i], partsOfSpeech)
     if (enLemma) return { determinerLemma: enLemma, complementId: complements[i] }
   }
 }
@@ -56,9 +56,9 @@ async function nounModifiers(lookup: Lookup, complements: Array<WordId>, options
   const complementsWithEnglish = await Promise.all(complements.map(async (c) => {
     if (c === determinerComplementId) return null
     const { enLemma: english } =
-      await lookup.translate(words[c].lemmaId, ['adj', 'n'])
-      || await lookup.translate(words[c].lemmaId, ['prep'])
-      || await lookup.translate(words[c].lemmaId)
+      await lookup.translate(c, ['adj', 'n'])
+      || await lookup.translate(c, ['prep'])
+      || await lookup.translate(c)
     if (!english) { return console.log("NO ENGLISH!!!", words[c]) }
     return { c, english }
   }))

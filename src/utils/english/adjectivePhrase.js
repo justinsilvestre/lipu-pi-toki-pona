@@ -11,7 +11,7 @@ import type { Lookup } from '../../actions/lookup'
 export default async function adjectivePhrase(lookup: Lookup, wordId: WordId, options: Object = {}) : Promise<AdjectivePhrase> {
   const { words } = lookup
   const word = words[wordId]
-  const { enLemma: head } = await lookup.translate(word.lemmaId, ['adj'])
+  const { enLemma: head } = await lookup.translate(wordId, ['adj'])
   const complements = word.complements || []
   const isNegative = Boolean(!options.negatedCopula && word.negative)
   const { prepositionalPhrases, adverbPhrases } = await adjectiveModifiers(lookup, complements, { isNegative })
@@ -23,7 +23,7 @@ async function adjectiveModifiers(lookup: Lookup, complements: Array<WordId>, op
   const { words } = lookup
   const obj = {}
   const complementsWithEnglish = await Promise.all(complements.map(async (c) => {
-    const english = await lookup.translate(words[c].lemmaId, ['adv', 'prep'])
+    const english = await lookup.translate(c, ['adv', 'prep'])
     return { c, english }
   }))
   const { prepositionalPhrases = [], adverbPhrases = [] } = complementsWithEnglish.reduceRight((obj, { c, english }) => {

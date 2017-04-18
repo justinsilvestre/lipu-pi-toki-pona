@@ -3,7 +3,7 @@ defmodule Lipu.Repo.Migrations.CreateDocumentTranslation do
 
   def change do
     create table(:document_translations) do
-      add :phrases, {:array, :uuid}, null: false
+      add :phrases, {:map, :integer}, null: false
       add :english, :text, null: false
       add :tp_document_id, references(:tp_documents, on_delete: :delete_all), null: false
 

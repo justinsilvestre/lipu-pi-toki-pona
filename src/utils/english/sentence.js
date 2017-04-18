@@ -42,8 +42,8 @@ async function sentenceModifiers(lookup, contexts: Array<SentenceContext>) : Pro
     const predicateId = c.predicates[0] // should only be one--otherwise, throw error?
     const predicate = words[predicateId]
 
-    const { enLemma: english } = await lookup.translate(words[predicateId].lemmaId, ['adv', 'n'])
-      || await lookup.translate(words[predicateId].lemmaId)
+    const { enLemma: english } = await lookup.translate(predicateId, ['adv', 'n'])
+      || await lookup.translate(predicateId)
     return { english, c: predicateId }
   }))
   const { adverbPhrases, prepositionalPhrases } = phrasesWithEnglish.reduce((obj, { c, english }) => {

@@ -3,13 +3,16 @@ import { combineEpics } from 'redux-observable'
 import type { Store } from 'redux'
 import { Observable } from 'rxjs'
 import type { AppState } from '../redux'
-import { selectWords, delimitPendingSelection, translateSentences, translateSentencesSuccess, deselect } from '../actions'
+import {
+  selectWords, delimitPendingSelection, translateSentences, translateSentencesSuccess,
+  deselect, processTranslationsResponse, addPhraseTranslations,
+} from '../actions'
 import type { Action } from '../actions'
 import translate from '../utils/translate'
 import type { WordsObject } from '../utils/parseTokiPona'
 import type { WordId } from '../utils/grammar'
 import lookup from '../actions/lookup'
-import { wasSelectionMade, getSelection, getWord } from '../reducers'
+import { wasSelectionMade, getSelection, getWord, getSentenceFromWord } from '../reducers'
 import { pull } from '../utils/channel'
 //
 const sortByIndex = (words: WordsObject, word1: WordId, word2: WordId) : Array<WordId> =>
@@ -52,28 +55,31 @@ const phraseTranslationEpic = (action$: any, { getState }) => action$
     const state = getState()
     const selectedWord = getSelection(state)
     return pull('look_up_many', { tpLemmaId: selectedWord.lemmaId })
-  }).map(({ phraseTranslations: raw }) => {
-    const enLemmas = {}
-    const phraseTranslations = {}
-    for (const rawPhraseTranslation of raw) {
-      const { id, en: rawEnLemma, tp: tpLemmaId } = rawPhraseTranslation
-      const { id: enLemmaId, text, pos } = rawEnLemma
-      phraseTranslations[id] = {
-        id,
-        tpLemmaId,
-        enLemmaId,
-      }
-      enLemmas[enLemmaId] = {
-        id: enLemmaId,
-        text,
-        pos,
-      }
+  }).map((response) => {
+    const { enLemmas, phraseTranslations } = processTranslationsResponse(response)
+    return addPhraseTranslations(phraseTranslations, enLemmas)
+  })
+
+const updateSentenceEpic = (action$: any, { getState, dispatch }) => action$
+  .ofType('PARSE_SENTENCES')
+  .flatMap(() =>
+    action$.ofType('CHANGE_WORD_TRANSLATION')
+    .takeUntil(action$.ofType('TRANSLATE_SENTENCES'))
+    .skipUntil(action$.ofType('TRANSLATE_SENTENCES_SUCCESS'))
+  )
+  .flatMap(async ({ wordId }) => {
+    const state = getState()
+    const { tpSentences, tpWords } = state
+    const sentence = getSentenceFromWord(state, wordId)
+    const { index } = sentence
+    try {
+      const [newSentence] = await translate([tpSentences[index]], tpWords, lookup(getState, dispatch))
+      return { type: 'UPDATE_SENTENCE', sentence: newSentence, index }
+    } catch(err) {
+      console.error(err)
+      return { type: 'UPDATE_SENTENCE_FAILURE', err }
     }
-    return {
-      type: 'ADD_PHRASE_TRANSLATIONS',
-      enLemmas,
-      phraseTranslations,
-    }})
+  })
 
 const epic = combineEpics(
   singleWordSelectionEpic,
@@ -81,5 +87,6 @@ const epic = combineEpics(
   deselectionEpic,
   translationEpic,
   phraseTranslationEpic,
+  updateSentenceEpic,
 )
 export default epic

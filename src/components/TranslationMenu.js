@@ -6,22 +6,27 @@ import type { SentenceTranslation as SentenceTranslationType } from '../utils/en
 import { realizeSentence } from '../utils/english/sentence'
 import type { WordTranslation } from '../utils/dictionary'
 import { wasSelectionMade, getSelection, lookUpTranslations, getEnLemmaText } from '../reducers'
+import { changeWordTranslation } from '../actions/lookup'
 
 type OwnProps = {
   translation: WordTranslation,
 }
 type StateProps = {
   selectionWasMade: boolean,
+  selectedWordId: string,
+  englishTranslations: Array<PhraseTranslation>,
 }
-type Props = OwnProps & StateProps
-selectedWord:
-const TranslationMenu = ({ selectionWasMade, englishTranslations, text }: Props) => selectionWasMade ?
+type DispatchProps = {
+  changeWordTranslation: Function,
+}
+type Props = OwnProps & StateProps & DispatchProps
+const TranslationMenu = ({ changeWordTranslation, selectedWordId, selectionWasMade, englishTranslations, text }: Props) => selectionWasMade ?
   <div className="translationMenu">
     <ul className="translationMenuLemmaOptions">
-      {englishTranslations.map(t => <li>{t}</li>)}
-    </ul>
-    <ul className="translationMenuPartsOfSpeech">
-      <li>prev</li><li>prep</li><li>n/mod</li>
+      {englishTranslations.map(t =>
+        <li key={t.id} onClick={() => changeWordTranslation(selectedWordId, t.id)}>
+          {t.text}
+        </li>)}
     </ul>
   </div> : null
 
@@ -32,9 +37,12 @@ const mapStateToProps = (state: AppState) : StateProps => {
   const word = getSelection(state)
   return {
     selectionWasMade,
+    selectedWordId: word.id,
     text: word.text,
-    englishTranslations: lookUpTranslations(state, word.lemmaId).map(t => getEnLemmaText(state, t.id))
+    englishTranslations: lookUpTranslations(state, word.lemmaId).map(t =>
+      ({ text: getEnLemmaText(state, t.id), id: t.id })
+    ),
   }
 }
 
-export default connect(mapStateToProps)(TranslationMenu)
+export default connect(mapStateToProps, { changeWordTranslation })(TranslationMenu)
