@@ -52,15 +52,15 @@ async function verbPhrase(lookup: Lookup, wordId: WordId, options: Object = {}):
   const { words } = lookup
   const word = words[wordId]
   let head =
-    (await lookup.translate(word.lemmaId, ['vt'])).enLemma
-    || (await lookup.translate(word.lemmaId, ['vi'])).enLemma
-    || (await lookup.translate(word.lemmaId, ['vm'])).enLemma
-    || (await lookup.translate(word.lemmaId, ['vc'])).enLemma
-    || (await lookup.translate(word.lemmaId, ['vp'])).enLemma
+    (await lookup.translate(wordId, ['vt'])).enLemma
+    || (await lookup.translate(wordId, ['vi'])).enLemma
+    || (await lookup.translate(wordId, ['vm'])).enLemma
+    || (await lookup.translate(wordId, ['vc'])).enLemma
+    || (await lookup.translate(wordId, ['vp'])).enLemma
   const { subjectPhrase } = options
   const inanimateSubject = subjectPhrase && subjectPhrase.animacy === 'INANIMATE'
 
-  head = head || (await lookup.translate(word.lemmaId)).enLemma
+  head = head || (await lookup.translate(wordId)).enLemma
   if (!head) {
     console.error('no head!!', word)
     throw new Error('no head!!', word)
@@ -136,11 +136,11 @@ async function getSubjectComplement(lookup: Lookup, sc: WordId, options: Object)
     'adj',
     'prep',
   ]
-  const head = (await lookup.translate(subjectComplement.lemmaId, partsOfSpeech)).enLemma
-    || (await lookup.translate(subjectComplement.lemmaId)).enLemma
+  const head = (await lookup.translate(sc, partsOfSpeech)).enLemma
+    || (await lookup.translate(sc)).enLemma
 
   if (!head) {
-    console.error('subjectComplement', subjectComplement, await lookup.translate(subjectComplement.lemmaId))
+    console.error('subjectComplement', subjectComplement, await lookup.translate(sc))
     throw new Error('no translation for subject complement')
   }
 
@@ -160,11 +160,11 @@ export async function copulaPhrase(lookup: Lookup, wordId: WordId, options: Obje
   const word = words[wordId]
   const tokiPonaInfinitive = word.infinitive
   const infinitiveTranslation = tokiPonaInfinitive
-    ? ((await lookup.translate(words[tokiPonaInfinitive].lemmaId, ['vt'])).enLemma
-      || (await lookup.translate(words[tokiPonaInfinitive].lemmaId, ['vi'])).enLemma
-      || (await lookup.translate(words[tokiPonaInfinitive].lemmaId, ['vm'])).enLemma
-      || (await lookup.translate(words[tokiPonaInfinitive].lemmaId, ['vc'])).enLemma
-      || (await lookup.translate(words[tokiPonaInfinitive].lemmaId, ['vp'])).enLemma
+    ? ((await lookup.translate(tokiPonaInfinitive, ['vt'])).enLemma
+      || (await lookup.translate(tokiPonaInfinitive, ['vi'])).enLemma
+      || (await lookup.translate(tokiPonaInfinitive, ['vm'])).enLemma
+      || (await lookup.translate(tokiPonaInfinitive, ['vc'])).enLemma
+      || (await lookup.translate(tokiPonaInfinitive, ['vp'])).enLemma
     )
     : null
   const predicateInfinitive = (tokiPonaInfinitive && // does this translate best to a noun?
@@ -216,7 +216,7 @@ export const realizeVerbPhrase = (phrase: VerbPhrase, subject?: SubjectPhrase) :
 async function verbModifiers(lookup: Lookup, complements: Array<WordId>): Promise<Object> {
   const { words } = lookup
   const complementsWithEnglish = await Promise.all(complements.map(async (c) => {
-    const { enLemma: english } = await lookup.translate(words[c].lemmaId, ['adv', 'prep'])
+    const { enLemma: english } = await lookup.translate(c, ['adv', 'prep'])
     return { c, english }
   }))
   const { adverbPhrases = [], prepositionalPhrases = [] } = complementsWithEnglish.reduceRight((obj, { c, english }) => {

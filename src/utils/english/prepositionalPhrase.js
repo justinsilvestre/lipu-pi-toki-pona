@@ -10,7 +10,7 @@ import type { Lookup } from '../../actions/lookup'
 export default async function prepositionalPhrase(lookup: Lookup, wordId: WordId, options: Object = {}) : Promise<PrepositionalPhrase> {
   const { words } = lookup
   const word = words[wordId]
-  const head: WordTranslation = options.head || await(lookup.translate(word.lemmaId, ['prep'])).enLemma
+  const head: WordTranslation = options.head || await(lookup.translate(wordId, ['prep'])).enLemma
 
   let objectIds: Array<WordId> = options.objectIds
   if (!options.objectIds) {

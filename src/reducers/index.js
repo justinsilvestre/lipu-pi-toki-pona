@@ -7,14 +7,16 @@ import type { Color } from '../utils/getHighlighting'
 import type { Action } from '../actions'
 import type { EnglishPartOfSpeech } from '../utils/english/grammar'
 
-import mouse, * as mouseSelectors from './mouse'
-import tpSentences, * as tpSentencesSelectors from './tpSentences'
-import tpWords, * as tpWordsSelectors from './tpWords'
-import colors, * as colorsSelectors from './colors'
-import enSentences, * as enSentencesSelectors from './enSentences'
-import tpLemmas, * as tpLemmasSelectors from './tpLemmas'
-import enLemmas, * as enLemmasSelectors from './enLemmas'
-import phraseTranslations, * as phraseTranslationsSelectors from './phraseTranslations'
+import mouse, * as M from './mouse'
+import tpSentences, * as TpS from './tpSentences'
+import tpWords, * as TpW from './tpWords'
+import colors, * as C from './colors'
+import enSentences, * as EnS from './enSentences'
+import tpLemmas, * as TpL from './tpLemmas'
+import enLemmas, * as EnL from './enLemmas'
+import phraseTranslations, * as PT from './phraseTranslations'
+import documentTranslationPhrases, * as DTP from './documentTranslationPhrases'
+import notifications, * as N from './notifications'
 
 import type { MouseState } from './mouse'
 import type { TpSentencesState } from './tpSentences'
@@ -24,6 +26,8 @@ import type { EnSentencesState } from './enSentences'
 import type { TpLemmasState } from './tpLemmas'
 import type { EnLemmasState } from './enLemmas'
 import type { State as PhraseTranslationsState } from './phraseTranslations'
+import type { State as DocumentTranslationPhrasesState } from './documentTranslationPhrases'
+import type { State as NotificationsState } from './notifications'
 
 export type AppState = {
   mouse: MouseState,
@@ -34,6 +38,8 @@ export type AppState = {
   enSentences: EnSentencesState,
   enLemmas: EnLemmasState,
   phraseTranslations: PhraseTranslationsState,
+  documentTranslationPhrases: DocumentTranslationPhrasesState,
+  notifications: NotificationsState,
 }
 
 type Reducer = (state: AppState, action: Action) => AppState
@@ -47,6 +53,8 @@ const reducer = combineReducers({
   enSentences,
   enLemmas,
   phraseTranslations,
+  documentTranslationPhrases,
+  notifications,
 })
 
 export default reducer
@@ -54,15 +62,15 @@ export default reducer
 export const getSentences = (state: AppState): Array<Sentence> => state.tpSentences
 export const getWord = (state: AppState, wordId: WordId): Word => state.tpWords[wordId]
 const getWordIndex = (state, wordId): number => (getWord(state, wordId) || { index: -1 }).index
-const getSentenceFromWord = (state: AppState, wordId: WordId): Sentence => getSentences(state)[state.tpWords[wordId].sentence]
+export const getSentenceFromWord = (state: AppState, wordId: WordId): Sentence => getSentences(state)[state.tpWords[wordId].sentence]
 
-export const getEnSentence = (state: AppState, index: number): SentenceTranslation => enSentencesSelectors.getEnSentence(state.enSentences, index)
+export const getEnSentence = (state: AppState, index: number): SentenceTranslation => EnS.getEnSentence(state.enSentences, index)
 
 export const getHighlightedWord = (state: AppState): ?Word => {
-  const id = mouseSelectors.getHighlightedWord(state.mouse)
+  const id = M.getHighlightedWord(state.mouse)
   return id ? getWord(state, id) : null
 }
-export const wasSelectionMade = (state: AppState): boolean => mouseSelectors.wasSelectionMade(state.mouse)
+export const wasSelectionMade = (state: AppState): boolean => M.wasSelectionMade(state.mouse)
 const isWordBetween = (state, wordId, startId, endId): boolean => {
   const wordIndex = getWordIndex(state, wordId)
   return Boolean(
@@ -72,32 +80,26 @@ const isWordBetween = (state, wordId, startId, endId): boolean => {
   )
 }
 export const isWordSelected = (state: AppState, wordId: WordId): boolean => {
-  const { start, end } = mouseSelectors.getSelection(state.mouse);
+  const { start, end } = M.getSelection(state.mouse);
   return isWordBetween(state, wordId, start, end)
 }
 export const isWordInPendingSelection = (state: AppState, wordId: WordId): boolean => {
-  const { start, end } = mouseSelectors.getPendingSelection(state.mouse)
+  const { start, end } = M.getPendingSelection(state.mouse)
   return isWordBetween(state, wordId, start, end)
 }
 const getIndexInSentence = (state: AppState, wordId: WordId): number =>
   getSentenceFromWord(state, wordId).words.indexOf(wordId)
 export const getSelection = (state: AppState): ?Word => {
-  const id = mouseSelectors.getSelection(state.mouse).start
-  console.log('selection id',)
+  const id = M.getSelection(state.mouse).start
   return id ? getWord(state, id) : null
 }
 
 export const getWordColor = (state: AppState, wordId: WordId): Color =>
   state.colors[getWord(state, wordId).sentence][getIndexInSentence(state, wordId)]
 
-export const lookUpTranslation = (state: AppState, tpLemmaId: string, enPartsOfSpeech: ?Array<EnglishPartOfSpeech>) => {
-  for (const id in state.phraseTranslations) {
-    const translation = state.phraseTranslations[id]
-    const enLemma = state.enLemmas[translation.enLemmaId]
-    if (enLemma && tpLemmaId == translation.tpLemmaId && (!enPartsOfSpeech || enPartsOfSpeech.some(pos => enLemma.pos === pos))) {
-      return translation
-    }
-  }
+export const lookUpTranslation = (state: AppState, wordId: WordId) => {
+  const phraseTranslationId = state.documentTranslationPhrases[wordId]
+  return state.phraseTranslations[phraseTranslationId]
 }
 export const lookUpTranslations = (state: AppState, tpLemmaId: string, enPartsOfSpeech: ?Array<EnglishPartOfSpeech>) => {
   const result = []
@@ -116,11 +118,12 @@ export const getEnLemmaText = (state: AppState, phraseTranslationId: string) => 
   return enLemma.text
 }
 
-export const getTpLemmaId = (state: AppState, text: string, pos: string): ?string => tpLemmasSelectors.getId(state.tpLemmas, text, pos)
-export const getTpLemmaText = (state: AppState, tpLemmaId: string): string => tpLemmasSelectors.getText(state.tpLemmas, tpLemmaId)
+export const getTpLemmaId = (state: AppState, text: string, pos: string): ?string => TpL.getId(state.tpLemmas, text, pos)
+export const getTpLemmaText = (state: AppState, tpLemmaId: string): string => TpL.getText(state.tpLemmas, tpLemmaId)
 
 export const getTpText = (state: AppState, wordId: WordId): string => {
   const word = getWord(state, wordId)
-  const { lemmaId } = word
-  return lemmaId ? getTpLemmaText(state, lemmaId) : word.text
+  const { lemmaId, before, after } = word
+  const text = lemmaId ? getTpLemmaText(state, lemmaId) : word.text
+  return [before, text, after].join('')
 }

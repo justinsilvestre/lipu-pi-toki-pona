@@ -4,7 +4,7 @@ body {
   font-family: Roboto, sans-serif;
 }
 
-@keyframes just-selected{
+@keyframes just-selected {
   0% {
     color: rgb(198, 217, 255);
     transform: translateY(0);
@@ -12,6 +12,14 @@ body {
   }
   100% {
   }
+}
+
+@keyframes popover {
+  0% {
+    opacity: 0;
+    transform: scaleY(0) translateX(-50%);
+  }
+  100% { transform: scaleY(1) translateX(-50%); }
 }
 
 .selected {
@@ -46,6 +54,10 @@ body {
   transform: translateX(-50%);
   left: 50%;
   z-index: 1000;
+  animation-name: popover;
+  transform-origin: top center;
+  animation-duration: .3s;
+  animation-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .translationMenuPartsOfSpeech {
@@ -76,4 +88,13 @@ body {
 }
 .wordContainer {
   position: relative;
+}
+
+.error {
+  position: absolute;
+  text-shadow: 0 0 10px orangered;
+  color: #c04747;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }

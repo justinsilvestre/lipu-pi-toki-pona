@@ -9,7 +9,7 @@ import type { Lookup } from '../../actions/lookup'
 export default async function adverbPhrase(lookup: Lookup, wordId: WordId) : Promise<AdverbPhrase> {
   const { words } = lookup
   const word = words[wordId]
-  const { enLemma: head } = await lookup.translate(word.lemmaId, ['adv'])
+  const { enLemma: head } = await lookup.translate(wordId, ['adv'])
 
 
   const complements = word.complements || []
@@ -22,7 +22,7 @@ export default async function adverbPhrase(lookup: Lookup, wordId: WordId) : Pro
 async function adverbModifiers(lookup: Lookup, complements: Array<WordId>) : Promise<Object> {
   const { words } = lookup
   const complementsWithEnglish = await Promise.all(complements.map(async (c) => {
-    const english = await lookup.translate(words[c].lemmaId, ['adv', 'prep'])
+    const english = await lookup.translate(c, ['adv', 'prep'])
     return { c, english }
   }))
   const { prepositionalPhrases = [], adverbPhrases = [] } = complementsWithEnglish.reduceRight((obj, { c, english }) => {

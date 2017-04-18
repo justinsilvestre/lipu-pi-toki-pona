@@ -9,6 +9,7 @@ export type Action =
   { type: 'PARSE_SENTENCES', tpSentences: Array<Sentence>, tpWords: WordsObject, properNouns: Array<TpLemma> }
   | { type: 'TRANSLATE_SENTENCES' }
   | { type: 'TRANSLATE_SENTENCES_SUCCESS', enSentences: Array<SentenceTranslation> }
+  | { type: 'UPDATE_SENTENCE', index: number, sentence: Sentence }
 
 
 export const parseSentences = (text: string, tpLemmas: TpLemmasState) : Action => {
