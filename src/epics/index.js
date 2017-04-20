@@ -6,17 +6,20 @@ import type { AppState } from '../redux'
 import {
   selectWords, delimitPendingSelection, translateSentences, translateSentencesSuccess,
   deselect, processTranslationsResponse, addPhraseTranslations,
+  parseSentencesSuccess, parseSentencesFailure,
 } from '../actions'
 import type { Action } from '../actions'
 import translate from '../utils/translate'
 import type { WordsObject } from '../utils/parseTokiPona'
 import type { WordId } from '../utils/grammar'
 import lookup from '../actions/lookup'
-import { wasSelectionMade, getSelection, getWord, getSentenceFromWord } from '../reducers'
+import { wasSelectionMade, getSelection, getWord, getSentenceFromWord, getHighlightedWord } from '../reducers'
 import { pull } from '../utils/channel'
-//
+import parseTokiPona from '../utils/parseTokiPona'
+
 const sortByIndex = (words: WordsObject, word1: WordId, word2: WordId) : Array<WordId> =>
 [word1, word2].sort((a, b) => {
+  if (!words[a] || !words[b]) return 0
   const i1 = words[a].index
   const i2 = words[b].index
   return i1 < i2 ? -1 : 1
@@ -26,7 +29,7 @@ type getStateFn = () => AppState
 const multipleWordSelectionEpic = (action$: any, { getState }: Store<getStateFn, Action>) => action$
   .ofType('WORD_MOUSE_DOWN')
   .concatMap((mouseDown) => action$
-    .ofType('WORD_MOUSE_ENTER')
+    .ofType('WORD_MOUSE_ENTER').merge(action$.ofType('PARSE_SENTENCES_SUCCESS'))
     .takeUntil(action$.ofType('WORD_MOUSE_UP').merge(Observable.fromEvent(window, 'mouseup')))
     .map((mouseEnter) => delimitPendingSelection(...sortByIndex(getState().tpWords, mouseEnter.word, mouseDown.word)))
     .concat(Observable.of(selectWords()))
@@ -38,13 +41,27 @@ const singleWordSelectionEpic = (action$: any, { getState }: Store<getStateFn, A
   .map((mouseDown) => delimitPendingSelection(mouseDown.word, mouseDown.word))
   .concat(Observable.of(selectWords()))
 
-const deselectionEpic = (action$: any) => action$
-  .ofType('WORD_MOUSE_LEAVE')
-  .concatMap(ml => Observable.fromEvent(window, 'click').takeUntil(action$.ofType('WORD_MOUSE_ENTER')))
-  .map(x => deselect())
+const deselectionEpic = (action$: any, { getState }) => Observable.fromEvent(window, 'click')
+  .filter(() => !getHighlightedWord(getState()))
+  .map(() => ({ ...deselect(), from: 'depci' }))
+
+const parsingEpic = (action$: any, { getState }) => action$
+  .ofType('PARSE_SENTENCES')
+  .flatMap(({ text }) => {
+    let result
+    try {
+      const trimmed = text.trim().replace(/[^\w\s\.\!\?\;\:\,]/g, '')
+      const { sentences, words, properNouns } = parseTokiPona(trimmed, getState().tpLemmas)
+      result = parseSentencesSuccess(sentences, words, properNouns)
+    } catch(err) {
+      result = parseSentencesFailure()
+    }
+    return Observable.of({ type: 'CLEAR_EN_SENTENCES' }, result)
+  })
+
 
 const translationEpic = (action$: any, { getState, dispatch }: Store<getStateFn, Action>) => action$
-  .ofType('PARSE_SENTENCES')
+  .ofType('PARSE_SENTENCES_SUCCESS')
   .flatMap(() => translate(getState().tpSentences, getState().tpWords, lookup(getState, dispatch)).catch(err => console.error(err)))
   .map((x) => translateSentencesSuccess(x))
 
@@ -54,14 +71,16 @@ const phraseTranslationEpic = (action$: any, { getState }) => action$
   .flatMap(() => {
     const state = getState()
     const selectedWord = getSelection(state)
-    return pull('look_up_many', { tpLemmaId: selectedWord.lemmaId })
-  }).map((response) => {
+    return selectedWord ?
+      pull('look_up_many', { tpLemmaId: selectedWord.lemmaId })
+      : Promise.resolve(null)
+  }).filter(r => r).map((response) => {
     const { enLemmas, phraseTranslations } = processTranslationsResponse(response)
     return addPhraseTranslations(phraseTranslations, enLemmas)
   })
 
 const updateSentenceEpic = (action$: any, { getState, dispatch }) => action$
-  .ofType('PARSE_SENTENCES')
+  .ofType('PARSE_SENTENCES_SUCCESS')
   .flatMap(() =>
     action$.ofType('CHANGE_WORD_TRANSLATION')
     .takeUntil(action$.ofType('TRANSLATE_SENTENCES'))
@@ -81,6 +100,10 @@ const updateSentenceEpic = (action$: any, { getState, dispatch }) => action$
     }
   })
 
+const updateSentenceSuccessEpic = (action$) => action$
+  .ofType('UPDATE_SENTENCE')
+  .map(() => deselect())
+
 const epic = combineEpics(
   singleWordSelectionEpic,
   multipleWordSelectionEpic,
@@ -88,5 +111,7 @@ const epic = combineEpics(
   translationEpic,
   phraseTranslationEpic,
   updateSentenceEpic,
+  updateSentenceSuccessEpic,
+  parsingEpic,
 )
 export default epic

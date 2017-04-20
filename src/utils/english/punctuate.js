@@ -8,14 +8,14 @@ type Punctuation = {
 }
 
 const punctuate = (punctuation: Punctuation, wordTranslations: Array<WordTranslation>) : Array<WordTranslation> => {
-  const first = head(wordTranslations)
-  const final = last(wordTranslations)
+  const lastIndex = wordTranslations.length - 1
   const { before, after } = punctuation
-  return [
-    { ...first, ...(punctuation.before ? { before } : null) },
-    ...wordTranslations.slice(1, wordTranslations.length - 1),
-    { ...final, ...(punctuation.after ? { after } : null) },
-  ]
+  return wordTranslations.map((w, i) => {
+    const word = { ...w }
+    if (i === 0) word.before = before
+    if (i === lastIndex) word.after = after
+    return word
+  })
 }
 
 export default punctuate

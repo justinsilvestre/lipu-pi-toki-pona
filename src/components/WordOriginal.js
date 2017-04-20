@@ -33,33 +33,26 @@ type WordOriginalProps = WordOriginalOwnProps & WordOriginalStateProps & WordOri
 
 class WordOriginal extends Component {
   props : WordOriginalProps
-  mouseEvents: { [onMouseEvent: string]: (e: Event) => void }
 
-  constructor(props) {
-    super(props)
-
-    const { originalId, onMouseUp, onMouseDown, onMouseEnter, onMouseLeave, onClick } = this.props
-
-    this.mouseEvents = {
-      onMouseEnter: () => onMouseEnter(originalId),
-      onMouseLeave: () => onMouseLeave(originalId),
-      onClick: () => onClick(originalId),
-      onMouseUp: () => onMouseUp(originalId),
-      onMouseDown: (e) => {
-        onMouseDown(originalId)
-        e.preventDefault()
-      },
-    }
+  onMouseEnter = () => this.props.onMouseEnter(this.props.originalId)
+  onMouseLeave = () => this.props.onMouseLeave(this.props.originalId)
+  onClick = () => this.props.onClick(this.props.originalId)
+  onMouseUp = () => this.props.onMouseUp(this.props.originalId)
+  onMouseDown = (e) => {
+    this.props.onMouseDown(this.props.originalId)
+    e.preventDefault()
   }
 
+
   render() {
-    const { mouseEvents } = this
     const { original, color, selecting, selected, text } = this.props
     const [h, s, l] = adjustColor(selecting, selected, color)
     const style = { color: `hsl(${h}, ${s}%, ${l}%)`, fontWeight: original.role.endsWith('PARTICLE') ? 300 : 'normal' }
 
+    const { onMouseEnter, onMouseLeave, onClick, onMouseUp, onMouseDown } = this
+
     return (
-      <span className="wordContainer" {...mouseEvents}>
+      <span className="wordContainer" {...{ onMouseEnter, onMouseLeave, onClick, onMouseUp, onMouseDown }}>
         <span className={cn('word', { selecting, selected })}  style={style}>
           {text}{' '}
         </span>

@@ -42,8 +42,8 @@ export default async function subjectPhrase(lookup: Lookup, headIds: Array<WordI
   return result
 }
 
-export function realizeSubjectPhrase(subjectPhrase: SubjectPhrase) {
-  return subjectPhrase.nounPhrases.reduce((realized, nounPhrase, i) => {
+export function realizeSubjectPhrase(subjectPhrase: ?SubjectPhrase) {
+  return subjectPhrase ? subjectPhrase.nounPhrases.reduce((realized, nounPhrase, i) => {
     return realized.concat(i > 0 ? [{ text: 'and', pos: 'conj' }, ...realizeNounPhrase(nounPhrase)] : realizeNounPhrase(nounPhrase))
-  }, [])
+  }, []) : []
 }
