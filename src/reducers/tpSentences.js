@@ -7,7 +7,7 @@ export type TpSentencesState = Array<Sentence>
 
 export default function tpSentences(state: TpSentencesState = [], action: Action): TpSentencesState {
   switch (action.type) {
-    case 'PARSE_SENTENCES':
+    case 'PARSE_SENTENCES_SUCCESS':
       return action.tpSentences
     default:
       return state

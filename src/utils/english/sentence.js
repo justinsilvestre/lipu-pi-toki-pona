@@ -17,7 +17,7 @@ export default async function sentence(lookup: Lookup, tokiPonaSentence: Sentenc
 
     const { predicates, mood, subjects = [], vocative, contexts = [], seme = [], words: sentenceWords } = tokiPonaSentence
     const vocativeTranslation = await (vocative ? vocativePhrase(lookup, vocative) : Promise.resolve(null))
-    const subjectTranslations = await subjectPhrase(lookup, subjects)
+    const subjectTranslations = subjects.length ? await subjectPhrase(lookup, subjects) : null
     const predicateTranslations = await predicatePhrase(lookup, predicates, subjects, subjectTranslations)
     const { adverbPhrases, prepositionalPhrases, subordinateClauses } = await sentenceModifiers(lookup, contexts)
 
@@ -42,7 +42,7 @@ async function sentenceModifiers(lookup, contexts: Array<SentenceContext>) : Pro
     const predicateId = c.predicates[0] // should only be one--otherwise, throw error?
     const predicate = words[predicateId]
 
-    const { enLemma: english } = await lookup.translate(predicateId, ['adv', 'n'])
+    const { enLemma: english } = await lookup.translate(predicateId, ['adv', 'n', 'prep'])
       || await lookup.translate(predicateId)
     return { english, c: predicateId }
   }))
@@ -54,6 +54,8 @@ async function sentenceModifiers(lookup, contexts: Array<SentenceContext>) : Pro
 
     if (english.pos === 'adv') {
       obj.adverbPhrases.push(adverbPhrase(lookup, c))
+    } else if (english.pos === 'prep') {
+      obj.prepositionalPhrases.push(prepositionalPhrase(lookup, c, { head: english }))
     } else if (english.pos === 'n' || english.pos.startsWith('pn')) {
       obj.prepositionalPhrases.push(prepositionalPhrase(lookup, c, {
         head: { text: 'by', pos: 'prep' },

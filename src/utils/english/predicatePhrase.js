@@ -12,7 +12,7 @@ export default async function predicatePhrase(
   lookup: Lookup,
   headIds: Array<WordId>,
   tokiPonaSubjectIds: Array<WordId>,
-  englishSubjectPhrase: SubjectPhrase
+  englishSubjectPhrase: ?SubjectPhrase
 ) : Promise<PredicatePhrase> {
   const { words } = lookup
   // if subj is animate and pred is animate-subj-verb, translate predicate head to verb.

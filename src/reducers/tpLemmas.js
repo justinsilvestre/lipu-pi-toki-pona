@@ -14,7 +14,7 @@ export type TpLemmasState = {
 
 export default function tpLemmas(state: TpLemmasState = {}, action: Action): TpLemmasState {
   switch (action.type) {
-    case 'PARSE_SENTENCES':
+    case 'PARSE_SENTENCES_SUCCESS':
       if (action.properNouns.length) {
         const newState = { ...state }
         action.properNouns.forEach(pn => newState[pn.id] = pn)

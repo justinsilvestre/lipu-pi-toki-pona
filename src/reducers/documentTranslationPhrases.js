@@ -14,6 +14,8 @@ export default function documentTranslationPhrases(state: State = {}, action: Ac
         ...state,
         [action.wordId]: action.phraseTranslationId,
       }
+    case 'CLEAR_EN_SENTENCES':
+      return {}
     default:
       return state
   }

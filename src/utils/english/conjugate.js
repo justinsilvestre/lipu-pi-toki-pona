@@ -18,7 +18,7 @@ const conjugate = (verbPhrase: VerbPhrase, subject?: SubjectPhrase, externalAuxi
 
   const { isPlural, isFirstPerson } = subject || {}
   const rules = {
-    number: isPlural ? PLURAL : SINGULAR,
+    number: isPlural || !subject ? PLURAL : SINGULAR,
     person: isFirstPerson ? FIRST_PERSON : THIRD_PERSON,
   }
 
