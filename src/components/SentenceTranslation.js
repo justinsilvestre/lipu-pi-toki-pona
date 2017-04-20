@@ -22,13 +22,14 @@ const getText = (word: WordTranslation) : string => {
 }
 
 const SentenceTranslation = ({ sentenceData } : SentenceTranslationProps) =>
-  <div>
+  sentenceData && <div className="sentenceTranslation">
     {realizeSentence(sentenceData).map((wordTranslation, i) => {
       return i === 0 ? capitalize(getText(wordTranslation)) : getText(wordTranslation)
     }).join(' ')}
   </div>
 
 const mapStateToProps = (appState: AppState) : SentenceTranslationStateProps => ({
+  // selected: isWordSelected...
 })
 
 export default connect(mapStateToProps)(SentenceTranslation)

@@ -7,7 +7,7 @@ export type TpWordsState = WordsObject
 
 export default function tpWords(state: TpWordsState = {}, action: Action): TpWordsState {
   switch (action.type) {
-    case 'PARSE_SENTENCES':
+    case 'PARSE_SENTENCES_SUCCESS':
       return action.tpWords
     default:
       return state

@@ -2,6 +2,80 @@ body {
   margin: 0;
   padding: 0;
   font-family: Roboto, sans-serif;
+  color: #555555;
+}
+
+a {
+  color: #2a78d5;
+  text-decoration: none;
+  transition: .3s;
+}
+a:hover {
+  /*color: #00b4ff;*/
+  color: #c2b819;
+}
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 1em auto;
+  max-width: 900px;
+}
+
+header {
+  width: 100%;
+  margin: 0 1em;
+}
+h1 small { font-weight: normal }
+
+main {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.translate {
+  flex-grow: 1;
+  display: flex;
+  flex-wrap: wrap;
+}
+.inputContainer {
+  /*margin: 1em;
+  width: 13em;
+  min-width: 13em;*/
+  margin: 1em;
+  width: 100%;
+}
+.input {
+  /*height: 25rem;*/
+  height: 5rem;
+  width: 100%;
+  border: 0;
+}
+.input.syntaxError {
+  background-color: #FFEEEE;
+}
+.translateButton {
+  width: 100%;
+  background: #edf2f8;
+  border: 0;
+  color: #3b5959;
+}
+
+.output {
+  margin: 0 2em;
+}
+
+.sentenceContainer{
+  display: inline-block;
+  padding-right: .4em;
+  text-align: left;
+  min-height: 4em;
+  color: black;
+}
+.sentenceTranslation {
+  animation-name: just-selected;
+  animation-duration: .3s;
 }
 
 @keyframes just-selected {
@@ -37,7 +111,7 @@ body {
 }
 
 .word {
-  cursor: default;
+  cursor: pointer;
   padding: .1em;
 }
 .word:focus {
@@ -86,8 +160,27 @@ body {
   max-height: 5em;
   overflow-y: auto;
 }
+.translationMenuLemmaOptions > li {
+  cursor: pointer;
+}
 .wordContainer {
   position: relative;
+}
+
+.info {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  flex-shrink: 0;
+  margin-bottom: 2em;
+  font-size: 0.8rem;
+
+  width: 100%;
+}
+.info > section {
+  margin: 1em;
+  box-sizing: border-box;
+  text-align: justify;
 }
 
 .error {
@@ -97,4 +190,13 @@ body {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
+}
+
+@media screen and (min-width: 735px) {
+  main {
+    flex-wrap: nowrap;
+  }
+  .info {
+    width: 20rem;
+  }
 }

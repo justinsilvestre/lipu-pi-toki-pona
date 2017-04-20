@@ -14,6 +14,8 @@ export default function enSentences(state: EnSentencesState = [], action: Action
         action.sentence,
         ...state.slice(action.index + 1),
       ]
+    case 'CLEAR_EN_SENTENCES':
+      return []
     default:
       return state
   }

@@ -201,10 +201,11 @@ export const realizeVerbPhrase = (phrase: VerbPhrase, subject?: SubjectPhrase) :
   const { isNegative, adverbPhrases = [], prepositionalPhrases = [], subjectComplements = [], directObjects = [], infinitive } = phrase
   // should make sure d.o. and subj complement arent both present at once?
   const { mainVerb, auxiliaryVerb } = conjugate(phrase, subject)
+  const realizedMainVerb = subject || phrase.head.text !== 'be' ? [mainVerb] : []
   return [
-    auxiliaryVerb || mainVerb,
+    ...(auxiliaryVerb ? [auxiliaryVerb] : realizedMainVerb),
     ...(isNegative ? [{ text: 'not', pos: 'adv' }] : []),
-    ...(auxiliaryVerb ? [mainVerb] : []),
+    ...(auxiliaryVerb ? realizedMainVerb : []),
     ...(infinitive ? realizeVerbPhrase(infinitive, subject) : []),
     ...conjoin(directObjects.map(realizeNounPhrase)),
     ...subjectComplements.map(realizeSubjectComplement).reduce(flatten, []),
