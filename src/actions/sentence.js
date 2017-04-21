@@ -2,7 +2,7 @@
 import type { WordsObject } from '../utils/parseTokiPona'
 import type { Sentence } from '../utils/grammar'
 import type { SentenceTranslation } from '../utils/english/grammar'
-import type { TpLemmasState, TpLemma } from '../reducers/tpLemmas'
+import type { TpLemmasState, TpLemma } from '../selectors/tpLemmas'
 
 export type Action =
   { type: 'PARSE_SENTENCES_SUCCESS', tpSentences: Array<Sentence>, tpWords: WordsObject, properNouns: Array<TpLemma> }

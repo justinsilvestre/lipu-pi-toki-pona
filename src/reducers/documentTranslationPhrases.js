@@ -1,10 +1,6 @@
 // @flow
 import type { Action } from '../actions'
-import type { WordId } from '../utils/grammar'
-
-export type State = {
-  [wordId: WordId]: number, // phraseTranslation ID
-}
+import type { State } from '../selectors/documentTranslationPhrases'
 
 export default function documentTranslationPhrases(state: State = {}, action: Action): State {
   switch (action.type) {

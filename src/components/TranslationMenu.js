@@ -5,7 +5,7 @@ import type { AppState } from '../redux'
 import type { SentenceTranslation as SentenceTranslationType } from '../utils/english/grammar'
 import { realizeSentence } from '../utils/english/sentence'
 import type { WordTranslation } from '../utils/dictionary'
-import { wasSelectionMade, getSelection, lookUpTranslations, getEnLemmaText } from '../reducers'
+import { wasSelectionMade, getSelection, lookUpTranslations, getEnLemmaText } from '../selectors'
 import { changeWordTranslation } from '../actions/lookup'
 
 type OwnProps = {

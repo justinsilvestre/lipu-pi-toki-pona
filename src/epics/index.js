@@ -13,7 +13,7 @@ import translate from '../utils/translate'
 import type { WordsObject } from '../utils/parseTokiPona'
 import type { WordId } from '../utils/grammar'
 import lookup from '../actions/lookup'
-import { wasSelectionMade, getSelection, getWord, getSentenceFromWord, getHighlightedWord } from '../reducers'
+import { wasSelectionMade, getSelection, getWord, getSentenceFromWord, getHighlightedWord } from '../selectors'
 import { pull } from '../utils/channel'
 import parseTokiPona from '../utils/parseTokiPona'
 

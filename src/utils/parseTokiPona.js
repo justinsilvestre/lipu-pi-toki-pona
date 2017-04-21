@@ -5,8 +5,8 @@ import { normalize, schema } from 'normalizr'
 import * as roles from '../utils/tokiPonaRoles'
 import type { Role, RawParticleRole } from '../utils/tokiPonaRoles'
 import type { Sentence, Word, WordId, Mood, TokiPonaPartOfSpeech, SentenceContext } from './grammar'
-import { getId } from '../reducers/tpLemmas'
-import type { TpLemmasState, TpLemma } from '../reducers/tpLemmas'
+import { getId } from '../selectors/tpLemmas'
+import type { TpLemmasState, TpLemma } from '../selectors/tpLemmas'
 
 const wordSchema = new schema.Entity('words')
 const sentenceSchema = new schema.Array(wordSchema)
