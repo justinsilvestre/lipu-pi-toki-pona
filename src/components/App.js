@@ -4,10 +4,10 @@ import { connect } from 'react-redux'
 import './App.css';
 import Sentence from './Sentence'
 import type { Sentence as SentenceData } from '../utils/grammar'
-import type { TpLemmasState } from '../reducers/tpLemmas'
+import type { TpLemmasState } from '../selectors/tpLemmas'
 import { parseSentences } from '../actions'
 import cn from 'classnames'
-import { getSentences } from '../reducers'
+import { getSentences } from '../selectors'
 
 const lipu_ni = `toki pona li toki lili. jan Sonja li mama pi toki ni.
 tan ni la mi pali e lipu ni: mi olin e toki pona!

@@ -1,8 +1,7 @@
 // @flow
-import type { SentenceTranslation } from '../utils/english/grammar'
 import type { Action } from '../actions'
 
-export type EnSentencesState = Array<SentenceTranslation>
+import type { EnSentencesState } from '../selectors/enSentences'
 
 export default function enSentences(state: EnSentencesState = [], action: Action): EnSentencesState {
   switch (action.type) {
@@ -20,5 +19,3 @@ export default function enSentences(state: EnSentencesState = [], action: Action
       return state
   }
 }
-
-export const getEnSentence = (state: EnSentencesState, index: number): SentenceTranslation => state[index]

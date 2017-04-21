@@ -5,7 +5,7 @@ import SentenceOriginal from './SentenceOriginal'
 import SentenceTranslation from './SentenceTranslation'
 import type { Sentence } from '../utils/grammar'
 import type { SentenceTranslation as SentenceTranslationType } from '../utils/english/grammar'
-import { getEnSentence } from '../reducers'
+import { getEnSentence } from '../selectors'
 
 type SentenceProps = {
   tp: Sentence,

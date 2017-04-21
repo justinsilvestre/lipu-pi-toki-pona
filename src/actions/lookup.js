@@ -1,12 +1,12 @@
 // @flow
-import type { PhraseTranslation,PhraseTranslationState } from '../reducers/phraseTranslations'
-import { lookUpTranslation } from '../reducers'
+import type { PhraseTranslation, State as PhraseTranslationState } from '../selectors/phraseTranslations'
+import { lookUpTranslation } from '../selectors'
 import channel, { pull } from '../utils/channel'
-import { getWord } from '../reducers'
+import { getWord } from '../selectors'
 import type { WordsObject } from '../utils/parseTokiPona'
-import type { AppState } from '../reducers'
-import type { EnLemma, EnLemmasState } from '../reducers/enLemmas'
-import type { TpLemmasState } from '../reducers/tpLemmas'
+import type { AppState } from '../selectors'
+import type { EnLemma, EnLemmasState } from '../selectors/enLemmas'
+import type { TpLemmasState } from '../selectors/tpLemmas'
 import type { WordId } from '../utils/grammar'
 import type { EnglishPartOfSpeech } from '../utils/english/grammar'
 

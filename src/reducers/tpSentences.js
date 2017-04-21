@@ -1,9 +1,6 @@
 // @flow
-import type { SentenceTranslation } from '../utils/english/grammar'
+import type { TpSentencesState } from '../selectors/tpSentences'
 import type { Action } from '../actions'
-import type { Sentence } from '../utils/grammar'
-
-export type TpSentencesState = Array<Sentence>
 
 export default function tpSentences(state: TpSentencesState = [], action: Action): TpSentencesState {
   switch (action.type) {

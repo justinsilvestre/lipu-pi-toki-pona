@@ -1,9 +1,8 @@
 // @flow
-export type State = {
-  error: boolean,
-}
+import type { State } from '../selectors/notifications'
+import type { Action } from '../actions'
 
-const initialState = {
+const initialState: State= {
   error: false,
   syntaxError: false,
 }

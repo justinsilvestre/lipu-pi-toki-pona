@@ -5,8 +5,8 @@ import { connect } from 'react-redux'
 import type { ConnectedComponentClass } from 'react-redux'
 import type { Word, WordId } from '../utils/grammar'
 import type { Color } from '../utils/getHighlighting'
-import type { AppState } from '../reducers'
-import { getWord, getHighlightedWord, isWordSelected, isWordInPendingSelection, getWordColor, getTpText } from '../reducers'
+import type { AppState } from '../selectors'
+import { getWord, getHighlightedWord, isWordSelected, isWordInPendingSelection, getWordColor, getTpText } from '../selectors'
 import {
   wordMouseEnter, wordMouseLeave, wordMouseDown, wordMouseUp, wordClick,
 } from '../actions'

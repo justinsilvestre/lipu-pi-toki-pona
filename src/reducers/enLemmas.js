@@ -1,14 +1,6 @@
 // @flow
 import type { Action } from '../actions'
-
-export type EnLemma = {
-  id: string,
-  text: string,
-  pos: string,
-}
-export type EnLemmasState = {
-  [id: string]: EnLemma
-}
+import type { EnLemmasState } from '../selectors/enLemmas'
 
 export default function enLemmas(state: EnLemmasState = {}, action: Action): EnLemmasState {
   switch (action.type) {
