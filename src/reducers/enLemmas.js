@@ -1,16 +1,15 @@
 // @flow
 import type { Action } from '../actions'
+import type { EnglishPartOfSpeech } from '../utils/english/partsOfSpeech'
+import type { EnLemma, EnLemmaId } from '../utils/english/grammar'
 
-export type EnLemma = {
-  id: string,
-  text: string,
-  pos: string,
-}
 export type EnLemmasState = {
-  [id: string]: EnLemma
+  [id: EnLemmaId]: EnLemma
 }
 
-export default function enLemmas(state: EnLemmasState = {}, action: Action): EnLemmasState {
+const initialState: EnLemmasState = {}
+
+export default function enLemmas(state: EnLemmasState = initialState, action: Action): EnLemmasState {
   switch (action.type) {
     case 'ADD_PHRASE_TRANSLATION':
     if (!action.enLemma || state[action.enLemma.id]) return state

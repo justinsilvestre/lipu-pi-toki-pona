@@ -1,6 +1,7 @@
 // @flow
 import type { Sentence } from './grammar'
-import type { SentenceTranslation, EnglishPartOfSpeech } from './english/grammar'
+import type { SentenceTranslation } from './english/grammar'
+import type { EnglishPartOfSpeech } from './english/partsOfSpeech'
 import type { WordsObject } from './parseTokiPona'
 // import { map, flatten, intersperse, last } from 'ramda'
 // import RiTa, { SINGULAR, PLURAL, FIRST_PERSON, THIRD_PERSON } from './rita'

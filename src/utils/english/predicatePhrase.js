@@ -4,6 +4,7 @@ import type { WordsObject } from '../parseTokiPona'
 import type { WordId } from '../grammar'
 import type { SubjectPhrase, VerbPhrase, PredicatePhrase } from './grammar'
 import type { Lookup } from '../../actions/lookup'
+import { AND } from './grammar'
 
 const complementPartsOfSpeech = ['adj', 'n', 'pn', 'pnp', 'pnin', 'pnio', 'pnpn', 'pnpo', 'pns', 'pnsn', 'pnso', 'pno']
 
@@ -28,6 +29,6 @@ export default async function predicatePhrase(
 
 export function realizePredicatePhrase(phraseData: PredicatePhrase, englishSubjectPhrase: SubjectPhrase) {
   return phraseData.phrases.map(p => realizeVerbPhrase(p, englishSubjectPhrase)).reduce((a, b, i) => {
-    return a.concat(i > 0 ? [{ text:'and', pos: 'conj' }, ...b] : b)
+    return [...a, ...(i > 0 ? [AND, ...b] : [b])]
   })
 }

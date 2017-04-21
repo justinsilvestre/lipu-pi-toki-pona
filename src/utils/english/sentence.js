@@ -6,7 +6,7 @@ import type { WordsObject } from '../parseTokiPona'
 import type { Sentence, SentenceContext } from '../grammar'
 import type { SentenceTranslation } from './grammar'
 import punctuate from './punctuate'
-import type { WordTranslation } from '../dictionary'
+import type { EnWord } from '../grammar'
 import subordinateClause, { realizeSubordinateClause } from './subordinateClause'
 import adverbPhrase, { realizeAdverbPhrase } from './adverbPhrase'
 import prepositionalPhrase, { realizePrepositionalPhrase } from './prepositionalPhrase'
@@ -71,7 +71,7 @@ async function sentenceModifiers(lookup, contexts: Array<SentenceContext>) : Pro
   }
 }
 
-export const realizeSentence = (sentence: SentenceTranslation) : Array<WordTranslation> => {
+export const realizeSentence = (sentence: SentenceTranslation) : Array<EnWord> => {
   const { vocative, adverbPhrases = [], prepositionalPhrases = [], subordinateClauses = [], subjectPhrase, predicatePhrase, endPunctuation } = sentence
   return punctuate({ after: endPunctuation }, [
     ...(vocative ? realizeVocativePhrase(vocative) : []),

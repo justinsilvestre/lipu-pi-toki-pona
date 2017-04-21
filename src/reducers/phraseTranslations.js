@@ -1,14 +1,15 @@
 // @flow
 import type { Action } from '../actions'
 
+export type PhraseTranslationId = number
 export type PhraseTranslation = {
-  id: string,
-  enLemmaId: string,
-  tpLemmaId: string,
+  id: PhraseTranslationId,
+  enLemmaId: number,
+  tpLemmaId: number,
 }
 
 export type State = {
-  [id: string]: PhraseTranslation,
+  [id: PhraseTranslationId]: PhraseTranslation,
 }
 
 export default function phraseTranslations(state: State = {}, action: Action): State {

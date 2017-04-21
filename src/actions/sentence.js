@@ -4,6 +4,7 @@ import type { Sentence } from '../utils/grammar'
 import type { SentenceTranslation } from '../utils/english/grammar'
 import type { TpLemmasState, TpLemma } from '../reducers/tpLemmas'
 
+
 export type Action =
   { type: 'PARSE_SENTENCES_SUCCESS', tpSentences: Array<Sentence>, tpWords: WordsObject, properNouns: Array<TpLemma> }
   | { type: 'PARSE_SENTENCES', text: string, tpLemmas: TpLemmasState }
@@ -12,7 +13,7 @@ export type Action =
   | { type: 'UPDATE_SENTENCE', index: number, sentence: Sentence }
 
 
-export const parseSentencesSuccess = (tpSentences, tpWords, properNouns): Action => ({
+export const parseSentencesSuccess = (tpSentences: Array<Sentence>, tpWords: WordsObject, properNouns: Array<TpLemma>): Action => ({
   type: 'PARSE_SENTENCES_SUCCESS',
   tpSentences,
   tpWords,

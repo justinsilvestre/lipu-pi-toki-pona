@@ -8,6 +8,7 @@ import type { TpLemmasState } from '../reducers/tpLemmas'
 import { parseSentences } from '../actions'
 import cn from 'classnames'
 import { getSentences } from '../reducers'
+import type { AppState } from '../reducers'
 
 const lipu_ni = `toki pona li toki lili. jan Sonja li mama pi toki ni.
 tan ni la mi pali e lipu ni: mi olin e toki pona!
@@ -15,18 +16,22 @@ ken la lipu ni li ken pona e toki sina.
 o kama sona e toki pona!
 `
 
-type AppProps = {
+type StateProps = {
   sentences: Array<SentenceData>,
-  parseSentences: Function,
   tpLemmas: TpLemmasState,
+  syntaxError: boolean,
 }
-type AppState = {
+type DispatchProps = {
+  parseSentences: Function,
+}
+type Props = StateProps & DispatchProps
+type State = {
   text: string,
   highlightedSentenceIndex: ?number,
 }
 export class App extends Component {
-  props : AppProps
-  state : AppState = {
+  props : Props
+  state : State = {
     text: lipu_ni,
     highlightedSentenceIndex: null,
   }
@@ -81,11 +86,11 @@ export class App extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: AppState): StateProps => ({
   sentences: getSentences(state),
   tpLemmas: state.tpLemmas,
   syntaxError: state.notifications.syntaxError,
 })
-const mapDispatchToProps = { parseSentences }
+const mapDispatchToProps : DispatchProps = { parseSentences }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

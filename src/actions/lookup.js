@@ -5,10 +5,11 @@ import channel, { pull } from '../utils/channel'
 import { getWord } from '../reducers'
 import type { WordsObject } from '../utils/parseTokiPona'
 import type { AppState } from '../reducers'
-import type { EnLemma, EnLemmasState } from '../reducers/enLemmas'
+import type { EnLemmasState } from '../reducers/enLemmas'
 import type { TpLemmasState } from '../reducers/tpLemmas'
 import type { WordId } from '../utils/grammar'
-import type { EnglishPartOfSpeech } from '../utils/english/grammar'
+import type { EnLemma } from '../utils/english/grammar'
+import type { EnglishPartOfSpeech } from '../utils/english/partsOfSpeech'
 
 export type Action =
   | { type: 'ADD_PHRASE_TRANSLATION', phraseTranslation: PhraseTranslation, enLemma: EnLemma }

@@ -1,15 +1,9 @@
 // @flow
 import type { Action } from '../actions'
+import type { TpLemmaId, TpLemma } from '../utils/grammar'
 
-export type TpLemma = {
-  text: string,
-  id: string,
-  pos: string,
-  animacy: ?boolean,
-  primary: ?string,
-}
 export type TpLemmasState = {
-  [id: string]: TpLemma
+  [id: TpLemmaId]: TpLemma
 }
 
 export default function tpLemmas(state: TpLemmasState = {}, action: Action): TpLemmasState {
@@ -27,15 +21,15 @@ export default function tpLemmas(state: TpLemmasState = {}, action: Action): TpL
   }
 }
 
-export const getId = (state: TpLemmasState, text: string, pos: string): ?string => {
+export const getId = (state: TpLemmasState, text: string, pos: string): ?TpLemmaId => {
   for (const k in state) {
-    const l = state[k]
+    const l = state[Number(k)]
     if (l.text === text && l.pos === pos) {
       return l.id
     }
   }
 }
-export const getText = (state: TpLemmasState, id: string): string => {
+export const getText = (state: TpLemmasState, id: TpLemmaId): string => {
   if (!state[id]) throw new Error('whoops')
   return state[id].text
 }

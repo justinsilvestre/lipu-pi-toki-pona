@@ -1,14 +1,14 @@
 // @flow
 import RiTa, { SINGULAR, PLURAL, FIRST_PERSON, THIRD_PERSON } from '../rita'
-import type { WordTranslation } from '../dictionary'
+import type { EnWord } from '../grammar'
 import type { VerbPhrase, SubjectPhrase } from './grammar'
 
 export type ConjugatedVerbs = {
-  mainVerb: WordTranslation,
-  auxiliaryVerb?: WordTranslation,
+  mainVerb: EnWord,
+  auxiliaryVerb?: EnWord,
 }
 
-const conjugate = (verbPhrase: VerbPhrase, subject?: SubjectPhrase, externalAuxiliaryVerb: ?WordTranslation): ConjugatedVerbs => {
+const conjugate = (verbPhrase: VerbPhrase, subject?: SubjectPhrase, externalAuxiliaryVerb: ?EnWord): ConjugatedVerbs => {
   const verb = verbPhrase.head
   const auxiliaryVerb = externalAuxiliaryVerb || (
     verb.text !== 'be' && verbPhrase.isNegative && !(verbPhrase.isInfinitive || verbPhrase.isBareInfinitive)

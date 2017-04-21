@@ -1,5 +1,5 @@
 // @flow
-import type { Case, GrammaticalNumber, EnglishPartOfSpeech } from './grammar'
+import type { Case, GrammaticalNumber, EnglishPartOfSpeech } from './partsOfSpeech'
 
 export const RESTRICTED_PRONOUN_PARTS_OF_SPEECH = {
   OBLIQUE_SINGULAR: ['pnio', 'pnso', 'pno', 'pns'],

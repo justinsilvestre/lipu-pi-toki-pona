@@ -1,11 +1,11 @@
 // @flow
 import { combineReducers } from 'redux'
-import type { Sentence, Word, WordId } from '../utils/grammar'
+import type { Sentence, Word, WordId, TpLemmaId } from '../utils/grammar'
 import type { SentenceTranslation } from '../utils/english/grammar'
 import type { WordsObject } from '../utils/parseTokiPona'
 import type { Color } from '../utils/getHighlighting'
 import type { Action } from '../actions'
-import type { EnglishPartOfSpeech } from '../utils/english/grammar'
+import type { EnglishPartOfSpeech } from '../utils/english/partsOfSpeech'
 
 import mouse, * as M from './mouse'
 import tpSentences, * as TpS from './tpSentences'
@@ -25,7 +25,7 @@ import type { ColorsState } from './colors'
 import type { EnSentencesState } from './enSentences'
 import type { TpLemmasState } from './tpLemmas'
 import type { EnLemmasState } from './enLemmas'
-import type { State as PhraseTranslationsState } from './phraseTranslations'
+import type { State as PhraseTranslationsState, PhraseTranslationId } from './phraseTranslations'
 import type { State as DocumentTranslationPhrasesState } from './documentTranslationPhrases'
 import type { State as NotificationsState } from './notifications'
 
@@ -101,10 +101,10 @@ export const lookUpTranslation = (state: AppState, wordId: WordId) => {
   const phraseTranslationId = state.documentTranslationPhrases[wordId]
   return state.phraseTranslations[phraseTranslationId]
 }
-export const lookUpTranslations = (state: AppState, tpLemmaId: string, enPartsOfSpeech: ?Array<EnglishPartOfSpeech>) => {
+export const lookUpTranslations = (state: AppState, tpLemmaId: TpLemmaId, enPartsOfSpeech: ?Array<EnglishPartOfSpeech>) => {
   const result = []
   for (const id in state.phraseTranslations) {
-    const translation = state.phraseTranslations[id]
+    const translation = state.phraseTranslations[Number(id)]
     const enLemma = state.enLemmas[translation.enLemmaId]
     if (enLemma && tpLemmaId == translation.tpLemmaId && (!enPartsOfSpeech || enPartsOfSpeech.some(pos => enLemma.pos === pos))) {
       result.push(translation)
@@ -112,14 +112,14 @@ export const lookUpTranslations = (state: AppState, tpLemmaId: string, enPartsOf
   }
   return result
 }
-export const getEnLemmaText = (state: AppState, phraseTranslationId: string) => {
+export const getEnLemmaText = (state: AppState, phraseTranslationId: PhraseTranslationId) => {
   const enLemmaId = state.phraseTranslations[phraseTranslationId].enLemmaId
   const enLemma = state.enLemmas[enLemmaId]
   return enLemma.text
 }
 
-export const getTpLemmaId = (state: AppState, text: string, pos: string): ?string => TpL.getId(state.tpLemmas, text, pos)
-export const getTpLemmaText = (state: AppState, tpLemmaId: string): string => TpL.getText(state.tpLemmas, tpLemmaId)
+export const getTpLemmaId = (state: AppState, text: string, pos: string): ?TpLemmaId => TpL.getId(state.tpLemmas, text, pos)
+export const getTpLemmaText = (state: AppState, tpLemmaId: TpLemmaId): string => TpL.getText(state.tpLemmas, tpLemmaId)
 
 export const getTpText = (state: AppState, wordId: WordId): string => {
   const word = getWord(state, wordId)

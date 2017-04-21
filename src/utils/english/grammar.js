@@ -1,13 +1,34 @@
 // @flow
-
-import type { WordTranslation } from '../dictionary'
-
 export type GrammaticalNumber = 'SINGULAR' | 'PLURAL'
 export type Case = 'NOMINATIVE' | 'OBLIQUE'
 
+export type EnLemmaId = number | string
+export type EnLemma = {
+  id: EnLemmaId,
+  text: string,
+  pos: EnglishPartOfSpeech,
+}
+
+export type EnWord = {
+  before?: string,
+  after?: string,
+  lemmaId: EnLemmaId,
+  pos: string,
+  text: string,
+  phraseTranslationId?: number,
+}
+
+const lemma = (text, pos): EnWord => ({ text, lemmaId: text, pos })
+export const NOT = lemma('not', 'adv')
+export const OF = lemma('of', 'prep')
+export const OR = lemma('or', 'conj')
+export const AND = lemma('and', 'conj')
+export const BY = lemma('by', 'conj')
+export const BE = lemma('be', 'vc')
+
 export type NounPhrase = {
-  head: WordTranslation,
-  determiner?: WordTranslation,
+  head: EnLemma,
+  determiner?: EnLemma,
   adjectivePhrases?: Array<AdjectivePhrase>, // eslint-disable-line no-use-before-define
   prepositionalPhrases?: Array<PrepositionalPhrase>, // eslint-disable-line no-use-before-define
   appositives?: any,
@@ -16,21 +37,21 @@ export type NounPhrase = {
 }
 
 export type PrepositionalPhrase = {
-  head: WordTranslation,
+  head: EnLemma,
   objects: Array<NounPhrase>,
 }
 
 export type VocativePhrase = { head: NounPhrase }
 
 export type AdverbPhrase = {
-  head: WordTranslation,
+  head: EnLemma,
   adverbPhrases?: Array<AdverbPhrase>,
   prepositionalPhrases: Array<PrepositionalPhrase>,
   isNegative: boolean,
 }
 
 export type AdjectivePhrase = {
-  head: WordTranslation,
+  head: EnLemma,
   adverbPhrases?: Array<AdverbPhrase>,
   prepositionalPhrases?: Array<PrepositionalPhrase>,
   isNegative: boolean,
@@ -39,7 +60,7 @@ export type AdjectivePhrase = {
 export type SubjectComplementPhrase = NounPhrase | AdjectivePhrase | PrepositionalPhrase
 
 export type VerbPhrase = {
-  head: WordTranslation,
+  head: EnLemma,
   adverbPhrases?: Array<AdverbPhrase>,
   prepositionalPhrases?: Array<PrepositionalPhrase>,
   subjectComplements?: Array<SubjectComplementPhrase>,
@@ -61,7 +82,7 @@ export type SubjectPhrase = {
 }
 
 export type SubordinateClause = {
-  conjunction: WordTranslation,
+  conjunction: EnLemma,
   subjectPhrase: SubjectPhrase,
   predicatePhrase: PredicatePhrase,
   endPunctuation?: string,
@@ -76,33 +97,3 @@ export type SentenceTranslation = {
   prepositionalPhrases?: Array<PrepositionalPhrase>,
   endPunctuation?: string,
 }
-
-export type EnglishPartOfSpeech =
-  'x' // no lexical equivalent
-  | 'adv'
-  | 'n'
-  | 'adj'
-  | 'int'
-  | 'num'
-  | 'prep'
-  | 'conj'
-  | 'vt' // transitive verb
-  | 'vi' // intransitive verb
-  | 'vm' // modal verb
-  | 'vp' // prepositional verb (not phrasal)
-  | 'vc' // copula
-  | 'onom'
-  | 'd' // determiner
-  | 'dp' // plural determiner
-  | 'ds' // singular determiner
-  | 'pn' // 3rd-person caseless singular pronoun, or pu?/proper noun
-  | 'pnp' // caseless plural pronoun
-  | 'pnin' // 1st-person nominative singular pronoun
-  | 'pnio' // 1st-person oblique singular pronoun
-  | 'pnpn' // nominative plural pronoun
-  | 'pnpo' // oblique plural pronoun
-  | 'pns' // caseless singular pronoun
-  | 'pnsn' // 3rd-person nominative singular pronoun
-  | 'pnso' // 3rd-person oblique singular pronoun
-  | 'pno' // oblique pronoun (cannot be subject, number maybe irrelevant)
-  | 'prop'

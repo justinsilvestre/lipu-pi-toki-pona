@@ -1,7 +1,7 @@
 // @flow
 import type { WordsObject } from '../parseTokiPona'
 import type { WordId, Word } from '../grammar'
-import type { WordTranslation } from '../dictionary'
+import type { EnWord } from '../grammar'
 import type { PrepositionalPhrase } from './grammar'
 import nounPhrase, { realizeNounPhrase } from './nounPhrase'
 import conjoin from './conjoin'
@@ -10,7 +10,8 @@ import type { Lookup } from '../../actions/lookup'
 export default async function prepositionalPhrase(lookup: Lookup, wordId: WordId, options: Object = {}) : Promise<PrepositionalPhrase> {
   const { words } = lookup
   const word = words[wordId]
-  const head: WordTranslation = options.head || await(lookup.translate(wordId, ['prep'])).enLemma
+  const head = options.head || (await lookup.translate(wordId, ['prep'])).enLemma
+  if (!head) throw new Error(`No preposition translation for ${JSON.stringify(head)}`)
 
   let objectIds: Array<WordId> = options.objectIds
   if (!options.objectIds) {
@@ -25,7 +26,7 @@ export default async function prepositionalPhrase(lookup: Lookup, wordId: WordId
   }
 }
 
-export function realizePrepositionalPhrase(phrase: PrepositionalPhrase) : Array<WordTranslation> {
+export function realizePrepositionalPhrase(phrase: PrepositionalPhrase) : Array<EnWord> {
   const { head, objects } = phrase
   return [
     head,

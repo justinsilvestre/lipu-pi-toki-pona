@@ -5,7 +5,7 @@ import type { WordsObject } from '../parseTokiPona'
 import type { SubordinateClause } from './grammar'
 import type { WordId } from '../grammar'
 import punctuate from './punctuate'
-import type { WordTranslation } from '../dictionary'
+import type { EnWord } from '../grammar'
 import type { Lookup } from '../../actions/lookup'
 
 export default async function subordinateClause(lookup: Lookup, subjects: Array<WordId> = [], predicates: Array<WordId> = []) : Promise<SubordinateClause> {
@@ -21,7 +21,7 @@ export default async function subordinateClause(lookup: Lookup, subjects: Array<
   }
 }
 
-export const realizeSubordinateClause = (sentence: SubordinateClause) : Array<WordTranslation> => {
+export const realizeSubordinateClause = (sentence: SubordinateClause) : Array<EnWord> => {
   const { conjunction, subjectPhrase, predicatePhrase, endPunctuation } = sentence
   return punctuate({ after: endPunctuation }, [
     conjunction,

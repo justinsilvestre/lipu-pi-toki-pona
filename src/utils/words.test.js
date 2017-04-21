@@ -1,4 +1,4 @@
-// @flow
+@flow
 import expect from 'expect'
 import processSentences from './parseTokiPona'
 import type { WordsObject } from './parseTokiPona'

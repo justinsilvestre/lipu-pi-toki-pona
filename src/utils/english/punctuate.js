@@ -1,16 +1,16 @@
 // @flow
 import { head, last } from 'ramda'
-import type { WordTranslation } from '../dictionary'
+import type { EnWord } from '../grammar'
 
 type Punctuation = {
   before?: string,
   after?: string,
 }
 
-const punctuate = (punctuation: Punctuation, wordTranslations: Array<WordTranslation>) : Array<WordTranslation> => {
-  const lastIndex = wordTranslations.length - 1
+const punctuate = (punctuation: Punctuation, EnWords: Array<EnWord>) : Array<EnWord> => {
+  const lastIndex = EnWords.length - 1
   const { before, after } = punctuation
-  return wordTranslations.map((w, i) => {
+  return EnWords.map((w, i) => {
     const word = { ...w }
     if (i === 0) word.before = before
     if (i === lastIndex) word.after = after

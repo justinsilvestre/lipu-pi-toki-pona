@@ -1,6 +1,6 @@
 // @flow
 import type { Word } from './grammar'
-import type { EnglishPartOfSpeech } from './english/grammar'
+import type { EnglishPartOfSpeech } from './english/partsOfSpeech'
 import dictionaryEntries from './dictionaryEntries'
 
 export type WordTranslation = {

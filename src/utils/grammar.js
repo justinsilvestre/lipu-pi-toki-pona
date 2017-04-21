@@ -1,5 +1,15 @@
 // @flow
 import type { Role } from './tokiPonaRoles'
+import type { TpLemmaId } from '../reducers/tpLemmas'
+
+export type TpLemmaId = number
+export type TpLemma = {
+  text: string,
+  id: TpLemmaId,
+  pos: string,
+  animacy: ?boolean,
+  primary: ?string,
+}
 
 export type WordId = string
 
@@ -19,7 +29,7 @@ export type Word = {
   after: string,
   role: Role,
   pos: TokiPonaPartOfSpeech,
-  lemmaId: string,
+  lemmaId: TpLemmaId,
 
   anu?: boolean,
   negative?: boolean,
