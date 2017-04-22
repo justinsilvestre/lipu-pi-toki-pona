@@ -141,6 +141,7 @@ export default function lookup(getState: Function, dispatch: Function): Lookup {
       const existingTranslationIsValid = existingEnWord
         && existingEnWord.hasOwnProperty('phraseTranslationId')
         && (!enPartsOfSpeech || enPartsOfSpeech.includes(existingEnWord.pos))
+
       if (existingTranslationIsValid) {
         if (!existingEnWord) throw new Error('whoops')
         if (!existingEnWord.phraseTranslationId) throw new Error('whoops')
@@ -159,14 +160,9 @@ export default function lookup(getState: Function, dispatch: Function): Lookup {
           pos: enLemma.pos,
           text: enLemma.text,
           phraseTranslationId: phraseTranslation.id,
+          tpWordId: wordId,
         } : null
 
-        // {
-        //   id: enWordId,
-        //   text,
-        //   pos: 'n',
-        //   tpWordId: wordId,
-        // }
 
         if (enWord && existingEnWord && phraseTranslation && enLemma)
           dispatch(addPhraseTranslation(phraseTranslation, enLemma, enWord))

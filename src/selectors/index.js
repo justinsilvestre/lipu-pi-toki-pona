@@ -24,7 +24,7 @@ import type { ColorsState } from './colors'
 import type { EnSentencesState } from './enSentences'
 import type { TpLemmasState, TpLemmaId } from './tpLemmas'
 import type { EnLemmasState, EnLemma, EnLemmaId } from './enLemmas'
-import type { EnWordsState } from './enWords'
+import type { EnWordsState, EnWordId } from './enWords'
 import type { State as PhraseTranslationsState, PhraseTranslationId, PhraseTranslation } from './phraseTranslations'
 import type { State as DocumentTranslationPhrasesState } from './documentTranslationPhrases'
 import type { State as NotificationsState } from './notifications'
@@ -51,9 +51,11 @@ export const getSentenceFromWord = (state: AppState, wordId: WordId): Sentence =
 export const getEnSentence = (state: AppState, index: number): SentenceTranslation => enSentences.getEnSentence(state.enSentences, index)
 
 export const getHighlightedWord = (state: AppState): ?Word => {
-  const id = mouse.getHighlightedWord(state.mouse)
+  const id = mouse.getHighlightedWordId(state.mouse)
   return id ? getWord(state, id) : null
 }
+export const isWordHighlighted = (state: AppState, id: WordId) =>
+  id === mouse.getHighlightedWordId(state.mouse)
 export const wasSelectionMade = (state: AppState): boolean => mouse.wasSelectionMade(state.mouse)
 const isWordBetween = (state, wordId, startId, endId): boolean => {
   const wordIndex = getWordIndex(state, wordId)
@@ -120,4 +122,6 @@ export const getTpText = (state: AppState, wordId: WordId): string => {
   return [before, text, after].join('')
 }
 
+export const getEnWord = (state: AppState, id: EnWordId) => enWords.getEnWord(state.enWords, id)
+export const getEnWordText = (state: AppState, id: EnWordId) => enWords.getEnWordText(state.enWords, id)
 export const getEnWordFromTp = (state: AppState, wordId: WordId) => enWords.getEnWordFromTp(state.enWords, wordId)

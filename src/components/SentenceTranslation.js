@@ -4,31 +4,28 @@ import { connect } from 'react-redux'
 import type { AppState } from '../redux'
 import type { SentenceTranslation as SentenceTranslationType } from '../utils/english/grammar'
 import { realizeSentence } from '../utils/english/sentence'
-import type { EnWord } from '../selectors/enWords'
+import EnWord from './EnWord'
+import { getEnWordText } from '../selectors/enWords'
 // import getTranslation
 
-type SentenceTranslationOwnProps = {
+type OwnProps = {
   sentenceData: SentenceTranslationType
 }
-type SentenceTranslationStateProps = {
+type StateProps = {
 }
-type SentenceTranslationProps = SentenceTranslationOwnProps & SentenceTranslationStateProps
+type Props = OwnProps & StateProps
 
 const capitalize = (string) => `${string.charAt(0).toUpperCase()}${string.slice(1)}`
 
-const getText = (word: EnWord) : string => {
-  const { before = '', after = '', text } = word
-  return `${before}${text}${after}`
-}
 
-const SentenceTranslation = ({ sentenceData } : SentenceTranslationProps) =>
-  sentenceData && <div className="sentenceTranslation">
-    {realizeSentence(sentenceData).map((enWord, i) => {
-      return i === 0 ? capitalize(getText(enWord)) : getText(enWord)
-    }).join(' ')}
-  </div>
+const SentenceTranslation = ({ sentenceData }: Props) =>
+  sentenceData && sentenceData.words ? <div className="sentenceTranslation">
+    {sentenceData.words.map((id, i) =>
+      <EnWord key={id} id={id} isFirst={i === 0} />
+    )}
+  </div> : null
 
-const mapStateToProps = (appState: AppState) : SentenceTranslationStateProps => ({
+const mapStateToProps = (appState: AppState) : StateProps => ({
   // selected: isWordSelected...
 })
 
