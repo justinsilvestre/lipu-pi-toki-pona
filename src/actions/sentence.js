@@ -1,18 +1,18 @@
 // @flow
-import type { WordsObject } from '../utils/parseTokiPona'
-import type { Sentence } from '../utils/grammar'
+import type { TpWordsState } from '../selectors/tpWords'
+import type { Sentence } from '../selectors/tpSentences'
 import type { SentenceTranslation } from '../utils/english/grammar'
 import type { TpLemmasState, TpLemma } from '../selectors/tpLemmas'
 
 export type Action =
-  { type: 'PARSE_SENTENCES_SUCCESS', tpSentences: Array<Sentence>, tpWords: WordsObject, properNouns: Array<TpLemma> }
+  { type: 'PARSE_SENTENCES_SUCCESS', tpSentences: Array<Sentence>, tpWords: TpWordsState, properNouns: Array<TpLemma> }
   | { type: 'PARSE_SENTENCES', text: string, tpLemmas: TpLemmasState }
   | { type: 'PARSE_SENTENCES_FAILURE' }
   | { type: 'TRANSLATE_SENTENCES_SUCCESS', enSentences: Array<SentenceTranslation> }
   | { type: 'UPDATE_SENTENCE', index: number, sentence: Sentence }
 
 
-export const parseSentencesSuccess = (tpSentences, tpWords, properNouns): Action => ({
+export const parseSentencesSuccess = (tpSentences: Array<Sentence>, tpWords: TpWordsState, properNouns: Array<TpLemma>): Action => ({
   type: 'PARSE_SENTENCES_SUCCESS',
   tpSentences,
   tpWords,

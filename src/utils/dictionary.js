@@ -1,5 +1,5 @@
 // @flow
-import type { Word } from './grammar'
+import type { Word } from '../selectors/tpWords'
 import type { EnglishPartOfSpeech } from './english/grammar'
 import dictionaryEntries from './dictionaryEntries'
 

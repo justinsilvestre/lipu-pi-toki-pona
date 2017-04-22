@@ -2,15 +2,16 @@
 import predicatePhrase, { realizePredicatePhrase } from './predicatePhrase'
 import subjectPhrase, { realizeSubjectPhrase } from './subjectPhrase'
 import vocativePhrase, { realizeVocativePhrase } from './vocativePhrase'
-import type { WordsObject } from '../parseTokiPona'
-import type { Sentence, SentenceContext } from '../grammar'
+import type { TpWordsState } from '../../selectors/tpWords'
+import type { Sentence, SentenceContext } from '../../selectors/tpSentences'
 import type { SentenceTranslation } from './grammar'
 import punctuate from './punctuate'
-import type { WordTranslation } from '../dictionary'
+import type { EnWord } from '../../selectors/enWords'
 import subordinateClause, { realizeSubordinateClause } from './subordinateClause'
 import adverbPhrase, { realizeAdverbPhrase } from './adverbPhrase'
 import prepositionalPhrase, { realizePrepositionalPhrase } from './prepositionalPhrase'
 import type { Lookup } from '../../actions/lookup'
+import { and, by } from '../../selectors/enWords'
 
 export default async function sentence(lookup: Lookup, tokiPonaSentence: Sentence) : Promise<SentenceTranslation> {
     const { words } = lookup
@@ -42,7 +43,7 @@ async function sentenceModifiers(lookup, contexts: Array<SentenceContext>) : Pro
     const predicateId = c.predicates[0] // should only be one--otherwise, throw error?
     const predicate = words[predicateId]
 
-    const { enLemma: english } = await lookup.translate(predicateId, ['adv', 'n', 'prep'])
+    const { enWord: english } = await lookup.translate(predicateId, ['adv', 'n', 'prep'])
       || await lookup.translate(predicateId)
     return { english, c: predicateId }
   }))
@@ -58,7 +59,7 @@ async function sentenceModifiers(lookup, contexts: Array<SentenceContext>) : Pro
       obj.prepositionalPhrases.push(prepositionalPhrase(lookup, c, { head: english }))
     } else if (english.pos === 'n' || english.pos.startsWith('pn')) {
       obj.prepositionalPhrases.push(prepositionalPhrase(lookup, c, {
-        head: { text: 'by', pos: 'prep' },
+        head: by(),
         objectIds: [c],
       }))
     } // else throw error?
@@ -71,7 +72,7 @@ async function sentenceModifiers(lookup, contexts: Array<SentenceContext>) : Pro
   }
 }
 
-export const realizeSentence = (sentence: SentenceTranslation) : Array<WordTranslation> => {
+export const realizeSentence = (sentence: SentenceTranslation) : Array<EnWord> => {
   const { vocative, adverbPhrases = [], prepositionalPhrases = [], subordinateClauses = [], subjectPhrase, predicatePhrase, endPunctuation } = sentence
   return punctuate({ after: endPunctuation }, [
     ...(vocative ? realizeVocativePhrase(vocative) : []),
@@ -79,7 +80,7 @@ export const realizeSentence = (sentence: SentenceTranslation) : Array<WordTrans
     ...prepositionalPhrases.map(realizePrepositionalPhrase).reduce((a, b) => a.concat(b), []),
     ...subordinateClauses.map((sc, i) =>
       i > 0
-        ? [{ text: 'and', pos: 'conj' }, ...realizeSubordinateClause(sc)]
+        ? [and(), ...realizeSubordinateClause(sc)]
         : realizeSubordinateClause(sc)
       ).reduce((a, b) => a.concat(b), []),
     ...realizeSubjectPhrase(subjectPhrase),

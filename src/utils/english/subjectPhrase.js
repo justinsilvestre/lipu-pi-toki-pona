@@ -3,9 +3,10 @@ import nounPhrase, { realizeNounPhrase } from './nounPhrase'
 import { ANIMATE_NOUNS, INANIMATE_NOUNS, ANIMATE_SUBJECT_VERBS } from '../tokiPonaSemanticGroups.js'
 import type { SubjectPhrase } from './grammar'
 import { getPrimary } from '../dictionary'
-import type { WordsObject } from '../parseTokiPona'
-import type { WordId } from '../grammar'
+import type { TpWordsState } from '../../selectors/tpWords'
+import type { WordId } from '../../selectors/tpWords'
 import type { Lookup } from '../../actions/lookup'
+import { and } from '../../selectors/enWords'
 
 export default async function subjectPhrase(lookup: Lookup, headIds: Array<WordId>) : Promise<SubjectPhrase> {
   const { words } = lookup
@@ -44,6 +45,9 @@ export default async function subjectPhrase(lookup: Lookup, headIds: Array<WordI
 
 export function realizeSubjectPhrase(subjectPhrase: ?SubjectPhrase) {
   return subjectPhrase ? subjectPhrase.nounPhrases.reduce((realized, nounPhrase, i) => {
-    return realized.concat(i > 0 ? [{ text: 'and', pos: 'conj' }, ...realizeNounPhrase(nounPhrase)] : realizeNounPhrase(nounPhrase))
+    if (i > 0) return realized.concat([and(), ...realizeNounPhrase(nounPhrase)])
+    else return realized.concat(realizeNounPhrase(nounPhrase))
+
+    // return realized.concat(i > 0 ? [{ text: 'and', pos: 'conj' }, ...realizeNounPhrase(nounPhrase)] : realizeNounPhrase(nounPhrase))
   }, []) : []
 }

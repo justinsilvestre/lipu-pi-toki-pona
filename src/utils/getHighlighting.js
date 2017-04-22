@@ -1,8 +1,8 @@
 // @flow
-import type { Sentence, Word, WordId } from './grammar'
 import * as roles from './tokiPonaRoles'
 import { isComplementOf } from './words'
-import type { WordsObject } from './parseTokiPona'
+import type { TpWordsState, Word, WordId } from '../selectors/tpWords'
+import type { Sentence } from '../selectors/tpSentences'
 
 export type Color = [number, number, number]
 
@@ -28,12 +28,12 @@ const darken = ([h, s, l]: Color, level: number) => [h + level * 4, s - level * 
 
 // const PREPOSED_PARTICLE_ROLES = ['compound_complement_particle', 'indicative_particle', 'optative_particle', 'or_particle', 'and_particle']
 const nextWord = (sentenceWords: Array<WordId>, word: WordId) : WordId => sentenceWords[sentenceWords.indexOf(word) + 1]
-const getPhraseHead = (words: WordsObject, sentenceWords: Array<WordId>, word: WordId) : WordId => {
+const getPhraseHead = (words: TpWordsState, sentenceWords: Array<WordId>, word: WordId) : WordId => {
   const { head } = words[word]
   return typeof head  === 'string' ? head : nextWord(sentenceWords, word)
 }
 
-type GetBaseColor = (words: WordsObject, sentenceWords: Array<WordId>, word: WordId, level?: number) => Color
+type GetBaseColor = (words: TpWordsState, sentenceWords: Array<WordId>, word: WordId, level?: number) => Color
 const getBaseColor : GetBaseColor = (words, sentenceWords, word, level = 0) => {
   const { role } = words[word]
   return BASE_COLORS[role]
@@ -42,7 +42,7 @@ const getBaseColor : GetBaseColor = (words, sentenceWords, word, level = 0) => {
 }
 
 
-const getHighlighting = (words: WordsObject, sentenceWords: Array<WordId>) : Array<Color> =>
+const getHighlighting = (words: TpWordsState, sentenceWords: Array<WordId>) : Array<Color> =>
   sentenceWords.map(word => getBaseColor(words, sentenceWords, word))
 
 

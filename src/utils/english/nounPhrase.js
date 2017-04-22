@@ -2,14 +2,20 @@
 import { pluralize } from '../rita'
 import prepositionalPhrase, { realizePrepositionalPhrase } from './prepositionalPhrase'
 import adjectivePhrase, { realizeAdjectivePhrase } from './adjectivePhrase'
-import type { WordsObject } from '../parseTokiPona'
-import type { WordId, Word } from '../grammar'
+import type { TpWordsState, WordId, Word } from '../../selectors/tpWords'
 import type { NounPhrase, Case, GrammaticalNumber } from './grammar'
-import type { WordTranslation } from '../dictionary'
+import type { EnWord } from '../../selectors/enWords'
 import { getPossiblePartsOfSpeech, DETERMINER_PARTS_OF_SPEECH } from './nounPartsOfSpeech'
 import type { Lookup } from '../../actions/lookup'
+import { ofWord } from '../../selectors/enWords'
 
-async function nounPhrase(lookup: Lookup, wordId: WordId, options?: Object = {}): Promise<NounPhrase> {
+export type Options = {
+  head?: EnWord,
+  casus?: Case,
+  number?: GrammaticalNumber,
+}
+
+async function nounPhrase(lookup: Lookup, wordId: WordId, options?: Options = {}): Promise<NounPhrase> {
   const { words } = lookup
 
   const word = words[wordId]
@@ -17,9 +23,9 @@ async function nounPhrase(lookup: Lookup, wordId: WordId, options?: Object = {})
   if ((word.complements || []).some(c => words[c].text === 'mute')) number = 'PLURAL'
   // qualifier - determiner - adjective phrases - noun - prepositional phrases - appositives
   // qualifier - pronoun - conjoined adjective phrases - prepositional phrases
-  const { enLemma } = await(lookup.translate(wordId, getPossiblePartsOfSpeech(casus, number)))
+  const head = options.head || (await lookup.translate(wordId, getPossiblePartsOfSpeech(casus, number))).enWord
 
-  const head : WordTranslation = options.head || enLemma
+  if (!head) throw new Error(`No noun translation found for ${JSON.stringify(word)}`)
   const complements : Array<WordId> = word.complements || []
   const isPronoun = head.pos.startsWith('pn')
   if (head.pos !== 'n' && !isPronoun && head.pos !=='prop') throw new Error('invalid noun phrase: ' + JSON.stringify(head))
@@ -35,10 +41,11 @@ async function nounPhrase(lookup: Lookup, wordId: WordId, options?: Object = {})
 }
 export default nounPhrase
 
-const getDeterminer = async (lookup, complements, partsOfSpeech) => {
+const getDeterminer = async (lookup, complements, partsOfSpeech): Promise<?{ determinerWord: EnWord, complementId: WordId }> => {
   for (let i = complements.length - 1; i >= 0; i--) {
-    const { enLemma } = await lookup.translate(complements[i], partsOfSpeech)
-    if (enLemma) return { determinerLemma: enLemma, complementId: complements[i] }
+    const { enWord } = await lookup.translate(complements[i], partsOfSpeech)
+    // isDeterminer
+    if (enWord && enWord.pos.includes('d')) return { determinerWord: enWord, complementId: complements[i] }
   }
 }
 async function nounModifiers(lookup: Lookup, complements: Array<WordId>, options: Object) : Promise<Object> {
@@ -48,18 +55,19 @@ async function nounModifiers(lookup: Lookup, complements: Array<WordId>, options
   let determiner = obj.determiner
   let determinerComplementId
   if (!determiner && !options.isPronoun) {
-    const { determinerLemma, complementId } = await(getDeterminer(lookup, complements, DETERMINER_PARTS_OF_SPEECH[options.number])) || {}
-    determiner = determinerLemma
+    const { determinerWord, complementId } = await(getDeterminer(lookup, complements, DETERMINER_PARTS_OF_SPEECH[options.number])) || {}
+    determiner = determinerWord
     determinerComplementId = complementId
+    if (determinerWord && !determinerWord.phraseTranslationId) throw new Error('whoops')
   }
   // let determiner = obj.determiner || await(getDeterminer(lookup, complements, DETERMINER_PARTS_OF_SPEECH[options.number]))
   const complementsWithEnglish = await Promise.all(complements.map(async (c) => {
     if (c === determinerComplementId) return null
-    const { enLemma: english } =
+    const { enWord: english } =
       await lookup.translate(c, ['adj', 'n'])
       || await lookup.translate(c, ['prep'])
       || await lookup.translate(c)
-    if (!english) { return console.log("NO ENGLISH!!!", words[c]) }
+    if (!english) throw new Error(`No noun modifier translation found for ${JSON.stringify(words[c])}`)
     return { c, english }
   }))
   let {
@@ -85,7 +93,7 @@ async function nounModifiers(lookup: Lookup, complements: Array<WordId>, options
         break
       case 'n':
         obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(lookup, c, {
-          head: { text: 'of', pos: 'prep' },
+          head: ofWord(),
           objectIds: [c],
         }))
         break
@@ -110,16 +118,33 @@ async function nounModifiers(lookup: Lookup, complements: Array<WordId>, options
   }
 }
 
-const pl = (head, number, isPronoun) => {
-  if (!isPronoun && number === 'PLURAL')
-    return { ...head, text: pluralize(head.text), root: head.text }
-  else {
+const pl = (head: EnWord, number: 'SINGULAR' | 'PLURAL', isPronoun: boolean): EnWord => {
+  if (!isPronoun && number === 'PLURAL') {
+    const result = { id: head.id, before: head.before, after: head.after, pos: head.pos, text: pluralize(head.text) }
+    if (head.phraseTranslationId) {
+      return ({
+        ...result,
+        phraseTranslationId: head.phraseTranslationId
+      }: EnWord)
+    } else if (head.lemmaId) {
+      return ({
+        ...result,
+        lemmaId: head.lemmaId
+      }: EnWord)
+    } else if (head.tpWordId) {
+      return ({
+        ...result,
+        tpWordId: head.tpWordId
+      }: EnWord)
+    }
+    throw new Error ('whoops')
+  } else {
     return head
   }
 }
 
-export const realizeNounPhrase = ({ head, determiner, adjectivePhrases = [], prepositionalPhrases = [], appositives = [], isPronoun, number }: NounPhrase) : Array<WordTranslation> => [
-  ...(determiner ? [determiner] : []),
+export const realizeNounPhrase = ({ head, determiner, adjectivePhrases = [], prepositionalPhrases = [], appositives = [], isPronoun, number }: NounPhrase) : Array<EnWord> => [
+  ...(determiner && determiner.lemmaId ? [determiner] : []),
   ...adjectivePhrases.map(realizeAdjectivePhrase).reduce((a, b) => a.concat(b), []),
   pl(head, number, isPronoun),
   ...appositives.map(realizeNounPhrase).reduce((a, b) => a.concat(b), []),

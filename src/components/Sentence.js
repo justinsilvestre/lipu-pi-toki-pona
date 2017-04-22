@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import SentenceOriginal from './SentenceOriginal'
 import SentenceTranslation from './SentenceTranslation'
-import type { Sentence } from '../utils/grammar'
+import type { Sentence } from '../selectors/tpSentences'
 import type { SentenceTranslation as SentenceTranslationType } from '../utils/english/grammar'
 import { getEnSentence } from '../selectors'
 

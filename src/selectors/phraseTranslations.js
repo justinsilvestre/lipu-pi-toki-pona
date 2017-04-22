@@ -1,12 +1,15 @@
 // @flow
 import type { Action } from '../actions'
+import type { EnLemmaId } from '../selectors/enLemmas'
+import type { TpLemmaId } from '../selectors/tpLemmas'
 
+export type PhraseTranslationId = number
 export type PhraseTranslation = {
-  id: string,
-  enLemmaId: string,
-  tpLemmaId: string,
+  id: PhraseTranslationId,
+  enLemmaId: EnLemmaId,
+  tpLemmaId: TpLemmaId,
 }
 
 export type State = {
-  [id: string]: PhraseTranslation,
+  [id: PhraseTranslationId]: PhraseTranslation,
 }

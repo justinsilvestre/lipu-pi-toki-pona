@@ -3,10 +3,11 @@ import { parse } from 'parse-toki-pona'
 import { pipe } from 'ramda'
 import { normalize, schema } from 'normalizr'
 import * as roles from '../utils/tokiPonaRoles'
-import type { Role, RawParticleRole } from '../utils/tokiPonaRoles'
-import type { Sentence, Word, WordId, Mood, TokiPonaPartOfSpeech, SentenceContext } from './grammar'
 import { getId } from '../selectors/tpLemmas'
+import type { Role, RawParticleRole } from '../utils/tokiPonaRoles'
+import type { Sentence, Mood, SentenceContext } from '../selectors/tpSentences'
 import type { TpLemmasState, TpLemma } from '../selectors/tpLemmas'
+import type { TpWordsState, Word, WordId, TokiPonaPartOfSpeech } from '../selectors/tpWords'
 
 const wordSchema = new schema.Entity('words')
 const sentenceSchema = new schema.Array(wordSchema)
@@ -56,8 +57,7 @@ type SentenceSlots = {
   vocative?: WordId,
   seme?: Array<WordId>,
 }
-export type WordsObject = { [wordId: WordId]: Word }
-export type ParsedSentencesData = { sentences: Array<Sentence>, words: WordsObject, properNouns: Array<TpLemma> }
+export type ParsedSentencesData = { sentences: Array<Sentence>, words: TpWordsState, properNouns: Array<TpLemma> }
 
 
   //   predicate: '',          // i t prev prep
@@ -70,7 +70,7 @@ const processWord = (
   sentenceProperties: SentenceSlots,
   rawWords: NormalizedWords,
   wordId: WordId,
-  words: WordsObject,
+  words: TpWordsState,
   wordsInSameSentence: Array<WordId>, // should we just pass the whole sentence obj?
 ) : PartiallyProcessedWord => {
   const { id, text, before, after, head: headId, role: maybeRole, parent: parentId, context: contextIndex } = rawWords[wordId]
@@ -192,16 +192,6 @@ const addRelations = (tpLemmas: TpLemmasState) => (ns: NormalizedSentences) : Pa
 
       wordIds.forEach((wordId, i) => {
         const processed = processWord(sentenceProperties, rawWords, wordId, words, result[sentenceIndex])
-        // const lemmaId = getId(tpLemmas, processed.text, processed.pos)
-        //   || rawWords[wordId].text // proper nouns
-        // if (!Number.isInteger(lemmaId)) properNounLemmas.push({
-        //   text: processed.text,
-        //   id: processed.text,
-        //   pos: processed.pos,
-        //   animacy: null,
-        //   primary: null,
-        // })
-
 
         words[wordId] = ({
           ...(words[wordId] || {}),
@@ -209,7 +199,7 @@ const addRelations = (tpLemmas: TpLemmasState) => (ns: NormalizedSentences) : Pa
           index: i + position,
           id: wordId,
           ...processed,
-        } : Word)
+        } : PartiallyProcessedWord)
       })
 
       accumulator[2] += wordIds.length

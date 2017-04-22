@@ -1,12 +1,11 @@
-// @flow
+
 import expect from 'expect'
 import processSentences from './parseTokiPona'
-import type { WordsObject } from './parseTokiPona'
+import type { TpWordsState, WordId } from '../../selectors/tpWords'
 import { children, isComplementOf, isDescendantOf } from './words'
-import type { WordId } from './grammar'
 
 type ParseSentence = (text: string) => {
-  words: WordsObject,
+  words: TpWordsState,
   sentenceWords: Array<WordId>,
 }
 const parseSentence : ParseSentence = (text) => {

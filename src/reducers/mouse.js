@@ -1,5 +1,5 @@
 // @flow
-import type { WordId } from '../utils/grammar'
+import type { WordId } from '../selectors/tpWords'
 import type { Action } from '../actions'
 import type { MouseState } from '../selectors/mouse'
 

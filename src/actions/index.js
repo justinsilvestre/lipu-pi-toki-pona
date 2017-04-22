@@ -1,7 +1,7 @@
 // @flow
 import parseTokiPona from '../utils/parseTokiPona'
-import type { WordsObject } from '../utils/parseTokiPona'
-import type { Sentence, WordId } from '../utils/grammar'
+import type { TpWordsState, WordId } from '../selectors/tpWords'
+import type { Sentence } from '../selectors/tpSentences'
 import type { SentenceTranslation } from '../utils/english/grammar'
 import type { Action as SentenceAction } from './sentence'
 import type { Action as MouseAction } from './mouse'
