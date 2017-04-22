@@ -1,7 +1,7 @@
 // @flow
 import React from 'react'
 import cn from 'classnames'
-import type { Sentence, } from '../utils/grammar'
+import type { Sentence } from '../selectors/tpSentences'
 import './SentenceOriginal.css'
 import WordOriginal from './WordOriginal'
 

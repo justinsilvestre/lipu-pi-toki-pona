@@ -1,18 +1,18 @@
 // @flow
-import type { Action } from '../actions'
 
+export type TpLemmaId = number | string
 export type TpLemma = {
   text: string,
-  id: string,
+  id: TpLemmaId,
   pos: string,
   animacy: ?boolean,
   primary: ?string,
 }
 export type TpLemmasState = {
-  [id: string]: TpLemma
+  [id: TpLemmaId]: TpLemma
 }
 
-export const getId = (state: TpLemmasState, text: string, pos: string): ?string => {
+export const getId = (state: TpLemmasState, text: string, pos: string): ?TpLemmaId => {
   for (const k in state) {
     const l = state[k]
     if (l.text === text && l.pos === pos) {
@@ -20,7 +20,7 @@ export const getId = (state: TpLemmasState, text: string, pos: string): ?string 
     }
   }
 }
-export const getText = (state: TpLemmasState, id: string): string => {
+export const getText = (state: TpLemmasState, id: TpLemmaId): string => {
   if (!state[id]) throw new Error('whoops')
   return state[id].text
 }

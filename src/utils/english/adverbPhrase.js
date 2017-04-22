@@ -1,16 +1,17 @@
 // @flow
 import prepositionalPhrase, { realizePrepositionalPhrase } from './prepositionalPhrase'
 import type { AdverbPhrase } from './grammar'
-import type { WordsObject } from '../parseTokiPona'
-import type { WordId } from '../grammar'
-import type { WordTranslation } from '../dictionary'
+import type { TpWordsState } from '../../selectors/tpWords'
+import type { WordId } from '../../selectors/tpWords'
+import type { EnWord } from '../../selectors/enWords'
 import type { Lookup } from '../../actions/lookup'
+import { not } from '../../selectors/enWords'
 
 export default async function adverbPhrase(lookup: Lookup, wordId: WordId) : Promise<AdverbPhrase> {
   const { words } = lookup
   const word = words[wordId]
-  const { enLemma: head } = await lookup.translate(wordId, ['adv'])
-
+  const { enWord: head } = await lookup.translate(wordId, ['adv'])
+  if (!head) throw new Error(`No adverb translation found for ${JSON.stringify(word)}`)
 
   const complements = word.complements || []
   const { prepositionalPhrases, adverbPhrases } = await adverbModifiers(lookup, complements) || {}
@@ -22,7 +23,8 @@ export default async function adverbPhrase(lookup: Lookup, wordId: WordId) : Pro
 async function adverbModifiers(lookup: Lookup, complements: Array<WordId>) : Promise<Object> {
   const { words } = lookup
   const complementsWithEnglish = await Promise.all(complements.map(async (c) => {
-    const english = await lookup.translate(c, ['adv', 'prep'])
+    const { enWord: english } = await lookup.translate(c, ['adv', 'prep'])
+    if (!english) throw new Error(`No adverb modifier translation found for ${JSON.stringify(words[c])}`)
     return { c, english }
   }))
   const { prepositionalPhrases = [], adverbPhrases = [] } = complementsWithEnglish.reduceRight((obj, { c, english }) => {
@@ -66,9 +68,9 @@ async function adverbModifiers(lookup: Lookup, complements: Array<WordId>) : Pro
   }
 }
 
-export const realizeAdverbPhrase = ({ head, prepositionalPhrases = [], adverbPhrases = [], isNegative }: AdverbPhrase) : Array<WordTranslation> => [
+export const realizeAdverbPhrase = ({ head, prepositionalPhrases = [], adverbPhrases = [], isNegative }: AdverbPhrase) : Array<EnWord> => [
   ...adverbPhrases.map(realizeAdverbPhrase).reduce((a, b) => a.concat(b), []),
-  ...(isNegative ? [{ text: 'not', pos: 'adv' }] : []),
+  ...(isNegative ? [not()] : []),
   head,
   ...prepositionalPhrases.map(realizePrepositionalPhrase).reduce((a, b) => a.concat(b), [])
 ]

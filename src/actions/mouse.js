@@ -1,10 +1,11 @@
 // @flow
-import type { WordsObject } from '../utils/parseTokiPona'
-import type { Sentence, WordId } from '../utils/grammar'
+import type { TpWordsState } from '../selectors/tpWords'
+import type { Sentence } from '../selectors/tpSentences'
+import type { WordId } from '../selectors/tpWords'
 import type { SentenceTranslation } from '../utils/english/grammar'
 
 export type Action =
-  | { type: 'PARSE_SENTENCES', tpSentences: Array<Sentence>, tpWords: WordsObject }
+  | { type: 'PARSE_SENTENCES', tpSentences: Array<Sentence>, tpWords: TpWordsState }
   | { type: 'WORD_MOUSE_ENTER', word: WordId }
   | { type: 'WORD_MOUSE_LEAVE', word: WordId }
   | { type: 'WORD_MOUSE_DOWN', word: WordId }

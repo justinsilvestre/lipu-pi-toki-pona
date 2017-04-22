@@ -1,7 +1,7 @@
 // @flow
 import verbPhrase, { copulaPhrase, realizeVerbPhrase } from './verbPhrase'
-import type { WordsObject } from '../parseTokiPona'
-import type { WordId } from '../grammar'
+import { and } from '../../selectors/enWords'
+import type { TpWordsState, WordId } from '../../selectors/tpWords'
 import type { SubjectPhrase, VerbPhrase, PredicatePhrase } from './grammar'
 import type { Lookup } from '../../actions/lookup'
 
@@ -28,6 +28,7 @@ export default async function predicatePhrase(
 
 export function realizePredicatePhrase(phraseData: PredicatePhrase, englishSubjectPhrase: SubjectPhrase) {
   return phraseData.phrases.map(p => realizeVerbPhrase(p, englishSubjectPhrase)).reduce((a, b, i) => {
-    return a.concat(i > 0 ? [{ text:'and', pos: 'conj' }, ...b] : b)
-  })
+    if (i > 0) return a.concat([and(), ...b])
+    else return a.concat(b)
+  }, [])
 }
