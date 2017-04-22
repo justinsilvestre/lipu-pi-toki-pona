@@ -21,7 +21,7 @@ const capitalize = (string) => `${string.charAt(0).toUpperCase()}${string.slice(
 const SentenceTranslation = ({ sentenceData }: Props) =>
   sentenceData && sentenceData.words ? <div className="sentenceTranslation">
     {sentenceData.words.map((id, i) =>
-      <EnWord key={id} id={id} isFirst={i === 0} />
+      <EnWord key={id + i} id={id} isFirst={i === 0} />
     )}
   </div> : null
 

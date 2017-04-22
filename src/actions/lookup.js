@@ -1,8 +1,7 @@
 // @flow
 import type { PhraseTranslation, State as PhraseTranslationState } from '../selectors/phraseTranslations'
-import { lookUpTranslation, getEnWordFromTp } from '../selectors'
+import { lookUpTranslation, getEnWordFromTp, getWord, isNewProperNoun, getPhraseTranslation, getEnLemma } from '../selectors'
 import channel, { pull } from '../utils/channel'
-import { getWord, isNewProperNoun, getPhraseTranslation, getEnLemma } from '../selectors'
 import type { TpWordsState } from '../selectors/tpWords'
 import type { AppState } from '../selectors'
 import type { EnLemma, EnLemmasState } from '../selectors/enLemmas'
@@ -90,7 +89,11 @@ export const processTranslationsResponse = ({ phraseTranslations: raw }: RawPhra
   return { phraseTranslations, enLemmas}
 }
 
-const processTranslationResponse = ({ phraseTranslation: raw }: { phraseTranslation: RawPhraseTranslation }) => {
+export type ProcessedTranslationResponse = {
+  enLemma: EnLemma,
+  phraseTranslation: PhraseTranslation,
+}
+const processTranslationResponse = ({ phraseTranslation: raw }: { phraseTranslation: RawPhraseTranslation }): ProcessedTranslationResponse => {
   const enLemma = {
     id: raw.en.id,
     text: raw.en.text,
@@ -105,20 +108,19 @@ const processTranslationResponse = ({ phraseTranslation: raw }: { phraseTranslat
   return { enLemma, phraseTranslation }
 }
 
-export const fetchTranslation = async (tpLemmaId: TpLemmaId, enPartsOfSpeech: ?Array<EnglishPartOfSpeech>) => {
+export const fetchTranslation = async (tpLemmaId: TpLemmaId, enPartsOfSpeech: ?Array<EnglishPartOfSpeech>): Promise<?ProcessedTranslationResponse> => {
   const opts = { tpLemmaId, ...(enPartsOfSpeech ? { enPartsOfSpeech } : null) }
   const response = await pull('look_up_one', opts)
   return response.phraseTranslation
-  ? processTranslationResponse(response)
-  : { enLemma: null, phraseTranslation: null }
+    ? processTranslationResponse(response)
+    : null
 }
-window.fetchTranslation = fetchTranslation
+
 export const fetchTranslations = async (tpLemmaId: string, enPartsOfSpeech: ?Array<EnglishPartOfSpeech>) => {
   const opts = { tpLemmaId, ...(enPartsOfSpeech ? { enPartsOfSpeech } : null) }
   const response = await pull('look_up_many', opts)
   return processTranslationsResponse(response)
 }
-window.fetchTranslations = fetchTranslations
 
 export default function lookup(getState: Function, dispatch: Function): Lookup {
   const state: AppState = getState()
@@ -126,7 +128,8 @@ export default function lookup(getState: Function, dispatch: Function): Lookup {
     words: state.tpWords,
     tpLemmas: state.tpLemmas,
     translate: async (wordId, enPartsOfSpeech) => {
-      const { lemmaId: tpLemmaId, text: tpText } = getWord(getState(), wordId)
+      const tpWord = getWord(getState(), wordId)
+      const { lemmaId: tpLemmaId, text: tpText } = tpWord
       if (!tpLemmaId) throw new Error('whoops')
 
       const enWordId = uuid()
@@ -138,41 +141,55 @@ export default function lookup(getState: Function, dispatch: Function): Lookup {
       }
 
       const existingEnWord = getEnWordFromTp(state, wordId)
-      const existingTranslationIsValid = existingEnWord
-        && existingEnWord.hasOwnProperty('phraseTranslationId')
-        && (!enPartsOfSpeech || enPartsOfSpeech.includes(existingEnWord.pos))
+      // const existingTranslationIsValid = existingEnWord
+      //   && existingEnWord.hasOwnProperty('phraseTranslationId')
+      //   && existingEnWord.phraseTranslationId
+      //   && (!enPartsOfSpeech || enPartsOfSpeech.includes(existingEnWord.pos))
+      const existingTranslation = lookUpTranslation(state, wordId)
+      const existingTranslationIsValid = existingTranslation
+        && (!enPartsOfSpeech || enPartsOfSpeech.includes(getEnLemma(state, existingTranslation.enLemmaId).pos))
 
-      if (existingTranslationIsValid) {
-        if (!existingEnWord) throw new Error('whoops')
-        if (!existingEnWord.phraseTranslationId) throw new Error('whoops')
+      if (existingTranslation && existingTranslationIsValid) {
+        // if (!existingEnWord) throw new Error('whoops')
+        // if (!existingEnWord.phraseTranslationId) throw new Error('whoops')
+        console.log(`EXISTING TRANSLATION FOR ${tpText} is valid`, existingTranslation)
+        const phraseTranslation = existingTranslation
 
-        const phraseTranslation = getPhraseTranslation(state, existingEnWord.phraseTranslationId)
+        console.log('translated to: ', phraseTranslation)
         const enLemma = getEnLemma(state, phraseTranslation.enLemmaId)
-        return {
-          phraseTranslation,
-          enLemma,
-          enWord: existingEnWord,
-        }
-      } else {
-        const { phraseTranslation, enLemma } = await fetchTranslation(tpLemmaId, enPartsOfSpeech)
-        const enWord: ?EnWord = (phraseTranslation && enLemma) ? {
+        const enWord = {
           id: enWordId,
           pos: enLemma.pos,
           text: enLemma.text,
           phraseTranslationId: phraseTranslation.id,
           tpWordId: wordId,
-        } : null
+        }
+        return {
+          phraseTranslation,
+          enLemma,
+          enWord,
+        }
+      } else {
+        const translation = await fetchTranslation(tpLemmaId, enPartsOfSpeech)
 
+        if (translation) {
+          const { phraseTranslation, enLemma } = translation
+          const enWord = {
+            id: enWordId,
+            pos: enLemma.pos,
+            text: enLemma.text,
+            phraseTranslationId: phraseTranslation.id,
+            tpWordId: wordId,
+          }
 
-        if (enWord && existingEnWord && phraseTranslation && enLemma)
           dispatch(addPhraseTranslation(phraseTranslation, enLemma, enWord))
-        else
-          dispatch({ type: 'INVALID_OPTION' })
-
-        phraseTranslation
-          && getState().documentTranslationPhrases[wordId] !== phraseTranslation.id
-          && dispatch(setWordTranslation(wordId, phraseTranslation.id))
-        return { phraseTranslation, enLemma, enWord }
+          getState().documentTranslationPhrases[wordId] !== phraseTranslation.id
+            && dispatch(setWordTranslation(wordId, phraseTranslation.id))
+          return { phraseTranslation, enLemma, enWord }
+        } else {
+          dispatch({ type: 'INVALID_OPTION', tpWord })
+          return { phraseTranslation: null, enLemma: null, enWord: null }
+        }
       }
     },
     // browse: async (tpLemmaId, enPartsOfSpeech) => {

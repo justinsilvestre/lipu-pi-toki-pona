@@ -145,7 +145,7 @@ const pl = (head: EnWord, number: 'SINGULAR' | 'PLURAL', isPronoun: boolean): En
 }
 
 export const realizeNounPhrase = ({ head, determiner, adjectivePhrases = [], prepositionalPhrases = [], appositives = [], isPronoun, number }: NounPhrase) : Array<EnWord> => [
-  ...(determiner && determiner.lemmaId ? [determiner] : []),
+  ...(determiner ? [determiner] : []),
   ...adjectivePhrases.map(realizeAdjectivePhrase).reduce((a, b) => a.concat(b), []),
   pl(head, number, isPronoun),
   ...appositives.map(realizeNounPhrase).reduce((a, b) => a.concat(b), []),

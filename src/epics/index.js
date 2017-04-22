@@ -6,7 +6,7 @@ import type { AppState } from '../redux'
 import {
   selectWords, delimitPendingSelection, translateSentences, translateSentencesSuccess,
   deselect, processTranslationsResponse, addPhraseTranslations,
-  parseSentencesSuccess, parseSentencesFailure,
+  parseSentencesSuccess, parseSentencesFailure, updateSentence,
 } from '../actions'
 import type { Action } from '../actions'
 import translate from '../utils/translate'
@@ -64,15 +64,7 @@ const parsingEpic = (action$: any, { getState }) => action$
 const translationEpic = (action$: any, { getState, dispatch }: Store<getStateFn, Action>) => action$
   .ofType('PARSE_SENTENCES_SUCCESS')
   .flatMap(() => translate(getState().tpSentences, getState().tpWords, lookup(getState, dispatch)).catch(err => console.error(err)))
-  .map((sentences) => translateSentencesSuccess(sentences, sentences.reduce((hash, s) => {
-    const wordIds = []
-    realizeSentence(s).forEach(word => {
-      hash[word.id] = word
-      wordIds.push(word.id)
-    })
-    s.words = wordIds
-    return hash
-  }, {})))
+  .map((sentences) => translateSentencesSuccess(sentences, sentences.map(realizeSentence)))
 
 const phraseTranslationEpic = (action$: any, { getState }) => action$
   .ofType('SELECT_WORDS')
@@ -102,7 +94,9 @@ const updateSentenceEpic = (action$: any, { getState, dispatch }) => action$
     const { index } = sentence
     try {
       const [newSentence] = await translate([tpSentences[index]], tpWords, lookup(getState, dispatch))
-      return { type: 'UPDATE_SENTENCE', sentence: newSentence, index }
+      const newWords = realizeSentence(newSentence)
+
+      return updateSentence(index, newSentence, newWords)
     } catch(err) {
       console.error(err)
       return { type: 'UPDATE_SENTENCE_FAILURE', err }

@@ -44,6 +44,7 @@ export type AppState = {
 }
 
 export const getSentences = (state: AppState): Array<Sentence> => state.tpSentences
+
 export const getWord = (state: AppState, wordId: WordId): Word => state.tpWords[wordId]
 const getWordIndex = (state, wordId): number => (getWord(state, wordId) || { index: -1 }).index
 export const getSentenceFromWord = (state: AppState, wordId: WordId): Sentence => getSentences(state)[state.tpWords[wordId].sentence]
@@ -86,9 +87,18 @@ export const getWordColor = (state: AppState, wordId: WordId): Color =>
 export const getEnLemma = (state: AppState, id: EnLemmaId): EnLemma =>
   state.enLemmas[id]
 
+export const getPhraseTranslation = (state: AppState, id: PhraseTranslationId): PhraseTranslation => {
+  const t = state.phraseTranslations[id]
+  if (t) return t
+  throw new Error('whoops')
+}
+export const getEnLemmaText = (state: AppState, phraseTranslationId: PhraseTranslationId): string => {
+  const { enLemmaId } = getPhraseTranslation(state, phraseTranslationId)
+  return getEnLemma(state, enLemmaId).text
+}
 export const lookUpTranslation = (state: AppState, wordId: WordId): ?PhraseTranslation => {
   const phraseTranslationId = state.documentTranslationPhrases[wordId]
-  return state.phraseTranslations[phraseTranslationId]
+  return phraseTranslationId ? getPhraseTranslation(state, phraseTranslationId) : null
 }
 export const lookUpTranslations = (state: AppState, tpLemmaId: TpLemmaId, enPartsOfSpeech: ?Array<EnglishPartOfSpeech>) => {
   const result = []
@@ -100,15 +110,6 @@ export const lookUpTranslations = (state: AppState, tpLemmaId: TpLemmaId, enPart
     }
   }
   return result
-}
-export const getPhraseTranslation = (state: AppState, id: PhraseTranslationId): PhraseTranslation => {
-  const t = state.phraseTranslations[id]
-  if (t) return t
-  throw new Error('whoops')
-}
-export const getEnLemmaText = (state: AppState, phraseTranslationId: PhraseTranslationId): string => {
-  const { enLemmaId } = getPhraseTranslation(state, phraseTranslationId)
-  return getEnLemma(state, enLemmaId).text
 }
 
 export const getTpLemmaId = (state: AppState, text: string, pos: TokiPonaPartOfSpeech): ?TpLemmaId => tpLemmas.getId(state.tpLemmas, text, pos)
