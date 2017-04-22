@@ -9,8 +9,8 @@ export type Action =
   { type: 'PARSE_SENTENCES_SUCCESS', tpSentences: Array<Sentence>, tpWords: TpWordsState, properNouns: Array<TpLemma> }
   | { type: 'PARSE_SENTENCES', text: string, tpLemmas: TpLemmasState }
   | { type: 'PARSE_SENTENCES_FAILURE' }
-  | { type: 'TRANSLATE_SENTENCES_SUCCESS', enSentences: Array<SentenceTranslation>, enWords: { [id: EnWordId]: EnWord} }
-  | { type: 'UPDATE_SENTENCE', index: number, sentence: Sentence }
+  | { type: 'TRANSLATE_SENTENCES_SUCCESS', enSentences: Array<SentenceTranslation>, enWords: Array<Array<EnWord>> }
+  | { type: 'UPDATE_SENTENCE', index: number, sentence: Sentence, words: Array<EnWord> }
 
 
 export const parseSentencesSuccess = (tpSentences: Array<Sentence>, tpWords: TpWordsState, properNouns: Array<TpLemma>): Action => ({
@@ -37,4 +37,11 @@ export const translateSentencesSuccess = (enSentences: Array<SentenceTranslation
   type: 'TRANSLATE_SENTENCES_SUCCESS',
   enSentences,
   enWords,
+})
+
+export const updateSentence = (index: number, sentence: SentenceTranslation, words: Array<EnWord>): Action => ({
+  type: 'UPDATE_SENTENCE',
+  index,
+  sentence,
+  words,
 })

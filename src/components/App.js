@@ -68,7 +68,7 @@ export class App extends Component {
               Until then, enjoy some simple word-for-word translations with syntax highlighting.
             </section>
             <section>
-              <a href="https://github.com/justinsilvestre/lipu-pi-toki-pona">Built</a> using React, Redux, RxJS, PEG.js, and Phoenix by <a href="http://justinreally.codes/">Justin Silvestre</a>.
+              <a href="https://github.com/justinsilvestre/lipu-pi-toki-pona">Built</a> using React, RxJS, PEG.js, RiTa, and Phoenix by <a href="http://justinreally.codes/">Justin Silvestre</a>.
             </section>
           </section>
           <section className="translate">

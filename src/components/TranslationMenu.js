@@ -12,7 +12,7 @@ import TranslationMenuOption from './TranslationMenuOption'
 type OwnProps = {
   translation: PhraseTranslation,
 }
-type StateProps = | {
+type StateProps = {
   selectedWordId: string,
   englishTranslations: Array<PhraseTranslation>,
 }
@@ -31,7 +31,6 @@ const TranslationMenu = ({ changeWordTranslation, selectedWordId, selectionWasMa
 
 const mapStateToProps = (state: AppState) : StateProps => {
   const word = getSelection(state)
-  if (!word) throw new Error('whoopes')
   return {
     selectedWordId: word.id,
     text: word.text,
