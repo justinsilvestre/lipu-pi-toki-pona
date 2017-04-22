@@ -1,5 +1,4 @@
 // @flow
-import type { Word } from './grammar'
 
 export type RawParticleRole =
   | 'COMPOUND_COMPLEMENT_PARTICLE'

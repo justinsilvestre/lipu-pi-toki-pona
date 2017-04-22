@@ -1,8 +1,4 @@
 // @flow
-import type { WordTranslation } from '../dictionary'
-import type { WordId } from '../grammar'
-import type { WordsObject } from '../parseTokiPona'
-import type { VerbPhrase, SubjectPhrase, NounPhrase, AdjectivePhrase, PrepositionalPhrase, SubjectComplementPhrase } from './grammar'
 import nounPhrase, { realizeNounPhrase } from './nounPhrase'
 import adjectivePhrase, { realizeAdjectivePhrase } from './adjectivePhrase'
 import adverbPhrase, { realizeAdverbPhrase } from './adverbPhrase'
@@ -12,9 +8,17 @@ import conjugate from './conjugate'
 import { ANIMATE_SUBJECT_VERBS } from '../tokiPonaSemanticGroups'
 import { string } from '../rita'
 import { getPossiblePartsOfSpeech } from './nounPartsOfSpeech'
+import type { EnWord } from '../../selectors/enWords'
+import type { WordId } from '../../selectors/tpWords'
+import type { TpWordsState } from '../../selectors/tpWords'
+import type { VerbPhrase, SubjectPhrase, NounPhrase, AdjectivePhrase, PrepositionalPhrase, SubjectComplementPhrase } from './grammar'
 import type { Lookup } from '../../actions/lookup'
+import { not, by, be } from '../../selectors/enWords'
+import type { EnglishPartOfSpeech } from './grammar'
 
-const realizeSubjectComplement = (englishTranslation: NounPhrase | AdjectivePhrase | PrepositionalPhrase) : Array<WordTranslation> => {
+// import { realizeSubjectComplement, extractPreposition, getObjects, getSubjectComplement, verbModifiers, verbPhrase, copulaPhrase, realizeVerbPhrase } from './verbPhrase2'
+// export { realizeVerbPhrase }
+const realizeSubjectComplement = (englishTranslation: NounPhrase | AdjectivePhrase | PrepositionalPhrase) : Array<EnWord> => {
   if (englishTranslation.head.pos === 'adj') {
     const adjectiveTranslation : AdjectivePhrase = (englishTranslation : any)
     return realizeAdjectivePhrase(adjectiveTranslation)
@@ -52,18 +56,17 @@ async function verbPhrase(lookup: Lookup, wordId: WordId, options: Object = {}):
   const { words } = lookup
   const word = words[wordId]
   let head =
-    (await lookup.translate(wordId, ['vt'])).enLemma
-    || (await lookup.translate(wordId, ['vi'])).enLemma
-    || (await lookup.translate(wordId, ['vm'])).enLemma
-    || (await lookup.translate(wordId, ['vc'])).enLemma
-    || (await lookup.translate(wordId, ['vp'])).enLemma
+    (await lookup.translate(wordId, ['vt'])).enWord
+    || (await lookup.translate(wordId, ['vi'])).enWord
+    || (await lookup.translate(wordId, ['vm'])).enWord
+    || (await lookup.translate(wordId, ['vc'])).enWord
+    || (await lookup.translate(wordId, ['vp'])).enWord
   const { subjectPhrase } = options
   const inanimateSubject = subjectPhrase && subjectPhrase.animacy === 'INANIMATE'
 
-  head = head || (await lookup.translate(wordId)).enLemma
+  head = head || (await lookup.translate(wordId)).enWord
   if (!head) {
-    console.error('no head!!', word)
-    throw new Error('no head!!', word)
+    throw new Error(`No verb translation for ${JSON.stringify(word)}`)
   }
 
   if (
@@ -131,18 +134,15 @@ async function getSubjectComplement(lookup: Lookup, sc: WordId, options: Object)
   const subjectComplement = words[sc]
   if (!subjectComplement) throw new Error(JSON.stringify(sc))
   let getPhrase = nounPhrase
-  const partsOfSpeech = [
-    ...getPossiblePartsOfSpeech('OBLIQUE', 'SINGULAR'), // maybe number should match subjectComplement
-    'adj',
+  const partsOfSpeech: Array<EnglishPartOfSpeech> = [
     'prep',
+    'adj',
+    ...getPossiblePartsOfSpeech('OBLIQUE', 'SINGULAR'), // maybe number should match subjectComplement
   ]
-  const head = (await lookup.translate(sc, partsOfSpeech)).enLemma
-    || (await lookup.translate(sc)).enLemma
+  const head = (await lookup.translate(sc, partsOfSpeech)).enWord
+    || (await lookup.translate(sc)).enWord
 
-  if (!head) {
-    console.error('subjectComplement', subjectComplement, await lookup.translate(sc))
-    throw new Error('no translation for subject complement')
-  }
+  if (!head) throw new Error(`No subject complement translation for ${JSON.stringify(words[sc])}`)
 
   if (head.pos === 'adj') getPhrase = adjectivePhrase
   if (head.pos === 'prep') getPhrase = prepositionalPhrase
@@ -160,11 +160,11 @@ export async function copulaPhrase(lookup: Lookup, wordId: WordId, options: Obje
   const word = words[wordId]
   const tokiPonaInfinitive = word.infinitive
   const infinitiveTranslation = tokiPonaInfinitive
-    ? ((await lookup.translate(tokiPonaInfinitive, ['vt'])).enLemma
-      || (await lookup.translate(tokiPonaInfinitive, ['vi'])).enLemma
-      || (await lookup.translate(tokiPonaInfinitive, ['vm'])).enLemma
-      || (await lookup.translate(tokiPonaInfinitive, ['vc'])).enLemma
-      || (await lookup.translate(tokiPonaInfinitive, ['vp'])).enLemma
+    ? ((await lookup.translate(tokiPonaInfinitive, ['vt'])).enWord
+      || (await lookup.translate(tokiPonaInfinitive, ['vi'])).enWord
+      || (await lookup.translate(tokiPonaInfinitive, ['vm'])).enWord
+      || (await lookup.translate(tokiPonaInfinitive, ['vc'])).enWord
+      || (await lookup.translate(tokiPonaInfinitive, ['vp'])).enWord
     )
     : null
   const predicateInfinitive = (tokiPonaInfinitive && // does this translate best to a noun?
@@ -172,7 +172,7 @@ export async function copulaPhrase(lookup: Lookup, wordId: WordId, options: Obje
     || (!['vc', 'vi', 'vt', 'vm', 'vp'].some(pos => pos === (infinitiveTranslation || {}).pos))
 
   const isNegative = word.negative
-  const copula = options.copula || { text: 'be', pos: 'vi' }
+  const copula = options.copula || be()
   const subjectComplements: Array<SubjectComplementPhrase> = await Promise.all(
     (options.subjectComplements
       ? options.subjectComplements.map(sc => getSubjectComplement(lookup, wordId, { negatedCopula: isNegative })) // should pass on english translation
@@ -197,14 +197,14 @@ export async function copulaPhrase(lookup: Lookup, wordId: WordId, options: Obje
 
 const flatten = (a, b) => a.concat(b)
 
-export const realizeVerbPhrase = (phrase: VerbPhrase, subject?: SubjectPhrase) : Array<WordTranslation> => {
+export const realizeVerbPhrase = (phrase: VerbPhrase, subject?: SubjectPhrase) : Array<EnWord> => {
   const { isNegative, adverbPhrases = [], prepositionalPhrases = [], subjectComplements = [], directObjects = [], infinitive } = phrase
   // should make sure d.o. and subj complement arent both present at once?
   const { mainVerb, auxiliaryVerb } = conjugate(phrase, subject)
   const realizedMainVerb = subject || phrase.head.text !== 'be' ? [mainVerb] : []
   return [
     ...(auxiliaryVerb ? [auxiliaryVerb] : realizedMainVerb),
-    ...(isNegative ? [{ text: 'not', pos: 'adv' }] : []),
+    ...(isNegative ? [not()] : []),
     ...(auxiliaryVerb ? realizedMainVerb : []),
     ...(infinitive ? realizeVerbPhrase(infinitive, subject) : []),
     ...conjoin(directObjects.map(realizeNounPhrase)),
@@ -217,7 +217,8 @@ export const realizeVerbPhrase = (phrase: VerbPhrase, subject?: SubjectPhrase) :
 async function verbModifiers(lookup: Lookup, complements: Array<WordId>): Promise<Object> {
   const { words } = lookup
   const complementsWithEnglish = await Promise.all(complements.map(async (c) => {
-    const { enLemma: english } = await lookup.translate(c, ['adv', 'prep'])
+    const { enWord: english } = await lookup.translate(c, ['adv', 'prep'])
+    if (!english) throw new Error(`No verb modifier translation for ${JSON.stringify(words[c])}`)
     return { c, english }
   }))
   const { adverbPhrases = [], prepositionalPhrases = [] } = complementsWithEnglish.reduceRight((obj, { c, english }) => {
@@ -238,7 +239,7 @@ async function verbModifiers(lookup: Lookup, complements: Array<WordId>): Promis
       case 'n':
         obj.prepositionalPhrases = (obj.prepositionalPhrases || [])
           .concat(prepositionalPhrase(lookup, c, {
-            head: { text: 'by', pos: 'conj' },
+            head: by(),
             objectIds: [c],
           }))
         break

@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import type { AppState } from '../redux'
 import type { SentenceTranslation as SentenceTranslationType } from '../utils/english/grammar'
 import { realizeSentence } from '../utils/english/sentence'
-import type { WordTranslation } from '../utils/dictionary'
+import type { EnWord } from '../selectors/enWords'
 // import getTranslation
 
 type SentenceTranslationOwnProps = {
@@ -16,7 +16,7 @@ type SentenceTranslationProps = SentenceTranslationOwnProps & SentenceTranslatio
 
 const capitalize = (string) => `${string.charAt(0).toUpperCase()}${string.slice(1)}`
 
-const getText = (word: WordTranslation) : string => {
+const getText = (word: EnWord) : string => {
   const { before = '', after = '', text } = word
   return `${before}${text}${after}`
 }

@@ -1,18 +1,19 @@
 // @flow
 import RiTa, { SINGULAR, PLURAL, FIRST_PERSON, THIRD_PERSON } from '../rita'
-import type { WordTranslation } from '../dictionary'
+import type { EnWord } from '../../selectors/enWords'
 import type { VerbPhrase, SubjectPhrase } from './grammar'
+import { doWord } from '../../selectors/enWords'
 
 export type ConjugatedVerbs = {
-  mainVerb: WordTranslation,
-  auxiliaryVerb?: WordTranslation,
+  mainVerb: EnWord,
+  auxiliaryVerb?: EnWord,
 }
 
-const conjugate = (verbPhrase: VerbPhrase, subject?: SubjectPhrase, externalAuxiliaryVerb: ?WordTranslation): ConjugatedVerbs => {
+const conjugate = (verbPhrase: VerbPhrase, subject?: SubjectPhrase, externalAuxiliaryVerb: ?EnWord): ConjugatedVerbs => {
   const verb = verbPhrase.head
   const auxiliaryVerb = externalAuxiliaryVerb || (
     verb.text !== 'be' && verbPhrase.isNegative && !(verbPhrase.isInfinitive || verbPhrase.isBareInfinitive)
-    ? { text: 'do', pos: 'vi' }
+    ? doWord()
     : undefined
   )
 
@@ -35,6 +36,7 @@ const conjugate = (verbPhrase: VerbPhrase, subject?: SubjectPhrase, externalAuxi
     },
   }
   if (auxiliaryVerb) result.auxiliaryVerb = {
+    id: auxiliaryVerb.id,
     text: RiTa.conjugate(auxiliaryVerb.text, rules),
     root: auxiliaryVerb.text,
     pos: auxiliaryVerb.pos,

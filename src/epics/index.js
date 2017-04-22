@@ -10,14 +10,14 @@ import {
 } from '../actions'
 import type { Action } from '../actions'
 import translate from '../utils/translate'
-import type { WordsObject } from '../utils/parseTokiPona'
-import type { WordId } from '../utils/grammar'
+import type { TpWordsState } from '../selectors/tpWords'
+import type { WordId } from '../selectors/tpWords'
 import lookup from '../actions/lookup'
 import { wasSelectionMade, getSelection, getWord, getSentenceFromWord, getHighlightedWord } from '../selectors'
 import { pull } from '../utils/channel'
 import parseTokiPona from '../utils/parseTokiPona'
 
-const sortByIndex = (words: WordsObject, word1: WordId, word2: WordId) : Array<WordId> =>
+const sortByIndex = (words: TpWordsState, word1: WordId, word2: WordId) : Array<WordId> =>
 [word1, word2].sort((a, b) => {
   if (!words[a] || !words[b]) return 0
   const i1 = words[a].index

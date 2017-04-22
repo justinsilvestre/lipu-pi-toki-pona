@@ -1,17 +1,18 @@
 // @flow
 import prepositionalPhrase, { realizePrepositionalPhrase } from './prepositionalPhrase'
 import type { AdjectivePhrase } from './grammar'
-import type { WordsObject } from '../parseTokiPona'
-import type { WordId, Word } from '../grammar'
+import type { TpWordsState } from '../../selectors/tpWords'
+import type { WordId, Word } from '../../selectors/tpWords'
 import adverbPhrase, { realizeAdverbPhrase } from './adverbPhrase'
-import type { WordTranslation } from '../dictionary'
+import type { EnWord } from '../../selectors/enWords'
 import type { Lookup } from '../../actions/lookup'
-
+import { ofWord, not } from '../../selectors/enWords'
 
 export default async function adjectivePhrase(lookup: Lookup, wordId: WordId, options: Object = {}) : Promise<AdjectivePhrase> {
   const { words } = lookup
   const word = words[wordId]
-  const { enLemma: head } = await lookup.translate(wordId, ['adj'])
+  const { enWord: head } = await lookup.translate(wordId, ['adj'])
+   if (!head) throw new Error(`No adjective translation found for ${JSON.stringify(word)}`)
   const complements = word.complements || []
   const isNegative = Boolean(!options.negatedCopula && word.negative)
   const { prepositionalPhrases, adverbPhrases } = await adjectiveModifiers(lookup, complements, { isNegative })
@@ -23,7 +24,8 @@ async function adjectiveModifiers(lookup: Lookup, complements: Array<WordId>, op
   const { words } = lookup
   const obj = {}
   const complementsWithEnglish = await Promise.all(complements.map(async (c) => {
-    const english = await lookup.translate(c, ['adv', 'prep'])
+    const { enWord: english } = await lookup.translate(c, ['adv', 'prep'])
+    if (!english) throw new Error(`No adjective modifier translation found for ${JSON.stringify(words[c])}`)
     return { c, english }
   }))
   const { prepositionalPhrases = [], adverbPhrases = [] } = complementsWithEnglish.reduceRight((obj, { c, english }) => {
@@ -45,7 +47,7 @@ async function adjectiveModifiers(lookup: Lookup, complements: Array<WordId>, op
           break
         case 'n':
           obj.prepositionalPhrases = (obj.prepositionalPhrases || []).concat(prepositionalPhrase(lookup, c, {
-            head: { text: 'of', pos: 'prep' },
+            head: ofWord(),
             objectIds: [c],
           }))
           break
@@ -65,9 +67,9 @@ async function adjectiveModifiers(lookup: Lookup, complements: Array<WordId>, op
   }
 }
 
-export const realizeAdjectivePhrase = ({ head, prepositionalPhrases = [], adverbPhrases = [], isNegative }: AdjectivePhrase) : Array<WordTranslation> => [
+export const realizeAdjectivePhrase = ({ head, prepositionalPhrases = [], adverbPhrases = [], isNegative }: AdjectivePhrase) : Array<EnWord> => [
   ...adverbPhrases.map(realizeAdverbPhrase).reduce((a, b) => a.concat(b), []),
-    ...(isNegative ? [{ text: 'not', pos: 'adv' }] : []),
+    ...(isNegative ? [not()] : []),
   head,
   ...prepositionalPhrases.map(pp => realizePrepositionalPhrase(pp)).reduce((a, b) => a.concat(b), [])
 ]

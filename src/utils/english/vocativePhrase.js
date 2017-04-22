@@ -2,7 +2,7 @@ import nounPhrase, { realizeNounPhrase } from './nounPhrase'
 import type { VocativePhrase } from './grammar'
 import punctuate from './punctuate'
 
-export default async function vocativePhrase(words: WordsObject, wordId: WordId): Promise<VocativePhrase> {
+export default async function vocativePhrase(words: TpWordsState, wordId: WordId): Promise<VocativePhrase> {
   return {
     head: await nounPhrase(words, wordId)
   }

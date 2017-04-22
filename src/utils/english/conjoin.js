@@ -1,11 +1,9 @@
 // @flow
-import type { WordTranslation } from '../dictionary'
+import type { EnWord } from '../../selectors/enWords'
+import { or, and } from '../../selectors/enWords'
 
-const and = () => ({ text: 'and', pos: 'conj' })
-const or = () => ({ text: 'or', pos: 'conj' })
-
-export default function conjoin(realizedPhrases: Array<Array<WordTranslation>>) : Array<WordTranslation> {
+export default function conjoin(realizedPhrases: Array<Array<EnWord>>) : Array<EnWord> {
   return realizedPhrases.reduce((conjoined, phrase, i) => {
-    return conjoined.concat(i > 0 ? [phrase.or ? or() : and(), ...phrase] : phrase)
+    return [...conjoined, ...(i > 0 ? [phrase.or ? or() : and(), ...phrase] : phrase)]
   }, [])
 }

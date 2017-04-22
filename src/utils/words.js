@@ -1,9 +1,9 @@
 // @flow
-import type { WordsObject } from './parseTokiPona'
-import type { WordId } from './grammar'
+
+import type { WordId, TpWordsState } from '../selectors/tpWords'
 import { isComplement, isPredicate, isSubject, isContextPredicate } from './tokiPonaRoleQueries'
 
-type WordRelationQuery = (words: WordsObject, word1: WordId, word2: WordId ) => boolean
+type WordRelationQuery = (words: TpWordsState, word1: WordId, word2: WordId ) => boolean
 
 export const isComplementOf : WordRelationQuery = (words, head, word) => isComplement(words[word]) && words[word].head === head
 export const isDirectObjectOf : WordRelationQuery = (words, maybeTransitiveVerb, maybeDO) => {
@@ -25,7 +25,7 @@ export const isContextOf : WordRelationQuery = (words, maybePredicate, maybeCont
   // will only work in same sentence
   isPredicate(words[maybePredicate]) && isContextPredicate(words[maybeContext])
 
-type IsChildOf = (words: WordsObject, parent: WordId, word: WordId) => boolean
+type IsChildOf = (words: TpWordsState, parent: WordId, word: WordId) => boolean
 export const isChildOf : IsChildOf = (words, parent, word) =>
   (isComplementOf(words, parent, word)
   || isDirectObjectOf(words, parent, word)
@@ -33,8 +33,8 @@ export const isChildOf : IsChildOf = (words, parent, word) =>
   || isPrepositionalObjectOf(words, parent, word)
   || isSubjectOf(words, parent, word)
   || isContextOf(words, parent, word))
-// type GetChildren = (words: WordsObject, parentSentence: Array<WordId>, parent: WordId) => Array<WordId>
-type GetChildren = (words: WordsObject, parent: WordId) => Array<WordId>
+// type GetChildren = (words: TpWordsState, parentSentence: Array<WordId>, parent: WordId) => Array<WordId>
+type GetChildren = (words: TpWordsState, parent: WordId) => Array<WordId>
 export const children : GetChildren = (words, parent) => {
   // switch(words[parent].role) {
   //   case ''
@@ -47,7 +47,7 @@ export const children : GetChildren = (words, parent) => {
   const complements = parentData.complements || []
   return [...directObjects, ...complements].concat(infinitive, prepositionalObject)
 }
-type IsDescendantOf = (words: WordsObject, ancestor: WordId, word: WordId) => boolean
+type IsDescendantOf = (words: TpWordsState, ancestor: WordId, word: WordId) => boolean
 
 export const isDescendantOf : IsDescendantOf = (words, ancestor, word) =>
   isChildOf(words, ancestor, word)

@@ -1,13 +1,13 @@
 // @flow
 
-import type { WordTranslation } from '../dictionary'
+import type { EnWord } from '../../selectors/enWords'
 
 export type GrammaticalNumber = 'SINGULAR' | 'PLURAL'
 export type Case = 'NOMINATIVE' | 'OBLIQUE'
 
 export type NounPhrase = {
-  head: WordTranslation,
-  determiner?: WordTranslation,
+  head: EnWord,
+  determiner?: EnWord,
   adjectivePhrases?: Array<AdjectivePhrase>, // eslint-disable-line no-use-before-define
   prepositionalPhrases?: Array<PrepositionalPhrase>, // eslint-disable-line no-use-before-define
   appositives?: any,
@@ -16,21 +16,21 @@ export type NounPhrase = {
 }
 
 export type PrepositionalPhrase = {
-  head: WordTranslation,
+  head: EnWord,
   objects: Array<NounPhrase>,
 }
 
 export type VocativePhrase = { head: NounPhrase }
 
 export type AdverbPhrase = {
-  head: WordTranslation,
+  head: EnWord,
   adverbPhrases?: Array<AdverbPhrase>,
   prepositionalPhrases: Array<PrepositionalPhrase>,
   isNegative: boolean,
 }
 
 export type AdjectivePhrase = {
-  head: WordTranslation,
+  head: EnWord,
   adverbPhrases?: Array<AdverbPhrase>,
   prepositionalPhrases?: Array<PrepositionalPhrase>,
   isNegative: boolean,
@@ -39,7 +39,7 @@ export type AdjectivePhrase = {
 export type SubjectComplementPhrase = NounPhrase | AdjectivePhrase | PrepositionalPhrase
 
 export type VerbPhrase = {
-  head: WordTranslation,
+  head: EnWord,
   adverbPhrases?: Array<AdverbPhrase>,
   prepositionalPhrases?: Array<PrepositionalPhrase>,
   subjectComplements?: Array<SubjectComplementPhrase>,
@@ -61,7 +61,7 @@ export type SubjectPhrase = {
 }
 
 export type SubordinateClause = {
-  conjunction: WordTranslation,
+  conjunction: EnWord,
   subjectPhrase: SubjectPhrase,
   predicatePhrase: PredicatePhrase,
   endPunctuation?: string,
