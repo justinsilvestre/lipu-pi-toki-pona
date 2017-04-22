@@ -117,8 +117,8 @@ main {
   transform: translateY(-1px)
 }
 
-.highlighted {
-  color: yellow;
+.enWord.highlighted {
+  color: #cbac00;
 }
 
 .selecting {

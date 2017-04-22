@@ -6,7 +6,7 @@ import type { ConnectedComponentClass } from 'react-redux'
 import type { Word, WordId } from '../selectors/tpWords'
 import type { Color } from '../utils/getHighlighting'
 import type { AppState } from '../selectors'
-import { getWord, getHighlightedWord, isWordSelected, isWordInPendingSelection, getWordColor, getTpText } from '../selectors'
+import { getWord, isWordHighlighted, isWordSelected, isWordInPendingSelection, getWordColor, getTpText } from '../selectors'
 import {
   wordMouseEnter, wordMouseLeave, wordMouseDown, wordMouseUp, wordClick,
 } from '../actions'
@@ -19,11 +19,11 @@ type WordOriginalOwnProps = {
   originalId: WordId,
 }
 type WordOriginalStateProps = {
-  highlightedWord: ?Word,
   color: Color,
   original: Word,
   selecting: boolean,
   selected: boolean,
+  highlighted: boolean,
   text: string,
 }
 type WordOriginalDispatchProps = {
@@ -45,9 +45,10 @@ class WordOriginal extends Component {
 
 
   render() {
-    const { original, color, selecting, selected, text } = this.props
+    const { original, color, selecting, selected, highlighted, text } = this.props
     const [h, s, l] = adjustColor(selecting, selected, color)
-    const style = { color: `hsl(${h}, ${s}%, ${l}%)`, fontWeight: original.role.endsWith('PARTICLE') ? 300 : 'normal' }
+    const l2 = l + (!selecting && !selected && highlighted ? 20 : 0)
+    const style = { color: `hsl(${h}, ${s}%, ${l2}%)`, fontWeight: original.role.endsWith('PARTICLE') ? 300 : 'normal' }
 
     const { onMouseEnter, onMouseLeave, onClick, onMouseUp, onMouseDown } = this
 
@@ -63,7 +64,7 @@ class WordOriginal extends Component {
 }
 
 const mapStateToProps = (state: AppState, { originalId }: WordOriginalOwnProps) : WordOriginalStateProps => ({
-  highlightedWord: getHighlightedWord(state),
+  highlighted: isWordHighlighted(state, originalId),
   color: getWordColor(state, originalId),
   original: getWord(state, originalId),
   selecting: isWordInPendingSelection(state, originalId),

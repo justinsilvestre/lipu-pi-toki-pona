@@ -15,6 +15,7 @@ export type EnWordFromTranslation = {|
   text: string,
 
   phraseTranslationId: PhraseTranslationId,
+  tpWordId: WordId,
 |}
 export type IncidentalEnWord = {|
   id: EnWordId,
@@ -43,6 +44,12 @@ export type EnWordsState = {
   [id: EnWordId]: EnWord,
 }
 
+export const getEnWord = (state: EnWordsState, id: EnWordId): EnWord => state[id]
+export const getEnWordText = (state: EnWordsState, id: EnWordId): string => {
+  const word = getEnWord(state, id)
+  const{ before = '', after = '', text } = word
+  return `${before}${text}${after}`
+}
 export const getEnWordFromTp = (state: EnWordsState, tpWordId: WordId): ?EnWord => {
   for (const id in state) {
     const word = state[id]

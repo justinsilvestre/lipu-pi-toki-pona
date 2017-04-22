@@ -1,6 +1,6 @@
 // @flow
 
-import type { EnWord } from '../../selectors/enWords'
+import type { EnWord, EnWordId } from '../../selectors/enWords'
 
 export type GrammaticalNumber = 'SINGULAR' | 'PLURAL'
 export type Case = 'NOMINATIVE' | 'OBLIQUE'
@@ -75,6 +75,7 @@ export type SentenceTranslation = {
   adverbPhrases?: Array<AdverbPhrase>,
   prepositionalPhrases?: Array<PrepositionalPhrase>,
   endPunctuation?: string,
+  words?: Array<EnWordId>
 }
 
 export type EnglishPartOfSpeech =

@@ -26,4 +26,4 @@ export const getPendingSelection = (state: MouseState): SelectionRange => ({
 
 export const wasSelectionMade = (state: MouseState): bool => Boolean(state.selectionStart && state.selectionEnd)
 
-export const getHighlightedWord = (state: MouseState): ?WordId => state.highlightedWord
+export const getHighlightedWordId = (state: MouseState): ?WordId => state.highlightedWord

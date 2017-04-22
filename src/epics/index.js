@@ -16,6 +16,7 @@ import lookup from '../actions/lookup'
 import { wasSelectionMade, getSelection, getWord, getSentenceFromWord, getHighlightedWord } from '../selectors'
 import { pull } from '../utils/channel'
 import parseTokiPona from '../utils/parseTokiPona'
+import { realizeSentence } from '../utils/english/sentence'
 
 const sortByIndex = (words: TpWordsState, word1: WordId, word2: WordId) : Array<WordId> =>
 [word1, word2].sort((a, b) => {
@@ -63,7 +64,15 @@ const parsingEpic = (action$: any, { getState }) => action$
 const translationEpic = (action$: any, { getState, dispatch }: Store<getStateFn, Action>) => action$
   .ofType('PARSE_SENTENCES_SUCCESS')
   .flatMap(() => translate(getState().tpSentences, getState().tpWords, lookup(getState, dispatch)).catch(err => console.error(err)))
-  .map((x) => translateSentencesSuccess(x))
+  .map((sentences) => translateSentencesSuccess(sentences, sentences.reduce((hash, s) => {
+    const wordIds = []
+    realizeSentence(s).forEach(word => {
+      hash[word.id] = word
+      wordIds.push(word.id)
+    })
+    s.words = wordIds
+    return hash
+  }, {})))
 
 const phraseTranslationEpic = (action$: any, { getState }) => action$
   .ofType('SELECT_WORDS')

@@ -124,7 +124,8 @@ const pl = (head: EnWord, number: 'SINGULAR' | 'PLURAL', isPronoun: boolean): En
     if (head.phraseTranslationId) {
       return ({
         ...result,
-        phraseTranslationId: head.phraseTranslationId
+        phraseTranslationId: head.phraseTranslationId,
+        tpWordId: head.tpWordId,
       }: EnWord)
     } else if (head.lemmaId) {
       return ({
