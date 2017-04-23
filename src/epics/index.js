@@ -50,7 +50,6 @@ const deselectionEpic = (action$: any, { getState }) => Observable.fromEvent(win
 const parsingEpic = (action$: any, { getState }) => action$
   .ofType('PARSE_SENTENCES')
   .flatMap(({ text }) => {
-    if (socket.channels[0].state !== 'joined') socket.connect()
     let result
     try {
       const trimmed = text.trim().replace(/[^\w\s\.\!\?\;\:\,]/g, '')
