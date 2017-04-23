@@ -1,6 +1,5 @@
 import socket from './socket'
 
-socket.connect()
 const channel = socket.channel('translate:' + 42)
 
 export function pull(pushEvent, payload) {

@@ -16,6 +16,7 @@ import lookup from '../actions/lookup'
 import { wasSelectionMade, getSelection, getWord, getSentenceFromWord, getHighlightedWord } from '../selectors'
 import { pull } from '../utils/channel'
 import parseTokiPona from '../utils/parseTokiPona'
+import socket from '../utils/socket'
 import { realizeSentence } from '../utils/english/sentence'
 
 const sortByIndex = (words: TpWordsState, word1: WordId, word2: WordId) : Array<WordId> =>
@@ -49,6 +50,7 @@ const deselectionEpic = (action$: any, { getState }) => Observable.fromEvent(win
 const parsingEpic = (action$: any, { getState }) => action$
   .ofType('PARSE_SENTENCES')
   .flatMap(({ text }) => {
+    if (socket.channels[0].state !== 'joined') socket.connect()
     let result
     try {
       const trimmed = text.trim().replace(/[^\w\s\.\!\?\;\:\,]/g, '')

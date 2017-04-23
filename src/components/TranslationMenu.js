@@ -20,6 +20,7 @@ type DispatchProps = {
   changeWordTranslation: Function,
 }
 type Props = OwnProps & StateProps & DispatchProps
+
 const TranslationMenu = ({ changeWordTranslation, selectedWordId, selectionWasMade, englishTranslations, text }: Props) =>
  <div className="translationMenu">
   <ul className="translationMenuLemmaOptions">
@@ -31,6 +32,7 @@ const TranslationMenu = ({ changeWordTranslation, selectedWordId, selectionWasMa
 
 const mapStateToProps = (state: AppState) : StateProps => {
   const word = getSelection(state)
+  if (!word) throw new Error('quiet flow')
   return {
     selectedWordId: word.id,
     text: word.text,
