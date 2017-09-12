@@ -1,6 +1,6 @@
 // @flow
 import type { PhraseTranslation, State as PhraseTranslationState } from '../selectors/phraseTranslations'
-import { lookUpTranslation, getEnWordFromTp, getWord, isNewProperNoun, getPhraseTranslation, getEnLemma } from '../selectors'
+import { lookUpTranslation, getEnWordFromTp, getWord, isNewProperNoun, getPhraseTranslation, getEnLemma, getTpWords, getTpLemmas } from '../selectors'
 import channel, { pull } from '../utils/channel'
 import type { TpWordsState } from '../selectors/tpWords'
 import type { AppState } from '../selectors'
@@ -11,6 +11,7 @@ import type { EnglishPartOfSpeech } from '../utils/english/grammar'
 import type { EnWord } from '../selectors/enWords'
 import { newPlaceholder } from '../selectors/enWords'
 import uuid from 'uuid'
+import fetchTranslation from './fetchTranslation'
 
 export type Action =
   | { type: 'ADD_PHRASE_TRANSLATION', phraseTranslation: PhraseTranslation, enLemma: EnLemma, enWord: EnWord }
@@ -54,83 +55,83 @@ export const changeWordTranslation = (wordId: WordId, phraseTranslationId: numbe
   wordId,
   phraseTranslationId,
 })
-
-export type RawPhraseTranslation = {
-  id: number,
-  tp: number,
-  en: {
-    id: number,
-    text: string,
-    pos: EnglishPartOfSpeech,
-  }
-}
-
-export type RawPhraseTranslations = {
-  phraseTranslations: Array<RawPhraseTranslation>,
-}
-
-export const processTranslationsResponse = ({ phraseTranslations: raw }: RawPhraseTranslations) => {
-  const enLemmas = {}
-  const phraseTranslations = {}
-  for (const rawPhraseTranslation of raw) {
-    const { id, en: rawEnLemma, tp: tpLemmaId } = rawPhraseTranslation
-    const { id: enLemmaId, text, pos } = rawEnLemma
-    phraseTranslations[id] = {
-      id,
-      tpLemmaId,
-      enLemmaId,
-    }
-    enLemmas[enLemmaId] = {
-      id: enLemmaId,
-      text,
-      pos,
-    }
-  }
-  return { phraseTranslations, enLemmas}
-}
-
-export type ProcessedTranslationResponse = {
-  enLemma: EnLemma,
-  phraseTranslation: PhraseTranslation,
-}
-const processTranslationResponse = ({ phraseTranslation: raw }: { phraseTranslation: RawPhraseTranslation }): ProcessedTranslationResponse => {
-  const enLemma = {
-    id: raw.en.id,
-    text: raw.en.text,
-    pos: raw.en.pos,
-  }
-  const phraseTranslation = {
-    id: raw.id,
-    enLemmaId: raw.en && raw.en.id,
-    tpLemmaId: raw.tp,
-  }
-
-  return { enLemma, phraseTranslation }
-}
-
-export const fetchTranslation = async (tpLemmaId: TpLemmaId, enPartsOfSpeech: ?Array<EnglishPartOfSpeech>): Promise<?ProcessedTranslationResponse> => {
-  const opts = { tpLemmaId, ...(enPartsOfSpeech ? { enPartsOfSpeech } : null) }
-  const response = await pull('look_up_one', opts)
-  return response.phraseTranslation
-    ? processTranslationResponse(response)
-    : null
-}
-
-export const fetchTranslations = async (tpLemmaId: string, enPartsOfSpeech: ?Array<EnglishPartOfSpeech>) => {
-  const opts = { tpLemmaId, ...(enPartsOfSpeech ? { enPartsOfSpeech } : null) }
-  const response = await pull('look_up_many', opts)
-  return processTranslationsResponse(response)
-}
+//
+// export type RawPhraseTranslation = {
+//   id: number,
+//   tp: number,
+//   en: {
+//     id: number,
+//     text: string,
+//     pos: EnglishPartOfSpeech,
+//   }
+// }
+//
+// export type RawPhraseTranslations = {
+//   phraseTranslations: Array<RawPhraseTranslation>,
+// }
+//
+// export const processTranslationsResponse = ({ phraseTranslations: raw }: RawPhraseTranslations) => {
+//   const enLemmas = {}
+//   const phraseTranslations = {}
+//   for (const rawPhraseTranslation of raw) {
+//     const { id, en: rawEnLemma, tp: tpLemmaId } = rawPhraseTranslation
+//     const { id: enLemmaId, text, pos } = rawEnLemma
+//     phraseTranslations[id] = {
+//       id,
+//       tpLemmaId,
+//       enLemmaId,
+//     }
+//     enLemmas[enLemmaId] = {
+//       id: enLemmaId,
+//       text,
+//       pos,
+//     }
+//   }
+//   return { phraseTranslations, enLemmas}
+// }
+//
+// export type ProcessedTranslationResponse = {
+//   enLemma: EnLemma,
+//   phraseTranslation: PhraseTranslation,
+// }
+// const processTranslationResponse = ({ phraseTranslation: raw }: { phraseTranslation: RawPhraseTranslation }): ProcessedTranslationResponse => {
+//   const enLemma = {
+//     id: raw.en.id,
+//     text: raw.en.text,
+//     pos: raw.en.pos,
+//   }
+//   const phraseTranslation = {
+//     id: raw.id,
+//     enLemmaId: raw.en && raw.en.id,
+//     tpLemmaId: raw.tp,
+//   }
+//
+//   return { enLemma, phraseTranslation }
+// }
+//
+// export const fetchTranslation = async (tpLemmaId: TpLemmaId, enPartsOfSpeech: ?Array<EnglishPartOfSpeech>): Promise<?ProcessedTranslationResponse> => {
+//   const opts = { tpLemmaId, ...(enPartsOfSpeech ? { enPartsOfSpeech } : null) }
+//   const response = await pull('look_up_one', opts)
+//   return response.phraseTranslation
+//     ? processTranslationResponse(response)
+//     : null
+// }
+//
+// export const fetchTranslations = async (tpLemmaId: string, enPartsOfSpeech: ?Array<EnglishPartOfSpeech>) => {
+//   const opts = { tpLemmaId, ...(enPartsOfSpeech ? { enPartsOfSpeech } : null) }
+//   const response = await pull('look_up_many', opts)
+//   return processTranslationsResponse(response)
+// }
 
 export default function lookup(getState: Function, dispatch: Function): Lookup {
   const state: AppState = getState()
   return {
-    words: state.tpWords,
-    tpLemmas: state.tpLemmas,
+    words: getTpWords(state),
+    tpLemmas: getTpLemmas(state),
     translate: async (wordId, enPartsOfSpeech) => {
       const tpWord = getWord(getState(), wordId)
       const { lemmaId: tpLemmaId, text: tpText } = tpWord
-      if (!tpLemmaId) throw new Error('whoops')
+      if (!tpLemmaId) throw new Error('whoops' + tpText)
 
       const enWordId = uuid()
 
@@ -140,7 +141,7 @@ export default function lookup(getState: Function, dispatch: Function): Lookup {
         return { phraseTranslation: null, enLemma: null, enWord }
       }
 
-      const existingEnWord = getEnWordFromTp(state, wordId)
+      // const existingEnWord = getEnWordFromTp(state, wordId)
       // const existingTranslationIsValid = existingEnWord
       //   && existingEnWord.hasOwnProperty('phraseTranslationId')
       //   && existingEnWord.phraseTranslationId
@@ -183,8 +184,9 @@ export default function lookup(getState: Function, dispatch: Function): Lookup {
           }
 
           dispatch(addPhraseTranslation(phraseTranslation, enLemma, enWord))
-          getState().documentTranslationPhrases[wordId] !== phraseTranslation.id
-            && dispatch(setWordTranslation(wordId, phraseTranslation.id))
+          const translationNotYetSet = getState().documentTranslationPhrases[wordId] !== phraseTranslation.id
+          // dispatch(setWordTranslation(wordId, phraseTranslation.id))
+          //   console.log(translationNotYetSet && enLemma.text)
           return { phraseTranslation, enLemma, enWord }
         } else {
           dispatch({ type: 'INVALID_OPTION', tpWord })

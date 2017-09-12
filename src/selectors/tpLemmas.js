@@ -1,6 +1,7 @@
 // @flow
 
-export type TpLemmaId = number | string
+export type ProperNounLemmaId = string
+export type TpLemmaId = number | ProperNounLemmaId
 export type TpLemma = {
   text: string,
   id: TpLemmaId,

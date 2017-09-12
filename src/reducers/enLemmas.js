@@ -4,6 +4,9 @@ import type { EnLemmasState } from '../selectors/enLemmas'
 
 export default function enLemmas(state: EnLemmasState = {}, action: Action): EnLemmasState {
   switch (action.type) {
+    case 'PARSE_SENTENCES':
+    console.log(state, action)
+      return state
     case 'ADD_PHRASE_TRANSLATION':
     if (!action.enLemma || state[action.enLemma.id]) return state
     return {

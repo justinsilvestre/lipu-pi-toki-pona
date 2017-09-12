@@ -43,6 +43,9 @@ export type AppState = {
   notifications: NotificationsState,
 }
 
+export const getTpWords = ({ tpWords }: AppState): TpWordsState => tpWords
+export const getTpLemmas = ({ tpLemmas }: AppState): TpLemmasState => tpLemmas
+
 export const getSentences = (state: AppState): Array<Sentence> => state.tpSentences
 
 export const getWord = (state: AppState, wordId: WordId): Word => state.tpWords[wordId]

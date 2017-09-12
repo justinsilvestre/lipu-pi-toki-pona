@@ -15,3 +15,4 @@ export type Action =
 export * from './sentence'
 export * from './mouse'
 export * from './lookup'
+export * from './fetchTranslation'

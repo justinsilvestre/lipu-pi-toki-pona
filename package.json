@@ -7,7 +7,7 @@
     "expect": "^1.20.2",
     "flow-bin": "^0.41.0",
     "react-scripts": "0.9.4",
-    "rita": "^1.1.51"
+    "rita": "^1.2.12"
   },
   "dependencies": {
     "classnames": "^2.2.5",
@@ -28,7 +28,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test --verbose --env=jsdom",
     "eject": "react-scripts eject",
-    "flow": "flow"
+    "flow": "flow",
+    "lint": "eslint"
   },
   "eslintConfig": {
     "extends": "react-app"

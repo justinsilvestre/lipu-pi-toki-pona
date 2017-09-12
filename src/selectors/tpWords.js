@@ -2,6 +2,7 @@
 import type { Action } from '../actions'
 import type { Role } from '../utils/tokiPonaRoles'
 import type { TpLemmaId } from '../selectors/tpLemmas'
+import uuid from 'uuid'
 
 export type WordId = string
 
@@ -36,3 +37,19 @@ export type Word = {
 }
 
 export type TpWordsState = { [wordId: WordId]: Word }
+
+export const newWord = (
+  text: string,
+  id: WordId,
+  pos: TokiPonaPartOfSpeech = 'i',
+  role: Role = 'PREDICATE',
+  lemmaId: TpLemmaId = 'xxx',
+  index: number = 0,
+  sentence: number = 0,
+  before: string = '',
+  after: string = '',
+) : Word => ({
+  id: id || uuid(),
+  text, pos, role,
+  index, sentence, before, after, lemmaId,
+})
