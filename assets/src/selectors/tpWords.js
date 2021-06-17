@@ -1,7 +1,7 @@
 // @flow
 import type { Action } from '../actions'
 import type { Role } from '../utils/tokiPonaRoles'
-import type { TpLemmaId } from '../selectors/tpLemmas'
+import type { TpLemmaId } from './tpLemmas'
 import uuid from 'uuid'
 
 export type WordId = string

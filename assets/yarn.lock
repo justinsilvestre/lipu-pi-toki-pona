@@ -5170,10 +5170,10 @@ parse-json@^2.2.0:
   dependencies:
     error-ex "^1.2.0"
 
-parse-toki-pona@0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/parse-toki-pona/-/parse-toki-pona-0.0.2.tgz#14bb21454347216f0ac6a1975ad1706162885f39"
-  integrity sha512-5zGTetXx5ZGpf3R/MHBV9j7tNk7dg29W6U2X/ZX06vFxO5Lt8poFnfHqbDyGRajGmb4gj0oeUZs9PqQ4Fd5lZg==
+parse-toki-pona@0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/parse-toki-pona/-/parse-toki-pona-0.0.3.tgz#d5ad783ac1952a0dbcc4ac822a94d19c28480aa2"
+  integrity sha512-U5wUtWU7nmPZJU9CY25BbiLFtbGKzGGt36XCh06h8YNQRA0/EA8J0LuqVXX+Vo0spLkjFXSmT+VJhEH9STtSsw==
   dependencies:
     uuid "^8.3.2"
 
@@ -5252,7 +5252,7 @@ performance-now@^2.1.0:
   version "1.4.17"
 
 "phoenix_html@file:../deps/phoenix_html":
-  version "2.9.3"
+  version "2.14.3"
 
 pify@^2.0.0:
   version "2.3.0"

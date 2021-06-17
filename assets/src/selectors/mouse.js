@@ -1,5 +1,5 @@
 // @flow
-import type { WordId } from '../selectors/tpWords'
+import type { WordId } from './tpWords'
 import type { Action } from '../actions'
 
 export type MouseState = {

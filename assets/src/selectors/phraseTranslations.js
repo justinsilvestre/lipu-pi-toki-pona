@@ -1,7 +1,7 @@
 // @flow
 import type { Action } from '../actions'
-import type { EnLemmaId } from '../selectors/enLemmas'
-import type { TpLemmaId } from '../selectors/tpLemmas'
+import type { EnLemmaId } from './enLemmas'
+import type { TpLemmaId } from './tpLemmas'
 
 export type PhraseTranslationId = number
 export type PhraseTranslation = {

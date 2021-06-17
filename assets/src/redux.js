@@ -6,7 +6,7 @@ import { normalize, schema } from 'normalizr'
 
 const tpLemmaSchema = new schema.Entity('tpLemmas')
 
-const composeEnhancers = process.env.NODE_ENV === 'development'
+const composeEnhancers = process.env.NODE_ENV === 'development' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
   ?window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
   : compose
 

@@ -1,7 +1,7 @@
-defmodule Lipu.EnLemmaTest do
+defmodule LipuWeb.EnLemmaTest do
   use Lipu.ModelCase
 
-  alias Lipu.EnLemma
+  alias LipuWeb.EnLemma
 
   @valid_attrs %{text: "some content"}
   @invalid_attrs %{}

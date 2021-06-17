@@ -1,7 +1,7 @@
-defmodule Lipu.TpWordTest do
+defmodule LipuWeb.TpWordTest do
   use Lipu.ModelCase
 
-  alias Lipu.TpWord
+  alias LipuWeb.TpWord
 
   @valid_attrs %{after: "some content", anu: true, before: "some content", context: 42, id: "7488a646-e31f-11e4-aace-600308960662"}
   @invalid_attrs %{}

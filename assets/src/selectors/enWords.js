@@ -1,9 +1,9 @@
 // @flow
-import type { EnLemmaId, EnLemma } from '../selectors/enLemmas'
-import type { WordId } from '../selectors/tpWords'
-import type { PhraseTranslationId } from '../selectors/phraseTranslations'
+import type { EnLemmaId, EnLemma } from './enLemmas'
+import type { WordId } from './tpWords'
+import type { PhraseTranslationId } from './phraseTranslations'
 import type { EnglishPartOfSpeech } from '../utils/english/grammar'
-import { NOT, OF, OR, AND, BY, BE, DO, WHEN } from '../selectors/enLemmas'
+import { NOT, OF, OR, AND, BY, BE, DO, WHEN } from './enLemmas'
 import uuid from 'uuid'
 
 export type EnWordId = string
