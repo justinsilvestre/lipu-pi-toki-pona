@@ -1,9 +1,7 @@
 defmodule Lipu.Endpoint do
   use Phoenix.Endpoint, otp_app: :lipu
 
-  socket "/socket", Lipu.UserSocket,
-    websocket: [timeout: 45_000],
-    longpoll: false
+  socket "/socket", Lipu.UserSocket
 
   # Serve at "/" the static files from "priv/static" directory.
   #
