@@ -10,11 +10,11 @@ config :lipu,
   ecto_repos: [Lipu.Repo]
 
 # Configures the endpoint
-config :lipu, Lipu.Endpoint,
+config :lipu, LipuWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "pOXrDCO/1mc27MRvNizxdywplge4ZOVfbfu8z57Wx3chiKl/X6NN/3K06VXGM/1p",
-  render_errors: [view: Lipu.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Lipu.PubSub,
+  render_errors: [view: LipuWeb.ErrorView, accepts: ~w(html json)],
+  pubsub: [name: LipuWeb.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
@@ -25,3 +25,6 @@ config :logger, :console,
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env}.exs"
+
+# properly should use now-recommended Jason
+config :phoenix, :json_library, Poison

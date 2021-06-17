@@ -1,3 +1,3 @@
 defmodule Lipu.LayoutViewTest do
-  use Lipu.ConnCase, async: true
+  use LipuWeb.ConnCase, async: true
 end

@@ -1,5 +1,5 @@
 defmodule Lipu.PageControllerTest do
-  use Lipu.ConnCase
+  use LipuWeb.ConnCase
 
   test "GET /", %{conn: conn} do
     conn = get conn, "/"

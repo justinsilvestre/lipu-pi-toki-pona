@@ -3797,11 +3797,12 @@ parse-json@^2.2.0:
   dependencies:
     error-ex "^1.2.0"
 
-parse-toki-pona@0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/parse-toki-pona/-/parse-toki-pona-0.0.1.tgz#23b78a823d9022abdb76c0bd17929b95284256dd"
+parse-toki-pona@0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/parse-toki-pona/-/parse-toki-pona-0.0.2.tgz#14bb21454347216f0ac6a1975ad1706162885f39"
+  integrity sha512-5zGTetXx5ZGpf3R/MHBV9j7tNk7dg29W6U2X/ZX06vFxO5Lt8poFnfHqbDyGRajGmb4gj0oeUZs9PqQ4Fd5lZg==
   dependencies:
-    uuid "^2.0.2"
+    uuid "^8.3.2"
 
 parse5@^1.5.1:
   version "1.5.1"
@@ -5223,6 +5224,11 @@ uuid@^2.0.2:
 uuid@^3.0.0:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.0.1.tgz#6544bba2dfda8c1cf17e629a3a305e2bb1fee6c1"
+
+uuid@^8.3.2:
+  version "8.3.2"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
+  integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
 
 validate-npm-package-license@^3.0.1:
   version "3.0.1"
