@@ -1,5 +1,5 @@
 defmodule LipuWeb.DocumentTranslation do
-  use Lipu.Web, :model
+  use LipuWeb, :model
 
   schema "document_translations" do
     field :phrases, {:array, :string}

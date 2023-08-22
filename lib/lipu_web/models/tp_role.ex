@@ -1,5 +1,5 @@
 defmodule LipuWeb.TpRole do
-  use Lipu.Web, :model
+  use LipuWeb, :model
 
   schema "tp_roles" do
     field :name, :string

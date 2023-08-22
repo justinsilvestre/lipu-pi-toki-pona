@@ -8,7 +8,7 @@ defmodule Lipu.BuildDictionary do
     alternate_tp_lemmas: MapSet.new,
   }
 
-  @semanticGroups "src/utils/tokiPonaSemanticGroups.json"
+  @semanticGroups "assets/src/utils/tokiPonaSemanticGroups.json"
     |> File.read!
     |> Jason.decode!
 

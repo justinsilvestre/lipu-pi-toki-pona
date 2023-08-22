@@ -1,5 +1,5 @@
 defmodule LipuWeb.TpLemmaView do
-  use Lipu.Web, :view
+  use LipuWeb, :view
 
   def render("tp_lemmas.json", %{tp_lemmas: tp_lemmas}) do
     Enum.map(tp_lemmas, &(render("tp_lemma.json", %{tp_lemma: &1})))

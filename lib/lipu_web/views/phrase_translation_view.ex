@@ -1,5 +1,5 @@
 defmodule LipuWeb.PhraseTranslationView do
-  use Lipu.Web, :view
+  use LipuWeb, :view
 
   def render("phrase_translation.json", %{phrase_translation: translation}) do
     %{

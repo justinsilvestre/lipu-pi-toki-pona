@@ -1,20 +1,38 @@
-defmodule Lipu.Web do
+defmodule LipuWeb do
   @moduledoc """
-  A module that keeps using definitions for controllers,
-  views and so on.
+  The entrypoint for defining your web interface, such
+  as controllers, views, channels and so on.
 
   This can be used in your application as:
 
-      use Lipu.Web, :controller
-      use Lipu.Web, :view
+      use LipuWeb, :controller
+      use LipuWeb, :view
 
   The definitions below will be executed for every view,
   controller, etc, so keep them short and clean, focused
   on imports, uses and aliases.
 
   Do NOT define functions inside the quoted expressions
-  below.
+  below. Instead, define any helper function in modules
+  and import those modules here.
   """
+
+  def controller do
+    quote do
+      use Phoenix.Controller, namespace: LipuWeb
+
+      import Plug.Conn
+
+      use Phoenix.Controller
+
+      # alias SampleApp.Repo
+      import Ecto
+      import Ecto.Query
+
+      import LipuWeb.Gettext
+      alias LipuWeb.Router.Helpers, as: Routes
+    end
+  end
 
   def model do
     quote do
@@ -26,50 +44,80 @@ defmodule Lipu.Web do
     end
   end
 
-  def controller do
+  def view do
     quote do
-      use Phoenix.Controller, namespace: LipuWeb
+      use Phoenix.View,
+        root: "lib/lipu_web/templates",
+        namespace: LipuWeb
 
-      alias Lipu.Repo
-      import Ecto
-      import Ecto.Query
+      # Import convenience functions from controllers
+      import Phoenix.Controller,
+        only: [get_flash: 1, get_flash: 2, view_module: 1, view_template: 1]
 
-      alias LipuWeb.Router.Helpers, as: Routes
-      import LipuWeb.Gettext
+      # Include shared imports and aliases for views
+      unquote(view_helpers())
     end
   end
 
-  def view do
+  def live_view do
     quote do
-      use Phoenix.View, root: "lib/lipu_web/templates",
-                        namespace: LipuWeb
+      use Phoenix.LiveView,
+        layout: {LipuWeb.LayoutView, "live.html"}
 
-      # Import convenience functions from controllers
-      import Phoenix.Controller, only: [get_csrf_token: 0, get_flash: 2, view_module: 1]
+      unquote(view_helpers())
+    end
+  end
 
-      # Use all HTML functionality (forms, tags, etc)
-      use Phoenix.HTML
+  def live_component do
+    quote do
+      use Phoenix.LiveComponent
 
-      alias LipuWeb.Router.Helpers, as: Routes
-      import LipuWeb.ErrorHelpers
-      import LipuWeb.Gettext
+      unquote(view_helpers())
+    end
+  end
+
+  def component do
+    quote do
+      use Phoenix.Component
+
+      unquote(view_helpers())
     end
   end
 
   def router do
     quote do
       use Phoenix.Router
+
+      import Plug.Conn
+      import Phoenix.Controller
+      import Phoenix.LiveView.Router
     end
   end
 
   def channel do
     quote do
       use Phoenix.Channel
-
       alias Lipu.Repo
       import Ecto
       import Ecto.Query
       import LipuWeb.Gettext
+    end
+  end
+
+  defp view_helpers do
+    quote do
+      # Use all HTML functionality (forms, tags, etc)
+      use Phoenix.HTML
+
+      # Import LiveView and .heex helpers (live_render, live_patch, <.form>, etc)
+      import Phoenix.LiveView.Helpers
+
+      # Import basic rendering functionality (render, render_layout, etc)
+      import Phoenix.View
+
+      import LipuWeb.ErrorHelpers
+      import LipuWeb.Gettext
+      alias LipuWeb.Router.Helpers, as: Routes
     end
   end
 

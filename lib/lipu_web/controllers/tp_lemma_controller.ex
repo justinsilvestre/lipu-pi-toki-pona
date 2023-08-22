@@ -1,5 +1,5 @@
 defmodule LipuWeb.TpLemmaController do
-  use Lipu.Web, :controller
+  use LipuWeb, :controller
 
   def index(conn, _params) do
     tp_lemmas =

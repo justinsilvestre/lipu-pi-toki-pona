@@ -1,5 +1,5 @@
 defmodule LipuWeb.TpPartOfSpeech do
-  use Lipu.Web, :model
+  use LipuWeb, :model
   alias Lipu.Repo
 
   schema "tp_parts_of_speech" do

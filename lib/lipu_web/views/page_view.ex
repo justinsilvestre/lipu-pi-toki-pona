@@ -1,3 +1,3 @@
 defmodule LipuWeb.PageView do
-  use Lipu.Web, :view
+  use LipuWeb, :view
 end

@@ -1,5 +1,5 @@
 defmodule LipuWeb.TpDocument do
-  use Lipu.Web, :model
+  use LipuWeb, :model
 
   schema "tp_documents" do
     field :tp_word_ids, {:array, :string}

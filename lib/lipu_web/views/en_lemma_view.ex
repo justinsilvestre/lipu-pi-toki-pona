@@ -1,5 +1,5 @@
 defmodule LipuWeb.EnLemmaView do
-  use Lipu.Web, :view
+  use LipuWeb, :view
 
   def render("en_lemma.json", %{en_lemma: en_lemma}) do
     %{

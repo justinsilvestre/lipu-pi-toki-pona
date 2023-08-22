@@ -1,5 +1,5 @@
 defmodule LipuWeb.PhraseTranslation do
-  use Lipu.Web, :model
+  use LipuWeb, :model
   alias Lipu.TpPartOfSpeech, as: TpPos
   alias Lipu.TpLemma
   alias Lipu.Repo

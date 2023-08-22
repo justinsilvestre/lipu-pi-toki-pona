@@ -3,13 +3,14 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="csrf-token" content={csrf_token_value()}>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="The beginnings of a crowdsourced phrase dictionary, to be powered by a collection of semi-automatically translated texts. Until then, enjoy some simple word-for-word translations with syntax highlighting.
 Built using React, RxJS, PEG.js, RiTa, and Phoenix by Justin Silvestre.">
     <meta name="author" content="Justin Silvestre">
 
     <title>Read and Learn Toki Pona - lipu pi toki pona</title>
-    <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>">
+    <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/rita/1.1.51/rita-full.min.js"></script>
   </head>
 
@@ -40,7 +41,7 @@ Built using React, RxJS, PEG.js, RiTa, and Phoenix by Justin Silvestre.">
         </section>
       </main>
     </div> <!-- /container -->
-    <script src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
+    <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

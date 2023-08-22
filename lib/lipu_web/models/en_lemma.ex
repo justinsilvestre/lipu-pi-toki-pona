@@ -1,5 +1,5 @@
 defmodule LipuWeb.EnLemma do
-  use Lipu.Web, :model
+  use LipuWeb, :model
 
   schema "en_lemmas" do
     field :text, :string

@@ -1,5 +1,5 @@
 defmodule LipuWeb.TpWord do
-  use Lipu.Web, :model
+  use LipuWeb, :model
 
   @primary_key {:id, :binary_id, []}
   @derive {Phoenix.Param, key: :id}

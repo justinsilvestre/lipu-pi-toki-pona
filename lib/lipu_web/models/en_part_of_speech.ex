@@ -1,5 +1,5 @@
 defmodule LipuWeb.EnPartOfSpeech do
-  use Lipu.Web, :model
+  use LipuWeb, :model
 
   schema "en_parts_of_speech" do
     field :name, :string

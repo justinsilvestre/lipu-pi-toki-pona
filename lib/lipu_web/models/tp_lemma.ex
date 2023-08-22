@@ -1,5 +1,5 @@
 defmodule LipuWeb.TpLemma do
-  use Lipu.Web, :model
+  use LipuWeb, :model
   alias Lipu.Repo
 
   schema "tp_lemmas" do

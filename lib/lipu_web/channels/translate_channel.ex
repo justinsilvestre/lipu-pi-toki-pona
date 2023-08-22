@@ -1,5 +1,5 @@
 defmodule LipuWeb.TranslateChannel do
-  use Lipu.Web, :channel
+  use LipuWeb, :channel
   alias Lipu.PhraseTranslation
   alias Lipu.EnLemma
 
