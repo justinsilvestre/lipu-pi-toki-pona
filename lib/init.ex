@@ -1,3 +1,5 @@
+# workaround as seeds.exs cannot be run via fly console
+# https://community.fly.io/t/how-to-run-seeds-exs-for-elixir-phoenix-app/3591/4
 defmodule GlobalSetup do
   def run(filepath) do
     alias NimbleCSV.RFC4180, as: CSV
