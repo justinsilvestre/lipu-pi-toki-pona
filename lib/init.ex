@@ -1,5 +1,5 @@
 defmodule GlobalSetup do
-  def run do
+  def run(filepath) do
     alias NimbleCSV.RFC4180, as: CSV
     alias Lipu.BuildDictionary
     alias Lipu.Repo
@@ -11,7 +11,7 @@ defmodule GlobalSetup do
       en_parts_of_speech: en_parts_of_speech,
       alternate_tp_lemmas: alternate_tp_lemmas
     } =
-      "priv/repo/wordList.csv"
+      "filepath"
       |> File.stream!()
       |> CSV.parse_stream()
       |> Enum.to_list()
