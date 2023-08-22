@@ -1,7 +1,6 @@
 info "Building Phoenix static assets"
 
 pwd
-yarn run build
 
 echo "Moving built files to priv/static"
 mkdir -p ./priv/static/js

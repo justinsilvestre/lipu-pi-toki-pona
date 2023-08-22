@@ -42,7 +42,6 @@ export default function App() {
     })
   );
   const parse = (): void => {
-    console.log("dispatched!");
     dispatch(parseSentences(state.text, tpLemmas));
   };
 
@@ -67,4 +66,3 @@ export default function App() {
     </section>
   );
 }
-console.log("rendered!");

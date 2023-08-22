@@ -8,7 +8,7 @@ import getStore from "./redux";
 channel
   .join()
   .receive("ok", (r) => {
-    console.log("JOIN WORKEDDED???! :OOO");
+    console.log("join OK");
   })
   .receive("error", (reason) => console.log("join failed :(", reason));
 

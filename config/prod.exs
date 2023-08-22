@@ -11,7 +11,7 @@ import Config
 # before starting your production server.
 config :lipu, LipuWeb.Endpoint,
   cache_static_manifest: "priv/static/cache_manifest.json",
-  url: [scheme: "http", host: "xxxxxx.com, port: 443"]
+  url: [scheme: "http", host: "lipu-pi-toki-pona.fly.dev, port: 443"]
 
 # Do not print debug messages in production
 config :logger, level: :info
