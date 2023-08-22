@@ -10,17 +10,20 @@ config :lipu,
   ecto_repos: [Lipu.Repo]
 
 # Configures the endpoint
-config :lipu, Lipu.Endpoint,
+config :lipu, LipuWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "pOXrDCO/1mc27MRvNizxdywplge4ZOVfbfu8z57Wx3chiKl/X6NN/3K06VXGM/1p",
-  render_errors: [view: Lipu.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Lipu.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+  render_errors: [view: LipuWeb.ErrorView, accepts: ~w(html json)],
+  pubsub_server: Lipu.PubSub
 
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
+
+
+config :phoenix, :json_library, Jason
+
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

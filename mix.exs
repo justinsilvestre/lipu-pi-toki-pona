@@ -1,10 +1,10 @@
-defmodule Lipu.Mixfile do
+defmodule Lipu.MixProject do
   use Mix.Project
 
   def project do
     [app: :lipu,
      version: "0.0.1",
-     elixir: "~> 1.2",
+     elixir: "~> 1.14",
      elixirc_paths: elixirc_paths(Mix.env),
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
@@ -17,28 +17,36 @@ defmodule Lipu.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {Lipu, []},
-     applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex]]
+    [
+      mod: {Lipu.Application, []},
+      extra_applications: [:logger, :runtime_tools]
+    ]
   end
 
   # Specifies which paths to compile per environment.
-  defp elixirc_paths(:test), do: ["lib", "web", "test/support"]
-  defp elixirc_paths(_),     do: ["lib", "web"]
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_),     do: ["lib"]
 
   # Specifies your project dependencies.
   #
   # Type `mix help deps` for examples and options.
   defp deps do
-    [{:phoenix, "~> 1.2.1"},
-     {:phoenix_pubsub, "~> 1.0"},
-     {:phoenix_ecto, "~> 3.0"},
-     {:postgrex, ">= 0.0.0"},
-     {:phoenix_html, "~> 2.6"},
-     {:phoenix_live_reload, "~> 1.0", only: :dev},
-     {:gettext, "~> 0.11"},
-     {:cowboy, "~> 1.0"},
-     {:nimble_csv, "~> 0.1.0"}]
+    [{:phoenix, "~> 1.5.13"},
+    {:phoenix_ecto, "~> 4.4"},
+    {:ecto_sql, "~> 3.4"},
+    {:phoenix_pubsub, "~> 2.0"},
+    {:postgrex, ">= 0.0.0"},
+    {:phoenix_live_view, "~> 0.15.1"},
+    {:phoenix_html, "~> 2.11"},
+    {:phoenix_live_reload, "~> 1.2", only: :dev},
+    {:gettext, "~> 0.11"},
+    {:nimble_csv, "~> 0.1.0"},
+    {:phoenix_live_dashboard, "~> 0.4"},
+    {:telemetry_metrics, "~> 0.4"},
+    {:telemetry_poller, "~> 0.4"},
+    {:jason, "~> 1.0"},
+    {:plug_cowboy, "~> 2.0"}
+    ]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.

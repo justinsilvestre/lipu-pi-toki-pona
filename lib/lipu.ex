@@ -11,7 +11,7 @@ defmodule Lipu do
       # Start the Ecto repository
       supervisor(Lipu.Repo, []),
       # Start the endpoint when the application starts
-      supervisor(Lipu.Endpoint, []),
+      supervisor(LipuWeb.Endpoint, []),
       # Start your own worker by calling: Lipu.Worker.start_link(arg1, arg2, arg3)
       # worker(Lipu.Worker, [arg1, arg2, arg3]),
     ]
@@ -25,7 +25,7 @@ defmodule Lipu do
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
   def config_change(changed, _new, removed) do
-    Lipu.Endpoint.config_change(changed, removed)
+    LipuWeb.Endpoint.config_change(changed, removed)
     :ok
   end
 end

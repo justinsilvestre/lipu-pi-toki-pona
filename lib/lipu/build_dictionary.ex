@@ -10,7 +10,7 @@ defmodule Lipu.BuildDictionary do
 
   @semanticGroups "src/utils/tokiPonaSemanticGroups.json"
     |> File.read!
-    |> Poison.Parser.parse!
+    |> Jason.decode!
 
   def get_animacy(text) do
     cond do
