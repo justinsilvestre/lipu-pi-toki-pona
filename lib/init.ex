@@ -11,7 +11,7 @@ defmodule GlobalSetup do
       en_parts_of_speech: en_parts_of_speech,
       alternate_tp_lemmas: alternate_tp_lemmas
     } =
-      "filepath"
+      filepath
       |> File.stream!()
       |> CSV.parse_stream()
       |> Enum.to_list()
