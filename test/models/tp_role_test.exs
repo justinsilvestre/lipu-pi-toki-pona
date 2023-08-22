@@ -1,7 +1,7 @@
-defmodule Lipu.TpRoleTest do
+defmodule LipuWeb.TpRoleTest do
   use Lipu.ModelCase
 
-  alias Lipu.TpRole
+  alias LipuWeb.TpRole
 
   @valid_attrs %{name: "some content"}
   @invalid_attrs %{}

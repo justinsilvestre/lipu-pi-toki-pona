@@ -5,7 +5,7 @@ defmodule LipuWeb.PhraseTranslationView do
     %{
       id: translation.id,
       tp: translation.tp_lemma_id,
-      en: render_one(translation.en_lemma, Lipu.EnLemmaView, "en_lemma.json"),
+      en: render_one(translation.en_lemma, LipuWeb.EnLemmaView, "en_lemma.json"),
     }
   end
 end

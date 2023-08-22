@@ -1,7 +1,7 @@
 defmodule LipuWeb.TranslateChannel do
   use LipuWeb, :channel
-  alias Lipu.PhraseTranslation
-  alias Lipu.EnLemma
+  alias LipuWeb.PhraseTranslation
+  alias LipuWeb.Repo
 
   def join("translate:" <> number, _params, socket) do
     {:ok, assign(socket, :number, String.to_integer(number))}
@@ -21,7 +21,7 @@ defmodule LipuWeb.TranslateChannel do
       preload: [en_lemma: :pos]
     )
 
-    phrase_translation = Phoenix.View.render_one(translation, Lipu.PhraseTranslationView, "phrase_translation.json")
+    phrase_translation = Phoenix.View.render_one(translation, LipuWeb.PhraseTranslationView, "phrase_translation.json")
     response = %{phraseTranslation: phrase_translation}
     {:reply, {:ok, response}, socket}
   end
@@ -31,7 +31,7 @@ defmodule LipuWeb.TranslateChannel do
       |> PhraseTranslation.for_tp_lemma(tp_lemma_id)
     translation = Repo.one(from t in for_lemma, limit: 1, preload: [en_lemma: :pos])
 
-    phrase_translation = Phoenix.View.render_one(translation, Lipu.PhraseTranslationView, "phrase_translation.json")
+    phrase_translation = Phoenix.View.render_one(translation, LipuWeb.PhraseTranslationView, "phrase_translation.json")
 
     response = %{phraseTranslation: phrase_translation}
 
@@ -44,7 +44,7 @@ defmodule LipuWeb.TranslateChannel do
       |> PhraseTranslation.for_tp_lemma(tp_lemma_id)
     translations = Repo.all(from t in for_lemma, preload: [en_lemma: :pos])
 
-    phrase_translations = Phoenix.View.render_many(translations, Lipu.PhraseTranslationView, "phrase_translation.json")
+    phrase_translations = Phoenix.View.render_many(translations, LipuWeb.PhraseTranslationView, "phrase_translation.json")
 
     response = %{phraseTranslations: phrase_translations}
 
@@ -60,7 +60,7 @@ defmodule LipuWeb.TranslateChannel do
       where: p.name in ^en_parts_of_speech,
       preload: [en_lemma: :pos]
     )
-    phrase_translations = Phoenix.View.render_many(translations, Lipu.PhraseTranslationView, "phrase_translation.json")
+    phrase_translations = Phoenix.View.render_many(translations, LipuWeb.PhraseTranslationView, "phrase_translation.json")
 
     response = %{phraseTranslations: phrase_translations}
 

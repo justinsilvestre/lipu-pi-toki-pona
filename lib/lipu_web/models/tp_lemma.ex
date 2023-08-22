@@ -5,9 +5,9 @@ defmodule LipuWeb.TpLemma do
   schema "tp_lemmas" do
     field :text, :string
     field :animacy, :boolean
-    belongs_to :pos, Lipu.TpPartOfSpeech
-    belongs_to :primary, Lipu.TpLemma
-    has_one :secondary, Lipu.TpLemma, foreign_key: :primary_id
+    belongs_to :pos, LipuWeb.TpPartOfSpeech
+    belongs_to :primary, LipuWeb.TpLemma
+    has_one :secondary, LipuWeb.TpLemma, foreign_key: :primary_id
 
     timestamps()
   end

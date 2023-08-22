@@ -1,7 +1,7 @@
-defmodule Lipu.TpDocumentTest do
+defmodule LipuWeb.TpDocumentTest do
   use Lipu.ModelCase
 
-  alias Lipu.TpDocument
+  alias LipuWeb.TpDocument
 
   @valid_attrs %{tp_word_ids: []}
   @invalid_attrs %{}

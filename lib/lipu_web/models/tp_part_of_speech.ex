@@ -4,7 +4,7 @@ defmodule LipuWeb.TpPartOfSpeech do
 
   schema "tp_parts_of_speech" do
     field :name, :string
-    has_many :tp_lemmas, Lipu.TpLemma, foreign_key: :pos_id
+    has_many :tp_lemmas, LipuWeb.TpLemma, foreign_key: :pos_id
 
     timestamps()
   end
@@ -19,6 +19,6 @@ defmodule LipuWeb.TpPartOfSpeech do
   end
 
   def get(name) do
-    Repo.get_by(Lipu.TpPartOfSpeech, name: name)
+    Repo.get_by(LipuWeb.TpPartOfSpeech, name: name)
   end
 end

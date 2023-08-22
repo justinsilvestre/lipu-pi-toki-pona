@@ -21,7 +21,7 @@ defmodule LipuWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  scope "/api", Lipu do
+  scope "/api", LipuWeb do
     pipe_through :api
 
     resources "/tp-lemmas", TpLemmaController, only: [:index]

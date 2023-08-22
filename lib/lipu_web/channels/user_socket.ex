@@ -2,7 +2,7 @@ defmodule LipuWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  channel "translate:*", Lipu.TranslateChannel
+  channel "translate:*", LipuWeb.TranslateChannel
 
 
   # Socket params are passed from the client and can
@@ -27,7 +27,7 @@ defmodule LipuWeb.UserSocket do
   # Would allow you to broadcast a "disconnect" event and terminate
   # all active sockets and channels for a given user:
   #
-  #     Lipu.Endpoint.broadcast("users_socket:#{user.id}", "disconnect", %{})
+  #     LipuWeb.Endpoint.broadcast("users_socket:#{user.id}", "disconnect", %{})
   #
   # Returning `nil` makes this socket anonymous.
   def id(_socket), do: nil

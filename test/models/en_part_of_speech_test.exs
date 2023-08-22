@@ -1,7 +1,7 @@
-defmodule Lipu.EnPartOfSpeechTest do
+defmodule LipuWeb.EnPartOfSpeechTest do
   use Lipu.ModelCase
 
-  alias Lipu.EnPartOfSpeech
+  alias LipuWeb.EnPartOfSpeech
 
   @valid_attrs %{name: "some content"}
   @invalid_attrs %{}

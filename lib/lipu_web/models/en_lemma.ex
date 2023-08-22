@@ -3,7 +3,7 @@ defmodule LipuWeb.EnLemma do
 
   schema "en_lemmas" do
     field :text, :string
-    belongs_to :pos, Lipu.EnPartOfSpeech
+    belongs_to :pos, LipuWeb.EnPartOfSpeech
 
     timestamps()
   end

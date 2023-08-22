@@ -4,7 +4,7 @@ defmodule LipuWeb.DocumentTranslation do
   schema "document_translations" do
     field :phrases, {:array, :string}
     field :english, :string
-    belongs_to :tp_document, Lipu.TpDocument
+    belongs_to :tp_document, LipuWeb.TpDocument
 
     timestamps()
   end

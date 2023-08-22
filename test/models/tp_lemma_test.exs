@@ -1,7 +1,7 @@
-defmodule Lipu.TpLemmaTest do
+defmodule LipuWeb.TpLemmaTest do
   use Lipu.ModelCase
 
-  alias Lipu.TpLemma
+  alias LipuWeb.TpLemma
 
   @valid_attrs %{animacy: true, text: "some content"}
   @invalid_attrs %{}

@@ -1,7 +1,7 @@
-defmodule Lipu.PhraseTranslationTest do
+defmodule LipuWeb.PhraseTranslationTest do
   use Lipu.ModelCase
 
-  alias Lipu.PhraseTranslation
+  alias LipuWeb.PhraseTranslation
 
   @valid_attrs %{default_uses: 42, uses: 42}
   @invalid_attrs %{}

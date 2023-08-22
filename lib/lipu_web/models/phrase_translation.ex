@@ -1,14 +1,14 @@
 defmodule LipuWeb.PhraseTranslation do
   use LipuWeb, :model
-  alias Lipu.TpPartOfSpeech, as: TpPos
-  alias Lipu.TpLemma
+  alias LipuWeb.TpPartOfSpeech, as: TpPos
+  alias LipuWeb.TpLemma
   alias Lipu.Repo
 
   schema "phrase_translations" do
     field :uses, :integer
     field :default_uses, :integer
-    belongs_to :tp_lemma, Lipu.TpLemma
-    belongs_to :en_lemma, Lipu.EnLemma
+    belongs_to :tp_lemma, LipuWeb.TpLemma
+    belongs_to :en_lemma, LipuWeb.EnLemma
 
     timestamps()
   end
@@ -25,13 +25,13 @@ defmodule LipuWeb.PhraseTranslation do
   def look_up(text, pos_name) do
     pos = TpPos.get(pos_name)
     tp_lemma = Repo.get_by(TpLemma, text: text, pos_id: pos.id)
-    Repo.all(from x in Lipu.PhraseTranslation,
+    Repo.all(from x in LipuWeb.PhraseTranslation,
       where: x.tp_lemma_id == ^tp_lemma.id,
       preload: [tp_lemma: :pos, en_lemma: :pos])
   end
 
   def look_up_one(tp_lemma_id) do
-    Repo.one(from x in Lipu.PhraseTranslation,
+    Repo.one(from x in LipuWeb.PhraseTranslation,
       where: x.tp_lemma_id == ^tp_lemma_id,
       limit: 1,
       preload: [en_lemma: :pos, en_lemma: :pos]
