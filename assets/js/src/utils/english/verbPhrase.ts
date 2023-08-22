@@ -23,7 +23,7 @@ import type {
 import type { Lookup } from "../../actions/lookup";
 import { not, by, be } from "../../selectors/enWords";
 import type { EnglishPartOfSpeech } from "./grammar";
-import { RiTa } from "../alreadyInitializedRita";
+import { string } from "../alreadyInitializedRita";
 
 // import { realizeSubjectComplement, extractPreposition, getObjects, getSubjectComplement, verbModifiers, verbPhrase, copulaPhrase, realizeVerbPhrase } from './verbPhrase2'
 // export { realizeVerbPhrase }
@@ -137,7 +137,7 @@ async function verbPhrase(
 
   let result: VerbPhrase = { head, adverbPhrases, prepositionalPhrases };
 
-  if (RiTa.RiString(head.text).features().pos === "md") result.isModal = true;
+  if (string(head.text).features().pos === "md") result.isModal = true;
 
   if (word.directObjects && head.pos === "vt")
     result.directObjects = await Promise.all(

@@ -134,6 +134,7 @@ const parsingEpic: AppEpic = (action$, state$) =>
         result = parseSentencesSuccess(sentences, words, properNouns);
       } catch (err) {
         result = parseSentencesFailure();
+        console.error(`Syntax error:`, err);
       }
       return of({ type: "CLEAR_EN_SENTENCES" }, result);
     })

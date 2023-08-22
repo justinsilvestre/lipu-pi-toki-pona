@@ -1,7 +1,7 @@
 defmodule LipuWeb.TpLemmaController do
   use LipuWeb, :controller
 
-  alias Lipu.Repo
+  alias Lipu.Repo, as: Repo
 
   def index(conn, _params) do
     tp_lemmas =

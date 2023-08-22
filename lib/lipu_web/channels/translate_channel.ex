@@ -1,7 +1,7 @@
 defmodule LipuWeb.TranslateChannel do
   use LipuWeb, :channel
   alias LipuWeb.PhraseTranslation
-  alias LipuWeb.Repo
+  alias Lipu.Repo
 
   def join("translate:" <> number, _params, socket) do
     {:ok, assign(socket, :number, String.to_integer(number))}

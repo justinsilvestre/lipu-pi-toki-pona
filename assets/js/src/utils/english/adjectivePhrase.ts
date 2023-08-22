@@ -1,7 +1,11 @@
 import prepositionalPhrase, {
   realizePrepositionalPhrase,
 } from "./prepositionalPhrase";
-import type { AdjectivePhrase } from "./grammar";
+import type {
+  AdjectivePhrase,
+  AdverbPhrase,
+  PrepositionalPhrase,
+} from "./grammar";
 import type { TpWordsState } from "../../selectors/tpWords";
 import type { WordId, Word } from "../../selectors/tpWords";
 import adverbPhrase, { realizeAdverbPhrase } from "./adverbPhrase";
@@ -12,7 +16,10 @@ import { ofWord, not } from "../../selectors/enWords";
 export default async function adjectivePhrase(
   lookup: Lookup,
   wordId: WordId,
-  options: Object = {}
+  options: {
+    negatedCopula?: boolean;
+    negative?: boolean;
+  } = {}
 ): Promise<AdjectivePhrase> {
   const { words } = lookup;
   const word = words[wordId];
@@ -36,12 +43,19 @@ async function adjectiveModifiers(
   lookup: Lookup,
   complements: Array<WordId>,
   options: Object
-): Promise<Object> {
+) {
   const { words } = lookup;
-  const obj = {};
+  const obj: {
+    prepositionalPhrases: Promise<PrepositionalPhrase>[];
+    adverbPhrases: Promise<AdverbPhrase>[];
+  } = { prepositionalPhrases: [], adverbPhrases: [] };
   const complementsWithEnglish = await Promise.all(
     complements.map(async (c) => {
-      const { enWord: english } = await lookup.translate(c, ["adv", "prep"]);
+      const { enWord: english } = await lookup.translate(c, [
+        "adv",
+        "prep",
+        "n",
+      ]);
       if (!english)
         throw new Error(
           `No adjective modifier translation found for ${JSON.stringify(
@@ -51,7 +65,7 @@ async function adjectiveModifiers(
       return { c, english };
     })
   );
-  const { prepositionalPhrases = [], adverbPhrases = [] } =
+  const { prepositionalPhrases, adverbPhrases } =
     complementsWithEnglish.reduceRight((obj, { c, english }) => {
       const complement = words[c];
       switch (english.pos) {

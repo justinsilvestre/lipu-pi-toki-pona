@@ -25,7 +25,7 @@ defmodule LipuWeb do
 
       use Phoenix.Controller
 
-      alias LipuWeb.Repo, as: Repo
+      alias Lipu.Repo, as: Repo
       import Ecto
       import Ecto.Query
 
@@ -41,6 +41,8 @@ defmodule LipuWeb do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
+
+      alias Lipu.Repo, as: Repo
     end
   end
 
