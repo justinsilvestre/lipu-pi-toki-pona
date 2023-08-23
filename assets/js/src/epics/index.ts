@@ -31,7 +31,7 @@ import type { Action, RawPhraseTranslations } from "../actions";
 import translate from "../utils/translate";
 import type { TpWordsState } from "../selectors/tpWords";
 import type { WordId } from "../selectors/tpWords";
-import lookup from "../actions/lookup";
+import lookup, { getLookupSelectors } from "../actions/lookup";
 import {
   wasSelectionMade,
   getSelection,
@@ -41,8 +41,8 @@ import {
 } from "../selectors";
 import { pull } from "../utils/channel";
 import parseTokiPona from "../utils/parseTokiPona";
-import socket from "../utils/socket";
 import { realizeSentence } from "../utils/english/sentence";
+import { v4 } from "uuid";
 
 type AppEpic = import("redux-observable").Epic<
   Action,
@@ -147,7 +147,7 @@ const translationEpic: AppEpic = (action$, state$, { dispatch }) =>
       translate(
         state$.value.tpSentences,
         state$.value.tpWords,
-        lookup(() => state$.value, dispatch)
+        lookup({ selectors: getLookupSelectors(() => state$.value), dispatch })
       ).catch((err) => console.error(err))
     ),
     filter((sentences) => {
@@ -198,7 +198,11 @@ const updateSentenceEpic: AppEpic = (action$, state$, { dispatch }) =>
         const [newSentence] = await translate(
           [tpSentences[index]],
           tpWords,
-          lookup(() => state$.value, dispatch)
+          lookup({
+            selectors: getLookupSelectors(() => state$.value),
+            dispatch: v4,
+            uuidV4: dispatch,
+          })
         );
         const newWords = realizeSentence(newSentence);
 

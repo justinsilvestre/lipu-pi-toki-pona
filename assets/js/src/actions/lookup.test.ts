@@ -1,125 +1,133 @@
-// import type { Lookup } from './lookup'
-let mockedUuids = [];
-const mockUuids = (id, ...ids) => {
-  mockedUuids = [id, ...ids];
-};
-
-let mockedUuid = null;
-jest.mock(
-  "uuid",
-  () =>
-    // () => mockedUuid
-    () =>
-      console.log(mockedUuids) || mockedUuids.shift()
-);
-const mockUuid = (id) => (mockedUuid = id);
-
-let mockedFetchTranslation;
-jest.mock("./fetchTranslation", () => mockedFetchTranslation);
-const mockFetchTranslation = (fn) => (mockedFetchTranslation = fn);
-
-import type { WordId, Word } from "../selectors/tpWords";
+import { describe, it, expect, vi } from "vitest";
+import type { Word } from "../selectors/tpWords";
 import { newWord } from "../selectors/tpWords";
-// import type { EnglishPartOfSpeech } from '../utils/english/grammar'
-// import type { PhraseTranslation, State as PhraseTranslationState } from '../selectors/phraseTranslations'
-// import type { EnLemma, EnLemmasState } from '../selectors/enLemmas'
 import lookup, { addPhraseTranslation } from "./lookup";
-
-const baseMockSelectors = {
-  getTpWords: () => ({}),
-  getTpLemmas: () => ({}),
-};
-let mockedSelectors = { ...baseMockSelectors };
-
-jest.mock(
-  "../selectors",
-  () =>
-    new Proxy(
-      {},
-      {
-        get(target, key) {
-          return mockedSelectors[key];
-        },
-      }
-    )
-);
-
-const mockSelectors = (obj) => {
-  Object.assign(mockedSelectors, baseMockSelectors, obj);
-};
-const unmockSelectorsAndUuids = () => {
-  mockedSelectors = {};
-  mockedUuids = [];
-};
+import { PhraseTranslation } from "../selectors/phraseTranslations";
+import { EnLemma } from "../selectors/enLemmas";
+import { EnWord } from "../selectors/enWords";
+import { ProcessedTranslationResponse } from "./fetchTranslation";
 
 describe("lookup object", () => {
-  const getState = () => {};
-  const dispatch = jest.fn();
-
-  afterEach(unmockSelectorsAndUuids);
-
   it("gets a word with already fetched translation", async () => {
-    const selectors = {
-      getWord: () => ({ lemmaId: 123 }),
-      isNewProperNoun: () => false,
-      getEnWordFromTp: () => ({ id: "booboo" }), // not being used?
-      lookUpTranslation: () => ({ id: "phraseTranslationId" }),
-      getEnLemma: () => ({
-        pos: "int",
-        text: "hello",
-        tpWordId: "tpWordId",
-      }),
-    };
-    mockUuids("enWordId");
-    mockSelectors(selectors);
-
-    const { translate } = lookup(getState, dispatch);
+    const dispatch = vi.fn();
+    const fakeEnLemma = {
+      pos: "int",
+      text: "hello",
+      tpWordId: "tpWordId",
+    } as unknown as EnLemma;
+    const fakeTranslation = {
+      id: 987,
+    } as unknown as PhraseTranslation;
+    const { translate } = lookup({
+      selectors: {
+        getWord: () =>
+          ({ lemmaId: 123, text: "toki", id: "tpWordId" } as unknown as Word),
+        isNewProperNoun: () => false,
+        lookUpTranslation: () => fakeTranslation,
+        getEnLemma: () => fakeEnLemma,
+        getTpLemmas: () => ({}),
+        getTpWords: () => ({}),
+        lookUpTranslationId: () => 987,
+      },
+      dispatch,
+      uuidV4: () => "enWordId",
+    });
     const translation = await translate("tpWordId");
 
     expect(translation).toEqual({
-      enLemma: selectors.getEnLemma(),
+      enLemma: fakeEnLemma,
       enWord: {
         id: "enWordId",
         text: "hello",
         pos: "int",
         tpWordId: "tpWordId",
-        phraseTranslationId: "phraseTranslationId",
+        phraseTranslationId: 987,
       },
-      phraseTranslation: selectors.lookUpTranslation(),
+      phraseTranslation: fakeTranslation,
     });
   });
 
   it("gets a word without any fetched translations", async () => {
-    const selectors = {
-      getWord: () => ({ lemmaId: 123 }),
-      isNewProperNoun: () => false,
-      lookUpTranslation: () => null,
-    };
-    mockFetchTranslation(() => ({
-      enLemma: null,
-      phraseTranslation: null,
-    }));
+    const dispatch = vi.fn();
 
-    const dispatch = jest.fn();
-    const { translate } = lookup(getState, dispatch);
+    const fakePhraseTranslation: PhraseTranslation = {
+      id: 456,
+    } as unknown as any;
+    const fakeEnWord: EnWord = { id: "fakeEnWord" } as unknown as any;
+    const fakeEnLemma = {
+      pos: "int",
+      text: "hello",
+      tpWordId: "tpWordId",
+    } as unknown as EnLemma;
+
+    const { translate } = lookup({
+      selectors: {
+        getWord: () => ({ lemmaId: 123 } as unknown as Word),
+        isNewProperNoun: () => false,
+        lookUpTranslation: () => null,
+        getEnLemma: () => fakeEnLemma,
+        getTpLemmas: () => ({}),
+        getTpWords: () => ({}),
+        lookUpTranslationId: () => 987,
+      },
+      dispatch,
+      uuidV4: () => "fakeEnWord",
+      fetchTranslation: async () =>
+        ({
+          enLemma: fakeEnLemma,
+          phraseTranslation: fakePhraseTranslation,
+        } as ProcessedTranslationResponse),
+    });
     const translation = await translate("tpWordId");
 
-    expect(translation).toEqual({});
+    expect(translation).toEqual({
+      enLemma: fakeEnLemma,
+      enWord: {
+        ...fakeEnLemma,
+        ...fakeEnWord,
+        phraseTranslationId: 456,
+      },
+      phraseTranslation: fakePhraseTranslation,
+    });
     expect(dispatch).toHaveBeenCalledWith(
-      addPhraseTranslation(null, null, null)
+      addPhraseTranslation(fakePhraseTranslation, fakeEnLemma, {
+        ...fakeEnLemma,
+        ...fakeEnWord,
+        phraseTranslationId: 456,
+      })
     );
   });
 
   it("gets a word without valid fetched translation");
 
   it("gets new proper noun", async () => {
-    mockUuids("enWordId");
-    mockSelectors({
-      getWord: () => newWord("Mewika", "mewikaId"),
-      isNewProperNoun: () => true,
+    const dispatch = vi.fn();
+    const fakeEnLemma = {
+      pos: "int",
+      text: "hello",
+      tpWordId: "tpWordId",
+    } as unknown as EnLemma;
+    const fakePhraseTranslation = {
+      id: "phraseTranslationId",
+    } as unknown as PhraseTranslation;
+    const { translate } = lookup({
+      selectors: {
+        getWord: () => newWord("Mewika", "mewikaId") as unknown as Word,
+        isNewProperNoun: () => true,
+        lookUpTranslation: () => null,
+        getEnLemma: () => fakeEnLemma,
+        getTpLemmas: () => ({}),
+        getTpWords: () => ({}),
+        lookUpTranslationId: () => 987,
+      },
+      dispatch,
+      uuidV4: () => "enWordId",
+      fetchTranslation: async () =>
+        ({
+          enLemma: fakeEnLemma,
+          phraseTranslation: fakePhraseTranslation,
+        } as ProcessedTranslationResponse),
     });
-
-    const { translate } = lookup(getState, dispatch);
     const translation = await translate("Mewika");
 
     expect(translation).toEqual({
@@ -134,21 +142,3 @@ describe("lookup object", () => {
     });
   });
 });
-
-// const translate = (wordId: WordId, enPartsOfSpeech?: Array<EnglishPartOfSpeech>) =>
-//   Promise.resolve({
-//     enLemma: null,
-//     phraseTranslation: null,
-//     enWord: null,
-//   })
-//  // Promise<{
-//  //    enLemma?: EnLemma,
-//  //    phraseTranslation?: PhraseTranslation,
-//  //    enWord?: EnWord,
-//  //  }>,
-//
-// const lookup : Lookup = {
-//   words: {},
-//   tpLemmas: {},
-//   translate,
-// }

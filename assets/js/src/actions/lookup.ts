@@ -11,18 +11,18 @@ import {
   getEnLemma,
   getTpWords,
   getTpLemmas,
+  lookUpTranslationId,
 } from "../selectors";
-import channel, { pull } from "../utils/channel";
-import type { TpWordsState } from "../selectors/tpWords";
+import type { TpWordsState, Word } from "../selectors/tpWords";
 import type { AppState } from "../selectors";
-import type { EnLemma, EnLemmasState } from "../selectors/enLemmas";
+import type { EnLemma, EnLemmaId, EnLemmasState } from "../selectors/enLemmas";
 import type { TpLemmaId, TpLemmasState } from "../selectors/tpLemmas";
 import type { WordId } from "../selectors/tpWords";
 import type { EnglishPartOfSpeech } from "../utils/english/grammar";
 import type { EnWord } from "../selectors/enWords";
 import { newPlaceholder } from "../selectors/enWords";
 import { v4 } from "uuid";
-import fetchTranslation from "./fetchTranslation";
+import fetchTranslation_ from "./fetchTranslation";
 
 export type Action =
   | {
@@ -170,19 +170,60 @@ export const changeWordTranslation = (
 //   return processTranslationsResponse(response)
 // }
 
-export default function lookup(getState: Function, dispatch: Function): Lookup {
-  const state: AppState = getState();
+export function getLookupSelectors(getState: () => AppState) {
   return {
-    words: getTpWords(state),
-    tpLemmas: getTpLemmas(state),
+    getTpWords: () => getTpWords(getState()),
+    getTpLemmas: () => getTpLemmas(getState()),
+    getEnLemma: (enLemmaId: EnLemmaId) => getEnLemma(getState(), enLemmaId),
+    getWord: (tpWordId: string) => getWord(getState(), tpWordId),
+    isNewProperNoun: (tpLemmaId: TpLemmaId) =>
+      isNewProperNoun(getState(), tpLemmaId),
+    lookUpTranslation: (wordId: string) =>
+      lookUpTranslation(getState(), wordId),
+    lookUpTranslationId: (wordId: WordId) =>
+      lookUpTranslationId(getState(), wordId),
+  };
+}
+
+type FetchTranslation = typeof fetchTranslation_;
+
+export default function lookup({
+  selectors: {
+    getTpWords,
+    getTpLemmas,
+    getEnLemma,
+    getWord,
+    isNewProperNoun,
+    lookUpTranslation,
+  },
+  dispatch,
+  uuidV4 = v4,
+  fetchTranslation = fetchTranslation_,
+}: {
+  selectors: {
+    getTpWords(): TpWordsState;
+    getTpLemmas(): TpLemmasState;
+    getEnLemma(enLemmaId: EnLemmaId): EnLemma;
+    getWord(tpWordId: string): Word;
+    isNewProperNoun(tpLemmaId: TpLemmaId): boolean;
+    lookUpTranslation(wordId: WordId): PhraseTranslation | null;
+    lookUpTranslationId(wordId: WordId): PhraseTranslation["id"] | null;
+  };
+  dispatch: Function;
+  uuidV4?: () => string;
+  fetchTranslation?: FetchTranslation;
+}): Lookup {
+  return {
+    words: getTpWords(),
+    tpLemmas: getTpLemmas(),
     translate: async (wordId, enPartsOfSpeech) => {
-      const tpWord = getWord(getState(), wordId);
+      const tpWord = getWord(wordId);
       const { lemmaId: tpLemmaId, text: tpText } = tpWord;
       if (!tpLemmaId) throw new Error("whoops" + tpText);
 
-      const enWordId = v4();
+      const enWordId = uuidV4();
 
-      if (isNewProperNoun(state, tpLemmaId)) {
+      if (isNewProperNoun(tpLemmaId)) {
         // return { phraseTranslation: { tpLemmaId, enLemmaId: null }, enLemma: { text: tpLemmaId, pos: "prop" } }
         const enWord = newPlaceholder(enWordId, tpText, wordId);
         return { phraseTranslation: null, enLemma: null, enWord };
@@ -193,12 +234,12 @@ export default function lookup(getState: Function, dispatch: Function): Lookup {
       //   && existingEnWord.hasOwnProperty('phraseTranslationId')
       //   && existingEnWord.phraseTranslationId
       //   && (!enPartsOfSpeech || enPartsOfSpeech.includes(existingEnWord.pos))
-      const existingTranslation = lookUpTranslation(state, wordId);
+      const existingTranslation = lookUpTranslation(wordId);
       const existingTranslationIsValid =
         existingTranslation &&
         (!enPartsOfSpeech ||
           enPartsOfSpeech.includes(
-            getEnLemma(state, existingTranslation.enLemmaId).pos
+            getEnLemma(existingTranslation.enLemmaId).pos
           ));
 
       if (existingTranslation && existingTranslationIsValid) {
@@ -211,7 +252,7 @@ export default function lookup(getState: Function, dispatch: Function): Lookup {
         const phraseTranslation = existingTranslation;
 
         console.log("translated to: ", phraseTranslation);
-        const enLemma = getEnLemma(state, phraseTranslation.enLemmaId);
+        const enLemma = getEnLemma(phraseTranslation.enLemmaId);
         const enWord = {
           id: enWordId,
           pos: enLemma.pos,
@@ -238,9 +279,9 @@ export default function lookup(getState: Function, dispatch: Function): Lookup {
           };
 
           dispatch(addPhraseTranslation(phraseTranslation, enLemma, enWord));
-          const translationNotYetSet =
-            getState().documentTranslationPhrases[wordId] !==
-            phraseTranslation.id;
+          // const translationNotYetSet =
+          //   lookUpTranslationId(wordId) !==
+          //   phraseTranslation.id;
           // dispatch(setWordTranslation(wordId, phraseTranslation.id))
           //   console.log(translationNotYetSet && enLemma.text)
           return { phraseTranslation, enLemma, enWord };

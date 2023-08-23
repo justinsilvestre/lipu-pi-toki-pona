@@ -2,7 +2,7 @@ import type {
   PhraseTranslation,
   State as PhraseTranslationState,
 } from "../selectors/phraseTranslations";
-import channel, { pull } from "../utils/channel";
+import { pull } from "../utils/channel";
 import type { EnLemma, EnLemmasState } from "../selectors/enLemmas";
 import type { TpLemmaId, TpLemmasState } from "../selectors/tpLemmas";
 import type { EnglishPartOfSpeech } from "../utils/english/grammar";

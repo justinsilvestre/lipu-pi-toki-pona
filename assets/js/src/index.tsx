@@ -1,16 +1,11 @@
-import channel from "./utils/channel";
+import { connect } from "./utils/channel";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import App from "./components/App";
 import getStore from "./redux";
 
-channel
-  .join()
-  .receive("ok", (r) => {
-    console.log("join OK");
-  })
-  .receive("error", (reason) => console.log("join failed :(", reason));
+connect();
 
 getStore().then((store) => {
   const container = document.getElementById("root");

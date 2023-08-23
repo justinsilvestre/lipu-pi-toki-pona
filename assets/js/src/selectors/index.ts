@@ -129,6 +129,13 @@ export const getEnLemmaText = (
   const { enLemmaId } = getPhraseTranslation(state, phraseTranslationId);
   return getEnLemma(state, enLemmaId).text;
 };
+export const lookUpTranslationId = (
+  state: AppState,
+  wordId: WordId
+): PhraseTranslation["id"] | null => {
+  const phraseTranslationId = state.documentTranslationPhrases[wordId];
+  return phraseTranslationId || null;
+};
 export const lookUpTranslation = (
   state: AppState,
   wordId: WordId
