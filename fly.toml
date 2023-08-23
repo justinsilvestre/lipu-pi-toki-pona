@@ -14,7 +14,7 @@ swap_size_mb = 512
   release_command = "/app/bin/migrate"
 
 [env]
-  PHX_HOST = "lipu-pi-toki-pona.fly.dev"
+  PHX_HOST = "tokipo.net"
   PORT = "8080"
 
 [http_service]
