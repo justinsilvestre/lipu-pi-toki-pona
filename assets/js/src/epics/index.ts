@@ -200,8 +200,8 @@ const updateSentenceEpic: AppEpic = (action$, state$, { dispatch }) =>
           tpWords,
           lookup({
             selectors: getLookupSelectors(() => state$.value),
-            dispatch: v4,
-            uuidV4: dispatch,
+            dispatch,
+            uuidV4: v4,
           })
         );
         const newWords = realizeSentence(newSentence);

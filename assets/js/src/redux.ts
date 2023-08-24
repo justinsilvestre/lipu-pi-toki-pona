@@ -7,9 +7,13 @@ import { normalize, schema } from "normalizr";
 const tpLemmaSchema = new schema.Entity("tpLemmas");
 
 const composeEnhancers =
-  process.env.NODE_ENV === "development"
-    ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-    : compose;
+  (globalThis as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+console.log({
+  composeEnhancers,
+  __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: (globalThis as any)
+    .__REDUX_DEVTOOLS_EXTENSION_COMPOSE__,
+});
 
 export default function getStore() {
   return fetch("/api/tp-lemmas", {

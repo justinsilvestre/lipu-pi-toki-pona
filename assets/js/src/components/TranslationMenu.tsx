@@ -39,6 +39,9 @@ const TranslationMenu = () => {
             selectedWordId={selectedWordId}
           />
         ))}
+        {!englishTranslations.length && (
+          <span style={{ fontStyle: "italic" }}>translation unavailable</span>
+        )}
       </ul>
     </div>
   );
