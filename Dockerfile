@@ -52,12 +52,19 @@ COPY lib lib
 
 COPY assets assets
 
+
 # https://www.blakedietz.me/blog/2023-06-15/dockery-fly-node/
 # curl is included as a dependency to be installed in the apt-get call.
-RUN apt-get update -y && apt-get install -y build-essential git curl \
-     && apt-get clean && rm -f /var/lib/apt/lists/*_*
+# updated via:
+# https://github.com/nodesource/distributions/wiki/How-to-migrate-to-the-new-repository#debian-configuration-guide
+ENV NODE_MAJOR=20
+RUN apt-get update -y && apt-get install -y build-essential git curl ca-certificates gnupg \
+     && apt-get clean && rm -f /var/lib/apt/lists/*_* \
+     && mkdir -p /etc/apt/keyrings
 # curl is then used to download a version of the nodejs ppas for apt. Here version 20 is being used, but feel free to update to whatever version you need for your project.
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODE_MAJOR}.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+RUN apt-get update -y
 RUN apt-get install -y nodejs
 #Finally, node modules are installed from npm to make sure they're available for the build step.
 RUN npm install --prefix assets
